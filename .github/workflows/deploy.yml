@@ -1,0 +1,23 @@
+name: deploy
+on:
+  push:
+    branches: [main]
+permissions:
+  pages: write
+  id-token: write
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: enable pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: publish
+        uses: actions/deploy-pages@v4
