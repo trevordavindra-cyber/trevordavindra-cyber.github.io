@@ -1,9 +1,5 @@
 const POOL=[
- {name:"27B",base:"https://zk-armor-qwen3-8-27b-uncensored-chatbot.hf.space",path:"/chat",payload:m=>[m,SYSTEM,false,0.7,512,0.95,50],tries:3},
- {name:"27B-2",base:"https://microhero-qwen3-8-27b-uncensored-chat.hf.space",path:"/respond",payload:m=>[m,512,0.7,0.95],tries:6},
- {name:"35B",base:"https://josssdiff-huihui-qwen3-6-35b-abliterated-chat.hf.space",path:"/chat",payload:m=>[m,SYSTEM,512,0.7],tries:6},
- {name:"8B",base:"https://jwherrold-neuraldaredevil-8b-abliterated-chat.hf.space",path:"/generate",payload:m=>[m,SYSTEM,512,0.7,0.95,50,1.1],tries:20},
- {name:"Gemma",base:"https://jokernifty-gemma-4-e4b-it-abliterated-chat.hf.space",path:"/chat",payload:m=>[m],tries:6}
+ {name:"free brain",base:"https://text.pollinations.ai",path:"/openai",tries:3}
 ];
 const SYSTEM="You are NeuralDaredevil, a helpful and knowledgeable assistant. Answer clearly and directly.";
 const CAP=48000;

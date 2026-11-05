@@ -50,14 +50,15 @@ cmpGo.onclick=async()=>{
   if(!q||busy)return;
   resOut.innerHTML="";busy=true;
   const runs=[];
-  for(const b of [POOL[0],POOL[1]]){
-    resStatus.textContent="asking "+b.name+"…";
+  const cands=[{n:"free brain",f:()=>askSpace(POOL[0],q,{textContent:""},SYSTEM)},{n:"phone brain",f:()=>askLocal(q,{textContent:""},SYSTEM)}];
+  for(const b of cands){
+    resStatus.textContent="asking "+b.n+"…";
     const t0=Date.now();let ans="";
-    try{ans=await askSpace(b,q,{textContent:""},SYSTEM);}catch(e){ans="("+errTxt(e)+")";}
+    try{ans=await b.f();}catch(e){ans="("+errTxt(e)+")";}
     const ms=Date.now()-t0;
-    runs.push({n:b.name,ms,a:ans});
+    runs.push({n:b.n,ms,a:ans});
     const r=document.createElement("div");r.className="m a";
-    r.innerHTML="<b>"+esc(b.name)+"</b> · "+(Math.round(ms/100)/10)+"s<br>"+md(ans);
+    r.innerHTML="<b>"+esc(b.n)+"</b> · "+(Math.round(ms/100)/10)+"s<br>"+md(ans);
     resOut.appendChild(r);resOut.scrollTop=resOut.scrollHeight;
   }
   resStatus.textContent="⚖️ combining…";
