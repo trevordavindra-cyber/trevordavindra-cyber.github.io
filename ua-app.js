@@ -53,32 +53,30 @@ function extractReply(data){
   return clean(out);
 }
 async function askSpace(b,msg,out,sys){
-  const data=buildData(b,msg,sys);
+  const tk=(prefs&&prefs.tokens)||512;
   const sig=ctrl&&ctrl.signal;
-  const r1=await fetch(b.base+"/gradio_api/call"+b.path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:data}),signal:sig});
-  const j=await r1.json();
-  if(!j||!j.event_id)throw Object.assign(new Error("no event"),{msg:"That server is waking up. Tap send again in a moment."});
-  const r2=await fetch(b.base+"/gradio_api/call"+b.path+"/"+j.event_id,{signal:sig});
-  const reader=r2.body.getReader(),dec=new TextDecoder();
-  let buf="",fin=null;
+  const body=JSON.stringify({model:"openai-fast",messages:[{role:"system",content:sys||SYSTEM},{role:"user",content:String(msg)}],stream:true,max_tokens:Math.max(64,Math.min(4000,tk))});
+  const r=await fetch(b.base+b.path,{method:"POST",headers:{"Content-Type":"application/json"},body:body,signal:sig});
+  if(!r.ok||!r.body)throw Object.assign(new Error("brain busy"),{msg:"The free brain didn't answer. Tap send again in a moment."});
+  const reader=r.body.getReader(),dec=new TextDecoder();
+  let buf="",full="",got=false;
   while(true){
     const step=await reader.read();if(step.done)break;
     buf+=dec.decode(step.value,{stream:true});
     let ix;
-    while((ix=buf.indexOf("\n\n"))>=0){
-      const chunk=buf.slice(0,ix);buf=buf.slice(ix+2);
-      const evLine=(chunk.match(/^event:\s*(\w+)/m)||[])[1];
-      const dLine=(chunk.match(/^data:\s*([\s\S]*)$/m)||[])[1];
-      if(evLine==="error")throw Object.assign(new Error("server error"),{msg:"That server is busy. Tap send again in a moment."});
-      if(!dLine)continue;
-      let arr;try{arr=JSON.parse(dLine);}catch(e){continue;}
-      const t=extractReply(arr);
-      if(t)out.textContent=t;
-      if(evLine==="complete"){fin=t||"";break;}
+    while((ix=buf.indexOf("\n"))>=0){
+      const line=buf.slice(0,ix).trim();buf=buf.slice(ix+1);
+      if(!line.startsWith("data:"))continue;
+      const payload=line.slice(5).trim();
+      if(payload==="[DONE]")continue;
+      let j;try{j=JSON.parse(payload);}catch(e){continue;}
+      const c=j&&j.choices&&j.choices[0];
+      const d=(c&&typeof (c.delta&&c.delta.content)==="string")?c.delta.content:(c&&typeof c.text==="string"?c.text:"");
+      if(d){got=true;full+=d;out.textContent=full;}
     }
-    if(fin!==null)break;
   }
-  return fin||"";
+  if(!got&&!full)throw Object.assign(new Error("empty"),{msg:"The free brain didn't answer. Tap send again in a moment."});
+  return full;
 }
 async function askLocal(msg,out,sys){
   if(!window.webllm){
@@ -161,8 +159,9 @@ async function ask(msg,out,sysOverride){
       if(!firstErr)firstErr=e;
     }
   }
-  const all=(((firstErr&&firstErr.msg)+"")+"").toLowerCase();
-  if(all.includes("quota"))throw{msg:"All the free servers are out of quota right now. They refill after a bit — or tap ⚡ phone to run the brain on your iPhone with no servers at all."};
+  try{const full=await askLocal(msg,out,sys);if(full)return full;}catch(e2){
+    if(e2&&e2.name==="AbortError")throw e2;
+  }
   throw firstErr||{msg:"The AI didn't answer. Try again in a minute."};
 }
 /* ---- agents panel ---- */
@@ -376,10 +375,10 @@ function renderSettings(){
   const b=document.getElementById("setBody");
   const dark=LS("ua_theme19","light")==="dark";
   b.innerHTML=
-   '<div class="togglerow"><span>🌙 Dark mode</span><input type="checkbox" id="tgDark" '+(dark?"checked":"")+'></div>'+
-   '<div class="togglerow"><span>🧠 Auto-remember facts</span><input type="checkbox" id="tgMem" '+(LS("ua_autoMem",true)?"checked":"")+'></div>'+
-   '<div class="togglerow"><span>🧭 Auto-route to specialist agents</span><input type="checkbox" id="tgRoute" '+(LS("ua_route",true)?"checked":"")+'></div>'+
-   '<div class="togglerow"><span>🧲 Team mode (agents collaborate)</span><input type="checkbox" id="tgTeam" '+(LS("ua_team",false)?"checked":"")+'></div>'+
+   '<div class="togglerow"><span>🌙 Dark mode</span><input type="checkbox" id="tgDark" '+(dark?"checked":"")+'</div>'+
+   '<div class="togglerow"><span>🧠 Auto-remember facts</span><input type="checkbox" id="tgMem" '+(LS("ua_autoMem",true)?"checked":"")+'</div>'+
+   '<div class="togglerow"><span>🧭 Auto-route to specialist agents</span><input type="checkbox" id="tgRoute" '+(LS("ua_route",true)?"checked":"")+'</div>'+
+   '<div class="togglerow"><span>🧲 Team mode (agents collaborate)</span><input type="checkbox" id="tgTeam" '+(LS("ua_team",false)?"checked":"")+'</div>'+
    '<div class="pitem"><div class="pi-tx"><b>⬇️ Export everything</b><small>one file with all chats, agents, memory, projects — your phone only, nothing uploaded</small></div><button class="sbtn" id="exAll" style="flex:0 0 auto;padding:9px 12px">Save</button></div>'+
    '<div class="pitem"><div class="pi-tx"><b>🗑 Wipe local data</b><small>removes everything this app saved on your phone</small></div><button class="sbtn" id="wipeAll" style="flex:0 0 auto;padding:9px 12px">Wipe</button></div>'+
    '<div class="mini" style="padding:10px">Uncensored AI · free server pool + ⚡ phone brains · nothing leaves except what you send</div>';
@@ -406,7 +405,7 @@ document.getElementById("phonebtn").onclick=()=>{
   const on=!localMode;localMode=on;SV("ua_localMode",on);
   document.getElementById("phonebtn").style.background=on?"var(--accent)":"";
   document.getElementById("phonebtn").style.color=on?"#fff":"";
-  setStatus(on?"⚡ phone brain on — runs on your iPhone, no servers":"server pool on");
+  setStatus(on?"⚡ phone brain on — runs on your iPhone, no servers":"free brain on");
 };
 if(LS("ua_localMode",false)){localMode=true;document.getElementById("phonebtn").style.background="var(--accent)";document.getElementById("phonebtn").style.color="#fff";}
 document.getElementById("newbtn").onclick=newChat;
