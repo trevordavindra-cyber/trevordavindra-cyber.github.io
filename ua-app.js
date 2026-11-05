@@ -1,3 +1,4 @@
+let prefer=0; // sticky pool pointer
 function routePick(t){
   t=(t||"").toLowerCase();
   if(/^\s*\/image/.test(t))return "";
@@ -32,7 +33,7 @@ async function ask(msg,out,sysOverride){
     }
   }
   const all=(((firstErr&&firstErr.msg)+"")+"").toLowerCase();
-  if(all.includes("quota"))throw{msg:"All the free servers are out of quota right now. They refill after a bit — or tap ⚡ phone to run the brain on your phone with no quota."};
+  if(all.includes("quota"))throw{msg:"All the free servers are out of quota right now. They refill after a bit — or tap ⚡ phone to run the brain on your iPhone with no servers at all."};
   throw firstErr||{msg:"The AI didn't answer. Try again in a minute."};
 }
 /* ---- agents panel ---- */
@@ -41,7 +42,7 @@ function renderAgents(){
   agentList.innerHTML="";
   agents.forEach((a,i)=>{
     const row=document.createElement("div");row.className="pitem"+(activeAgent===a.name?" on":"");
-    row.innerHTML='<div class="pi-em">'+a.em+'</div><div class="pi-tx"><b>'+esc(a.name)+(activeAgent===a.name?" · active":"")+'</b><small>'+esc(a.sys.slice(0,110))+'…</small></div>';
+    row.innerHTML='<div class="pi-em">'+a.em+'</div><div class="pi-tx"><b>'+esc(a.name)+(activeAgent===a.name?" · active":"")+'</b><small>'+esc(a.sys.slice(0,90))+'</small></div>';
     const ed=document.createElement("button");ed.textContent="✏️";
     ed.onclick=e=>{e.stopPropagation();
       const nm=prompt("Agent name",a.name);if(nm===null)return;
@@ -51,275 +52,249 @@ function renderAgents(){
     del.onclick=e=>{e.stopPropagation();
       if(!confirm("Delete agent "+a.name+"?"))return;
       agents.splice(i,1);SV("ua_agents",agents);if(activeAgent===a.name)activeAgent=null;renderAgents();renderChipbar();};
-    row.onclick=()=>{activeAgent=activeAgent===a.name?null:a.name;renderAgents();renderChipbar();closePanels();setStatus(activeAgent?a.em+" "+activeAgent+" is answering":"");setTimeout(()=>setStatus(""),2500);};
+    row.onclick=()=>{activeAgent=activeAgent===a.name?null:a.name;renderAgents();renderChipbar();closePanels();setStatus(activeAgent?a.em+" "+activeAgent:"Auto-route");};
     row.appendChild(ed);row.appendChild(del);agentList.appendChild(row);
   });
 }
 document.getElementById("agentNew").onclick=()=>{
   const nm=prompt("New agent name");if(!nm)return;
   const sy=prompt("Agent instructions (system prompt)","You are "+nm+", a focused AI agent.");
-  agents.push({em:"🤖",name:nm.trim(),sys:sy||""});SV("ua_agents",agents);renderAgents();
+  if(sy===null)return;
+  agents.push({name:nm.trim(),sys:sy,em:"🤖"});SV("ua_agents",agents);renderAgents();renderChipbar();
 };
-const teamMode=document.getElementById("teamMode");
-teamMode.checked=!!prefs.team;
-teamMode.onchange=()=>{prefs.team=teamMode.checked;SV("ua_prefs",prefs);};
-document.getElementById("agentbtn").onclick=()=>{openPanel("agentsPanel");renderAgents();};
-document.getElementById("agentsClose").onclick=closePanels;
-async function teamRun(msg,out){
-  setStatus("🧭 chief planning…");
-  let plan="";
-  try{plan=await ask("Break this request into at most 3 short sequential steps for a small AI team. Reply with ONLY the numbered steps, one line each:\n\n"+msg,out,agents[0].sys);}catch(e){throw e;}
-  const steps=plan.split("\n").map(s=>s.replace(/^\s*\d+[.)]\s*/,"").trim()).filter(s=>s.length>3).slice(0,3);
-  let combined="";
-  for(let i=0;i<steps.length;i++){
-    setStatus("🧭 agent "+(i+1)+" of "+steps.length+"…");
-    const asg=i===0?agents[1].sys:i===1?agents[2].sys:agents[0].sys;
-    let part="";
-    try{part=await ask("Overall request: "+msg+"\nYour step: "+steps[i]+"\nWork done so far:\n"+(combined||"(nothing yet)")+"\n\nDo ONLY your step:",out,asg);}catch(e){part="(step failed: "+((e&&e.msg)+"")+")";}
-    combined+="\n\nStep "+(i+1)+" ("+steps[i]+"):\n"+part;
-  }
-  setStatus("🧭 combining results…");
-  const fin=await ask("Combine this team work into one clear, complete final answer for the user. Original request: "+msg+"\n\nTeam work:\n"+combined,out,agents[0].sys);
-  return fin;
-}
-/* ---- memory ---- */
+document.getElementById("teamMode").onchange=e=>{GM("ua_team",e.target.checked);};
+/* ---- memory panel ---- */
 const memList=document.getElementById("memList");
 function renderMem(){
   memList.innerHTML="";
-  mems.slice().reverse().forEach((m,ri)=>{
-    const i=mems.length-1-ri;
+  (GM("ua_mem",[])||[]).forEach((m,i)=>{
     const row=document.createElement("div");row.className="pitem";
-    row.innerHTML='<div class="pi-em">🧠</div><div class="pi-tx"><small style="max-height:none;font-size:13px">'+esc(m.t)+'</small></div>';
+    row.innerHTML='<div class="pi-tx"><b>'+esc(m.slice(0,80))+'</b><small>memory '+(i+1)+'</small></div>';
     const del=document.createElement("button");del.textContent="🗑";
-    del.onclick=()=>{mems.splice(i,1);SV("ua_mem",mems);renderMem();};
+    del.onclick=()=>{const mem=GM("ua_mem",[]);mem.splice(i,1);SV("ua_mem",mem);renderMem();};
     row.appendChild(del);memList.appendChild(row);
   });
-  if(!mems.length)memList.innerHTML='<div class="mini" style="padding:10px">No memories yet. Add one, or tap 🧠 remember under an answer.</div>';
+  if(!(GM("ua_mem",[])||[]).length)memList.innerHTML='<div class="mini" style="padding:10px">No memories yet. The AI saves important facts here as you talk, or add your own above.</div>';
 }
 document.getElementById("memAddBtn").onclick=()=>{
-  const v=document.getElementById("memAdd").value.trim();if(!v)return;
-  mems.push({t:v,ts:Date.now()});SV("ua_mem",mems);document.getElementById("memAdd").value="";renderMem();
+  const t=document.getElementById("memAdd").value.trim();if(!t)return;
+  const mem=GM("ua_mem",[]);mem.push(t);SV("ua_mem",mem);document.getElementById("memAdd").value="";renderMem();
 };
-document.getElementById("memExport").onclick=()=>{
-  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(mems)],{type:"application/json"}));a.download="memory.json";a.click();URL.revokeObjectURL(a.href);
+document.getElementById("memExport").onclick=()=>downloadFile("memory.json",JSON.stringify(GM("ua_mem",[]),null,2));
+document.getElementById("memImport").onclick=()=>{
+  const inp=document.createElement("input");inp.type="file";inp.accept=".json";
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const v=JSON.parse(r.result);if(Array.isArray(v)){SV("ua_mem",v);renderMem();}}catch(e){}};r.readAsText(f);};
+  inp.click();
 };
-document.getElementById("memImport").onclick=async()=>{
-  const v=prompt("Paste memory JSON to import");if(!v)return;
-  try{const arr=JSON.parse(v);if(Array.isArray(arr)){mems=mems.concat(arr.map(x=>typeof x==="string"?{t:x}:x)).slice(-200);SV("ua_mem",mems);renderMem();}}catch(e){alert("Couldn't parse that JSON");}
-};
-const autoMem=document.getElementById("autoMem");
-autoMem.checked=!!prefs.automem;
-autoMem.onchange=()=>{prefs.automem=autoMem.checked;SV("ua_prefs",prefs);};
-document.getElementById("membtn").onclick=()=>{openPanel("memPanel");renderMem();};
-document.getElementById("memClose").onclick=closePanels;
-/* ---- projects ---- */
-let projects=LS("ua_projects",[]);
-const projList=document.getElementById("projList"),projDetail=document.getElementById("projDetail"),projTasks=document.getElementById("projTasks");
+document.getElementById("autoMem").checked=GM("ua_autoMem",true);
+document.getElementById("autoMem").onchange=e=>GM("ua_autoMem",e.target.checked);
+/* ---- projects panel ---- */
+const projList=document.getElementById("projList");
+let curProj=null;
 function renderProjects(){
   projList.innerHTML="";
-  if(!projects.length)projList.innerHTML='<div class="mini" style="padding:10px">No projects yet. A project keeps a goal, task list and notes in one place — and the AI sees the active one while you chat.</div>';
-  projects.forEach(p=>{
-    const row=document.createElement("div");row.className="pitem"+(activeProj===p.id?" on":"");
-    const done=p.tasks.filter(t=>t.done).length;
-    row.innerHTML='<div class="pi-em">📋</div><div class="pi-tx"><b>'+esc(p.name)+'</b><small>'+done+'/'+p.tasks.length+' tasks'+(p.desc?' · '+esc(p.desc.slice(0,60)):'')+'</small></div>';
+  (GM("ua_projects",[])||[]).forEach(p=>{
+    const row=document.createElement("div");row.className="pitem";
+    row.innerHTML='<div class="pi-em">📁</div><div class="pi-tx"><b>'+esc(p.name)+'</b><small>'+((p.tasks||[]).filter(t=>t.done).length)+'/'+(p.tasks||[]).length+' tasks · '+(p.desc?esc(p.desc.slice(0,60)):'no description')+'</small></div>';
     const del=document.createElement("button");del.textContent="🗑";
-    del.onclick=e=>{e.stopPropagation();if(!confirm("Delete project "+p.name+"?"))return;projects=projects.filter(x=>x.id!==p.id);if(activeProj===p.id)activeProj=null;SV("ua_projects",projects);renderProjects();renderChipbar();};
-    row.onclick=()=>{activeProj=activeProj===p.id?null:p.id;renderProjects();renderChipbar();openDetail(p);};
+    del.onclick=e=>{e.stopPropagation();if(!confirm("Delete project "+p.name+"?"))return;const ps=GM("ua_projects",[]).filter(x=>x.name!==p.name);SV("ua_projects",ps);renderProjects();};
+    row.onclick=()=>openProject(p);
     row.appendChild(del);projList.appendChild(row);
   });
-}
-let curProj=null;
-function openDetail(p){
-  curProj=p;projList.style.display="none";projDetail.style.display="flex";
-  document.getElementById("projTitle").textContent="📋 "+p.name;
-  document.getElementById("projDesc").value=p.desc||"";
-  document.getElementById("projNotes").value=p.notes||"";
-  renderTasks();
-}
-function renderTasks(){
-  projTasks.innerHTML="";
-  if(!curProj)return;
-  curProj.tasks.forEach((t,i)=>{
-    const row=document.createElement("div");row.className="taskrow"+(t.done?" done":"");
-    const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!t.done;
-    cb.onchange=()=>{t.done=cb.checked;SV("ua_projects",projects);renderTasks();renderProjects();};
-    const tt=document.createElement("div");tt.className="tt";tt.textContent=t.t;
-    const del=document.createElement("button");del.textContent="✕";
-    del.onclick=()=>{curProj.tasks.splice(i,1);SV("ua_projects",projects);renderTasks();renderProjects();};
-    row.appendChild(cb);row.appendChild(tt);row.appendChild(del);projTasks.appendChild(row);
-  });
-  if(!curProj.tasks.length)projTasks.innerHTML='<div class="mini">No tasks yet — add one or tap Plan it with AI.</div>';
+  if(!(GM("ua_projects",[])||[]).length)projList.innerHTML='<div class="mini" style="padding:10px">No projects yet. Create one above, describe it, and let the AI plan it into tasks.</div>';
 }
 document.getElementById("projCreate").onclick=()=>{
-  const v=document.getElementById("projName").value.trim();if(!v)return;
-  const p={id:"p"+Date.now(),name:v,desc:"",tasks:[],notes:""};
-  projects.push(p);SV("ua_projects",projects);document.getElementById("projName").value="";renderProjects();openDetail(p);
+  const nm=document.getElementById("projName").value.trim();if(!nm)return;
+  const ps=GM("ua_projects",[]);if(ps.some(p=>p.name===nm)){alert("A project with that name exists");return;}
+  ps.push({name:nm,desc:"",tasks:[],notes:""});SV("ua_projects",ps);document.getElementById("projName").value="";renderProjects();
 };
-document.getElementById("projBack").onclick=()=>{projDetail.style.display="none";projList.style.display="";curProj=null;renderProjects();};
-document.getElementById("projDesc").onchange=()=>{if(curProj){curProj.desc=document.getElementById("projDesc").value;SV("ua_projects",projects);}};
-document.getElementById("projNotes").onchange=()=>{if(curProj){curProj.notes=document.getElementById("projNotes").value;SV("ua_projects",projects);}};
+function saveProj(){SV("ua_projects",GM("ua_projects",[]));}
+function openProject(p){
+  curProj=p;
+  projList.style.display="none";
+  const d=document.getElementById("projDetail");d.style.display="flex";
+  document.getElementById("projTitle").textContent=p.name;
+  document.getElementById("projDesc").value=p.desc||"";
+  document.getElementById("projNotes").value=p.notes||"";
+  renderProjTasks();
+}
+document.getElementById("projBack").onclick=()=>{curProj=null;projList.style.display="";document.getElementById("projDetail").style.display="none";renderProjects();};
+document.getElementById("projDesc").onchange=e=>{if(curProj){curProj.desc=e.target.value;saveProj();}};
+document.getElementById("projNotes").onchange=e=>{if(curProj){curProj.notes=e.target.value;saveProj();}};
+function renderProjTasks(){
+  const box=document.getElementById("projTasks");box.innerHTML="";
+  (curProj.tasks||[]).forEach((t,i)=>{
+    const row=document.createElement("div");row.className="taskrow"+(t.done?" done":"");
+    const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!t.done;
+    cb.onchange=()=>{t.done=cb.checked;saveProj();renderProjTasks();};
+    const tt=document.createElement("span");tt.className="tt";tt.textContent=t.text;
+    const del=document.createElement("button");del.textContent="🗑";
+    del.onclick=()=>{curProj.tasks.splice(i,1);saveProj();renderProjTasks();};
+    row.appendChild(cb);row.appendChild(tt);row.appendChild(del);box.appendChild(row);
+  });
+  if(!(curProj.tasks||[]).length)box.innerHTML='<div class="mini" style="padding:6px 2px">No tasks yet — tap Plan it with AI.</div>';
+}
 document.getElementById("taskAddBtn").onclick=()=>{
-  const v=document.getElementById("taskAdd").value.trim();if(!v||!curProj)return;
-  curProj.tasks.push({t:v,done:false});SV("ua_projects",projects);document.getElementById("taskAdd").value="";renderTasks();renderProjects();
+  const t=document.getElementById("taskAdd").value.trim();if(!t||!curProj)return;
+  curProj.tasks.push({text:t,done:false});document.getElementById("taskAdd").value="";saveProj();renderProjTasks();
 };
 document.getElementById("projPlan").onclick=async()=>{
-  if(!curProj||busy)return;
-  const desc=document.getElementById("projDesc").value.trim()||curProj.name;
-  setStatus("🪄 planning project…");
+  if(!curProj)return;
+  const btn=document.getElementById("projPlan");btn.textContent="🪄 planning…";btn.disabled=true;
   try{
-    const plan=await ask("Break this project into 3 to 7 concrete tasks. Reply with ONLY a plain list, one task per line, no numbering:\n\nProject: "+curProj.name+"\nGoal: "+desc,{textContent:""},"You are a project planner.");
-    const lines=plan.split("\n").map(s=>s.replace(/^[\s\-*\d.)]+/,"").trim()).filter(s=>s.length>2).slice(0,7);
-    curProj.tasks=curProj.tasks.concat(lines.map(t=>({t,done:false})));
-    SV("ua_projects",projects);renderTasks();renderProjects();
-  }catch(e){setStatus("");}
-  setStatus("");
+    const r=await ask("Project: "+curProj.name+(curProj.desc?"\nDescription: "+curProj.desc:"")+"\nBreak this project into 4 to 8 concrete tasks. Reply ONLY as one task per line, numbered, no other text.",null,SYSTEM);
+    const lines=(r||"").split("\n").map(s=>s.replace(/^\s*\d+[.)]\s*/,"").trim()).filter(Boolean);
+    curProj.tasks=curProj.tasks||[];
+    lines.slice(0,12).forEach(t=>curProj.tasks.push({text:t,done:false}));
+    saveProj();renderProjTasks();
+  }catch(e){alert(e&&e.msg||"Planning failed");}
+  btn.textContent="🪄 Plan it with AI (breaks it into tasks)";btn.disabled=false;
 };
-document.getElementById("projbtn").onclick=()=>{openPanel("projPanel");projDetail.style.display="none";projList.style.display="";renderProjects();};
-document.getElementById("projClose").onclick=closePanels;
-/* ---- workspace (site builder + code editor) ---- */
-let wsFiles=LS("ua_files",[{name:"index.html",content:"<!DOCTYPE html>\n<html>\n<body style=\"font-family:sans-serif\">\n  <h1>Hello</h1>\n</body>\n</html>"}]),wsCur=0;
-const SITE_SYSTEM="You are a website builder. Reply with ONE complete single-file website: one HTML document starting with <!DOCTYPE html> that has all HTML, CSS and JavaScript inline. No text before or after it, no markdown code fences. Make it polished, modern and mobile-friendly.";
-let siteHTML="";
-const sitePanel=document.getElementById("sitePanel"),sitePrompt=document.getElementById("sitePrompt"),
-      siteGo=document.getElementById("siteGo"),siteDown=document.getElementById("siteDown"),
-      siteCopy=document.getElementById("siteCopy"),siteFrame=document.getElementById("siteFrame"),
-      siteStatus=document.getElementById("siteStatus"),wsTabs=document.getElementById("wsTabs"),
-      wsEditor=document.getElementById("wsEditor"),wsConsole=document.getElementById("wsConsole");
-function extractHTML(t){
-  const m=t.match(/```(?:html)?\s*([\s\S]*?)```/);
-  let x=m?m[1]:String(t||"");
-  const i=x.search(/<!DOCTYPE|<html/i);
-  return i>=0?x.slice(i).trim():null;
+/* ---- email & call reach panel ---- */
+function renderInt(){
+  const b=document.getElementById("intBody");
+  b.innerHTML=
+   '<div class="pitem"><div class="pi-tx"><b>📧 Email drafting</b><small>Ask the AI to write an email. It opens your Mail app with the message filled in — you tap send.</small></div></div>'+
+   '<div class="pitem"><div class="pi-tx"><b>📞 Call scripts</b><small>Ask for a call script. It opens the Phone app with the number and a script you can read or dictate.</small></div></div>'+
+   '<div class="mini" style="padding:10px">Real sending, calling and reading an inbox are device-level and need accounts that cost money, so the AI drafts and you approve and send. Nothing is faked.</div>';
+}
+/* ---- workspace (site builder + code files) ---- */
+const wsTabs=document.getElementById("wsTabs");
+let wsFiles={},wsCur=null;
+function wsDefault(){
+  wsFiles={"index.html":'<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>My Site</title>\n<style>body{font:16px/1.5 -apple-system,sans-serif;margin:2rem;background:#fafafa;color:#111}h1{font-size:1.6rem}</style>\n</head>\n<body>\n<h1>Hello 👋</h1>\n<p>Edit this file or ask the AI to build something.</p>\n</body>\n</html>'};
+  wsCur="index.html";
 }
 function renderTabs(){
   wsTabs.innerHTML="";
-  wsFiles.forEach((f,i)=>{
-    const t=document.createElement("button");t.className="ftab"+(i===wsCur?" on":"");
-    t.innerHTML=esc(f.name)+'<button title="delete">✕</button>';
-    t.onclick=e=>{
-      if(e.target.tagName==="BUTTON"){wsFiles.splice(i,1);if(!wsFiles.length)wsFiles=[{name:"index.html",content:""}];wsCur=0;SV("ua_files",wsFiles);renderTabs();syncEditor();return;}
-      wsCur=i;renderTabs();syncEditor();};
+  Object.keys(wsFiles).forEach(n=>{
+    const t=document.createElement("button");t.className="ftab"+(n===wsCur?" on":"");
+    const s=document.createElement("span");s.textContent=n;
+    const x=document.createElement("button");x.textContent="✕";
+    x.onclick=e=>{e.stopPropagation();if(Object.keys(wsFiles).length<2)return alert("Keep at least one file");delete wsFiles[n];if(wsCur===n)wsCur=Object.keys(wsFiles)[0];renderTabs();};
+    t.onclick=()=>{wsCur=n;renderTabs();};
+    t.appendChild(s);if(Object.keys(wsFiles).length>1)t.appendChild(x);
     wsTabs.appendChild(t);
   });
   const add=document.createElement("button");add.className="ftab";add.textContent="＋ file";
-  add.onclick=()=>{const nm=prompt("File name (e.g. style.css, app.js)");if(!nm)return;wsFiles.push({name:nm.trim(),content:""});wsCur=wsFiles.length-1;SV("ua_files",wsFiles);renderTabs();syncEditor();};
+  add.onclick=()=>{const nm=prompt("New file name","page.html");if(!nm)return;wsFiles[nm.trim()]="";wsCur=nm.trim();renderTabs();};
   wsTabs.appendChild(add);
+  document.getElementById("wsEditor").value=wsFiles[wsCur]||"";
 }
-function syncEditor(){wsEditor.value=wsFiles[wsCur]?wsFiles[wsCur].content:"";}
-wsEditor.addEventListener("input",()=>{if(wsFiles[wsCur]){wsFiles[wsCur].content=wsEditor.value;SV("ua_files",wsFiles);}});
-function runPreview(){
-  let html=(wsFiles.find(f=>f.name.toLowerCase().endsWith(".html"))||wsFiles[0]).content;
-  wsFiles.forEach(f=>{
-    const n=f.name.toLowerCase();
-    if(n.endsWith(".css"))html=html.replace(/<\/head>/i,'<style>'+f.content+'</style></head>');
-    if(n.endsWith(".js"))html=html.replace(/<\/body>/i,'<script>'+f.content+'<\/script></body>');
-  });
-  html=html.replace(/<\/body>/i,'<script>(function(){["log","error","warn"].forEach(function(k){var o=console[k];console[k]=function(){try{parent.postMessage({wsc:k+":"+[].slice.call(arguments).join(" ")},"*")}catch(e){};o.apply(console,arguments)}});window.onerror=function(m){try{parent.postMessage({wsc:"error:"+m},"*")}catch(e){}}})();<\/script></body>');
-  wsConsole.style.display="block";wsConsole.textContent="";
-  siteFrame.srcdoc=html;
+document.getElementById("wsEditor").addEventListener("input",e=>{wsFiles[wsCur]=e.target.value;});
+function wsRender(){
+  const html=wsFiles[wsCur]||"";
+  let doc=html;
+  if(!/<html/i.test(doc)){
+    const css=Object.keys(wsFiles).filter(n=>n.endsWith(".css")).map(n=>wsFiles[n]).join("\n");
+    const js=Object.keys(wsFiles).filter(n=>n.endsWith(".js")).map(n=>wsFiles[n]).join("\n");
+    doc='<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>'+css+'</style></head><body>'+html+'<script>'+js+'<\/script></body></html>';
+  }else{
+    const css=Object.keys(wsFiles).filter(n=>n.endsWith(".css")).map(n=>wsFiles[n]).join("\n");
+    const js=Object.keys(wsFiles).filter(n=>n.endsWith(".js")).map(n=>wsFiles[n]).join("\n");
+    doc=doc.replace(/<\/head>/i,(css?"<style>"+css+"</style>":"")+"</head>");
+    doc=doc.replace(/<\/body>/i,(js?"<script>"+js+"<\/script>":"")+"</body>");
+  }
+  document.getElementById("siteFrame").srcdoc=doc;
 }
-window.addEventListener("message",e=>{if(e.data&&e.data.wsc){wsConsole.textContent+=e.data.wsc+"\n";wsConsole.scrollTop=wsConsole.scrollHeight;}});
-document.getElementById("wsRun").onclick=runPreview;
-siteGo.onclick=async()=>{
-  const p=sitePrompt.value.trim();
-  if(!p||busy)return;
-  siteHTML="";siteFrame.removeAttribute("srcdoc");
-  siteStatus.textContent="building…";
-  const out=document.createElement("div");
+function wsRun(){
+  const c=document.getElementById("wsConsole");c.style.display="block";c.textContent="running…";
+  const errs=[];
+  const jsFiles=Object.keys(wsFiles).filter(n=>n.endsWith(".js"));
+  jsFiles.forEach(n=>{try{new Function(wsFiles[n])}catch(e){errs.push(n+": "+e.message)}});
+  const html=wsFiles[wsCur]||Object.values(wsFiles)[0]||"";
+  if(!/<[a-z]/i.test(html))errs.push("looks empty");
+  c.textContent=errs.length?"⚠️ "+errs.join(" · "):"✅ no obvious errors · preview below";
+  wsRender();
+}
+document.getElementById("wsRun").onclick=wsRun;
+document.getElementById("siteGo").onclick=async()=>{
+  const p=document.getElementById("sitePrompt").value.trim();
+  if(!p){document.getElementById("siteStatus").textContent="describe it first";return;}
+  const st=document.getElementById("siteStatus");st.textContent="🪄 building…";
   try{
-    const raw=await ask(SITE_SYSTEM+"\n\nWebsite request: "+p,out);
-    siteHTML=extractHTML(raw);
-    if(siteHTML&&siteHTML.length>200){
-      const ix=wsFiles.findIndex(f=>f.name.toLowerCase()==="index.html");
-      if(ix>=0)wsFiles[ix].content=siteHTML;else wsFiles.push({name:"index.html",content:siteHTML});
-      wsCur=wsFiles.findIndex(f=>f.name.toLowerCase()==="index.html");
-      SV("ua_files",wsFiles);renderTabs();syncEditor();runPreview();
-      siteDown.style.display="";siteCopy.style.display="";
-      siteStatus.textContent="done — preview below. want it online? Save the file, paste its contents in our chat, and say publish: I'll put it up and text you the link.";
-    }else{
-      siteStatus.textContent="the brain didn't return a full page — try again or describe it in more detail.";
-    }
-  }catch(e){siteStatus.textContent=(e&&e.msg)||"couldn't build — try again in a minute.";}
+    const sys="You are a web builder. Reply ONLY with one complete HTML file (inline CSS+JS), complete and working, no explanations, starting with <!DOCTYPE html>.";
+    const html=await ask(p,null,sys);
+    const m=(html||"").match(/<!DOCTYPE html[\s\S]*<\/html>/i)||((html||"").match(/<html[\s\S]*<\/html>/i));
+    if(m){wsFiles={"index.html":m[0]};wsCur="index.html";renderTabs();wsRender();st.textContent="✅ built — preview below, edit or save it";}
+    else{st.textContent="⚠️ the AI didn't return a full page — try again";}
+  }catch(e){st.textContent="⚠️ "+(e&&e.msg||e&&e.message||"build failed");}
 };
-siteDown.onclick=()=>{
-  wsFiles.forEach(f=>{
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(new Blob([f.content],{type:"text/plain"}));
-    a.download=f.name;a.click();URL.revokeObjectURL(a.href);
-  });
+document.getElementById("siteDown").onclick=()=>{
+  const name=(wsCur||"site").split(".")[0];
+  downloadFile(name+".html",(wsFiles[wsCur]||"").startsWith("<!DOCTYPE")?wsFiles[wsCur]:("<!DOCTYPE html>\n"+(wsFiles[wsCur]||"")));
 };
-siteCopy.onclick=async()=>{
-  try{await navigator.clipboard.writeText(wsFiles[wsCur].content);siteStatus.textContent="copied "+wsFiles[wsCur].name+" — paste it in our chat and say publish — I'll put it online and text you the link.";}
-  catch(e){siteStatus.textContent="copy blocked — try Save instead.";}
-};
-document.getElementById("sitebtn").onclick=()=>{openPanel("sitePanel");renderTabs();syncEditor();};
-document.getElementById("siteClose").onclick=closePanels;
+document.getElementById("siteCopy").onclick=async()=>{try{await navigator.clipboard.writeText(wsFiles[wsCur]||"");document.getElementById("siteStatus").textContent="📋 copied";}catch(e){}};
+/* ---- chat search ---- */
+document.getElementById("chatSearch").addEventListener("input",e=>{
+  const q=e.target.value.toLowerCase();renderChatList(q);
+});
+/* ---- panel wiring ---- */
+function openPanel(id){closePanels();document.getElementById(id).style.display="flex";closeDrawer();}
+function closePanels(){["sitePanel","agentsPanel","memPanel","projPanel","dashPanel","resPanel","intPanel","setPanel"].forEach(i=>document.getElementById(i).style.display="none");}
+const P={site:"sitePanel",agents:"agentsPanel",mem:"memPanel",proj:"projPanel",dash:"dashPanel",res:"resPanel",int:"intPanel",set:"setPanel"};
+document.getElementById("sitebtn").onclick=()=>{openPanel(P.site);wsDefault();renderTabs();wsRender();};
+document.getElementById("agentbtn").onclick=()=>{openPanel(P.agents);renderAgents();document.getElementById("teamMode").checked=!!GM("ua_team",false);};
+document.getElementById("membtn").onclick=()=>{openPanel(P.mem);renderMem();};
+document.getElementById("projbtn").onclick=()=>{openPanel(P.proj);document.getElementById("projDetail").style.display="none";projList.style.display="";renderProjects();};
+document.getElementById("dashbtn").onclick=()=>{openPanel(P.dash);renderDash();};
+document.getElementById("resbtn").onclick=()=>{openPanel(P.res);renderRes();};
+document.getElementById("intbtn").onclick=()=>{openPanel(P.int);renderInt();};
+document.getElementById("setbtn").onclick=()=>{openPanel(P.set);renderSettings();};
+[["siteClose",P.site],["agentsClose",P.agents],["memClose",P.mem],["projClose",P.proj],["dashClose",P.dash],["resClose",P.res],["intClose",P.int],["setClose",P.set]].forEach(([b,p])=>document.getElementById(b).onclick=closePanels);
 /* ---- settings ---- */
-const setBody=document.getElementById("setBody");
 function renderSettings(){
-  setBody.innerHTML="";
-  const add=(label,el)=>{const r=document.createElement("div");r.className="togglerow";r.innerHTML="<span>"+label+"</span>";r.appendChild(el);setBody.appendChild(r);};
-  const mk=()=>{const c=document.createElement("input");c.type="checkbox";return c;};
-  const th=mk();th.checked=prefs.theme==="light";th.onchange=()=>{prefs.theme=th.checked?"light":"dark";SV("ua_prefs",prefs);document.body.dataset.theme=prefs.theme;};
-  add("☀️ Light mode",th);
-  const vf=mk();vf.checked=!!prefs.verify;vf.onchange=()=>{prefs.verify=vf.checked;SV("ua_prefs",prefs);};
-  add("✅ Auto double-check every answer (uses extra quota)",vf);
-  const sp=mk();sp.checked=!!prefs.speak;sp.onchange=()=>{prefs.speak=sp.checked;SV("ua_prefs",prefs);};
-  add("🔊 Speak answers out loud",sp);
-  const rt=mk();rt.checked=!!prefs.route;rt.onchange=()=>{prefs.route=rt.checked;SV("ua_prefs",prefs);};
-  add("🧭 Auto-route to specialist agents",rt);
-  const ti=document.createElement("textarea");ti.className="tin";ti.rows=3;ti.value=prefs.instr||"";ti.placeholder="Custom instructions the AI always follows…";
-  ti.onchange=()=>{prefs.instr=ti.value;SV("ua_prefs",prefs);};
-  const r1=document.createElement("div");r1.className="togglerow";r1.style.display="block";r1.innerHTML="📌 Custom instructions";r1.appendChild(ti);setBody.appendChild(r1);
-  const hi=document.createElement("input");hi.type="number";hi.min="2";hi.max="20";hi.style.width="70px";hi.value=prefs.hist;hi.onchange=()=>{prefs.hist=Math.max(2,Math.min(20,+hi.value||6));SV("ua_prefs",prefs);};
-  const r2=document.createElement("div");r2.className="togglerow";r2.innerHTML="<span>🗨️ Messages of memory per reply</span>";r2.appendChild(hi);setBody.appendChild(r2);
-  const to=document.createElement("input");to.type="number";to.min="256";to.max="2048";to.step="128";to.style.width="90px";to.value=prefs.tokens;to.onchange=()=>{prefs.tokens=Math.max(256,Math.min(2048,+to.value||512));SV("ua_prefs",prefs);};
-  const r3=document.createElement("div");r3.className="togglerow";r3.innerHTML="<span>📏 Max answer length (tokens)</span>";r3.appendChild(to);setBody.appendChild(r3);
-  const st=document.createElement("div");st.style.padding="10px 2px";st.className="mini";
-  let tot={ok:0,fail:0,ms:0,n:0};
-  let html="<b>📊 Server performance</b><br>";
-  for(const k in stats){const s=stats[k];tot.ok+=s.ok;tot.fail+=s.fail;tot.n+=s.n;tot.ms+=s.ms;
-    html+=k+": "+s.ok+" ok, "+s.fail+" failed, avg "+(s.n?Math.round(s.ms/s.n/100)/10:"-")+"s<br>";}
-  if(tot.n)html+="<b>total: "+tot.ok+" ok, "+tot.fail+" failed, avg "+Math.round(tot.ms/tot.n/100)/10+"s</b><br>";
-  st.innerHTML=html||"no server calls yet";
-  setBody.appendChild(st);
-  const clr=document.createElement("button");clr.className="sbtn";clr.textContent="Clear stats";
-  clr.onclick=()=>{stats={};SV("ua_stats",stats);renderSettings();};
-  setBody.appendChild(clr);
-  const ex=document.createElement("button");ex.className="sbtn";ex.textContent="⬇️ Export everything (chats, memory, agents)";
-  ex.style.marginTop="8px";
-  ex.onclick=()=>{const d={chats,mems,agents,prefs,projects,wsFiles};const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:"application/json"}));a.download="ai-backup.json";a.click();URL.revokeObjectURL(a.href);};
-  setBody.appendChild(ex);
+  const b=document.getElementById("setBody");
+  const dark=GM("ua_theme19","light")==="dark";
+  b.innerHTML=
+   '<div class="togglerow"><span>🌙 Dark mode</span><input type="checkbox" id="tgDark" '+(dark?"checked":"")+'></div>'+
+   '<div class="togglerow"><span>🧠 Auto-remember facts</span><input type="checkbox" id="tgMem" '+(GM("ua_autoMem",true)?"checked":"")+'></div>'+
+   '<div class="togglerow"><span>🧭 Auto-route to specialist agents</span><input type="checkbox" id="tgRoute" '+(GM("ua_route",true)?"checked":"")+'></div>'+
+   '<div class="togglerow"><span>🧲 Team mode (agents collaborate)</span><input type="checkbox" id="tgTeam" '+(GM("ua_team",false)?"checked":"")+'></div>'+
+   '<div class="pitem"><div class="pi-tx"><b>⬇️ Export everything</b><small>one file with all chats, agents, memory, projects — your phone only, nothing uploaded</small></div><button class="sbtn" id="exAll" style="flex:0 0 auto;padding:9px 12px">Save</button></div>'+
+   '<div class="pitem"><div class="pi-tx"><b>🗑 Wipe local data</b><small>removes everything this app saved on your phone</small></div><button class="sbtn" id="wipeAll" style="flex:0 0 auto;padding:9px 12px">Wipe</button></div>'+
+   '<div class="mini" style="padding:10px">Uncensored AI · free server pool + ⚡ phone brains · nothing leaves except what you send</div>';
+  document.getElementById("tgDark").onchange=e=>{setTheme19(e.target.checked?"dark":"light");};
+  document.getElementById("tgMem").onchange=e=>GM("ua_autoMem",e.target.checked);
+  document.getElementById("tgRoute").onchange=e=>GM("ua_route",e.target.checked);
+  document.getElementById("tgTeam").onchange=e=>GM("ua_team",e.target.checked);
+  document.getElementById("exAll").onclick=()=>{
+    const dump={chats:GM("ua_chats",[]),cur:GM("ua_cur",null),mem:GM("ua_mem",[]),agents:GM("ua_agents",[]),projects:GM("ua_projects",[]),stats:GM("ua_stats",{})};
+    downloadFile("ai-backup.json",JSON.stringify(dump,null,2));
+  };
+  document.getElementById("wipeAll").onclick=()=>{
+    if(!confirm("Wipe ALL local data? This can't be undone."))return;
+    ["ua_chats","ua_cur","ua_mem","ua_prefs","ua_agents","ua_projects","ua_files","ua_stats","ua_theme19"].forEach(k=>localStorage.removeItem(k));
+    location.reload();
+  };
 }
-document.getElementById("setbtn").onclick=()=>{openPanel("setPanel");renderSettings();};
-document.getElementById("setClose").onclick=closePanels;
-/* ---- voice input ---- */
-const micBtn=document.getElementById("micBtn");
-let rec=null,recOn=false;
-micBtn.onclick=()=>{
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){setStatus("voice input needs iOS Safari with Siri enabled — type instead");setTimeout(()=>setStatus(""),2500);return;}
-  if(recOn){rec.stop();return;}
-  rec=new SR();rec.lang="en-US";rec.interimResults=true;rec.continuous=false;
-  micBtn.classList.add("rec");
-  rec.onresult=e=>{let t="";for(const r of e.results)t+=r[0].transcript;input.value=t;input.dispatchEvent(new Event("input"));};
-  rec.onend=()=>{recOn=false;micBtn.classList.remove("rec");if(input.value.trim())fire();};
-  rec.onerror=()=>{recOn=false;micBtn.classList.remove("rec");};
-  try{rec.start();recOn=true;}catch(e){micBtn.classList.remove("rec");}
+function setTheme19(t){GM("ua_theme19",t);document.body.dataset.theme=t;document.querySelector('meta[name=theme-color]').setAttribute("content",t==="dark"?"#212121":"#ffffff");}
+if(!GM("ua_theme19",null))GM("ua_theme19","light");
+setTheme19(GM("ua_theme19","light"));
+/* ---- top bar wiring ---- */
+document.getElementById("searchbtn").onclick=()=>{const d=document.getElementById("drawer");d.classList.add("open");document.getElementById("shade").classList.add("on");setTimeout(()=>document.getElementById("chatSearch").focus(),250);};
+document.getElementById("phonebtn").onclick=()=>{
+  const on=!localMode;localMode=on;SV("ua_localMode",on);
+  document.getElementById("phonebtn").style.background=on?"var(--accent)":"";
+  document.getElementById("phonebtn").style.color=on?"#fff":"";
+  setStatus(on?"⚡ phone brain on — runs on your iPhone, no servers":"server pool on");
 };
-/* ---- chips + init ---- */
-function renderChipbar(){
-  const bar=document.getElementById("chipsbar");
-  bar.innerHTML="";let any=false;
-  if(activeAgent){any=true;const c=document.createElement("div");c.className="chip2";
-    c.innerHTML="🤖 "+esc(activeAgent)+" <button>✕</button>";
-    c.querySelector("button").onclick=()=>{activeAgent=null;renderAgents();renderChipbar();};bar.appendChild(c);}
-  if(activeProj){any=true;const p=projects.find(x=>x.id===activeProj);if(p){const c=document.createElement("div");c.className="chip2";
-    c.innerHTML="📋 "+esc(p.name)+" <button>✕</button>";
-    c.querySelector("button").onclick=()=>{activeProj=null;renderChipbar();};bar.appendChild(c);}}
-  bar.style.display=any?"flex":"none";
-}
-document.body.dataset.theme=prefs.theme||"dark";
-if(curChat){const c=chats.find(x=>x.id===curChat);if(c){history=c.msgs.slice();history.forEach(h=>bubble(h.r,h.t));}}
-renderChats();renderMem();renderChipbar();
-POOL.forEach(b=>fetch(b.base+"/gradio_api/info").then(()=>{}).catch(()=>{}));
+if(GM("ua_localMode",false)){localMode=true;document.getElementById("phonebtn").style.background="var(--accent)";document.getElementById("phonebtn").style.color="#fff";}
+document.getElementById("newbtn").onclick=newChat;
+document.getElementById("modelbtn").onclick=()=>{const d=document.getElementById("drawer");d.classList.add("open");document.getElementById("shade").classList.add("on");};
+document.getElementById("plusBtn").onclick=()=>{const s=document.getElementById("plusMenu");s.style.display=s.style.display==="flex"?"none":"flex";};
+document.getElementById("pmFiles").onclick=()=>{document.getElementById("plusMenu").style.display="none";document.getElementById("fpick").click();};
+document.getElementById("pmImage").onclick=()=>{document.getElementById("plusMenu").style.display="none";const i=document.getElementById("input");i.value="/image ";i.focus();};
+document.getElementById("pmThink").onclick=()=>{document.getElementById("plusMenu").style.display="none";thinkHarder=!thinkHarder;SV("ua_think",thinkHarder);setStatus(thinkHarder?"🧠 thinking harder on":"thinking harder off");};
+document.getElementById("pmPlug").onclick=()=>{document.getElementById("plusMenu").style.display="none";openPanel(P.int);};
+document.getElementById("clip").onclick=()=>document.getElementById("fpick").click();
+document.getElementById("cardAgents").onclick=()=>openPanel(P.agents);
+document.getElementById("rowWrite").onclick=()=>{const i=document.getElementById("input");i.value="Write ";i.focus();};
+document.getElementById("rowVoice").onclick=startVoiceChat;
+document.getElementById("brainChat").onclick=()=>{brainKind="chat";SV("ua_brain","chat");setStatus("💬 chat brain");closeDrawer();};
+document.getElementById("brainCode").onclick=()=>{brainKind="code";SV("ua_brain","code");setStatus("💻 coder brain");closeDrawer();};
+brainKind=GM("ua_brain","chat");
+thinkHarder=!!GM("ua_think",false);
+window.addEventListener("resize",()=>{const i=document.getElementById("input");i.style.height="auto";i.style.height=Math.min(i.scrollHeight,120)+"px";});
+document.getElementById("siteFrame").addEventListener("load",()=>{});
+renderAgents();renderChatList();
