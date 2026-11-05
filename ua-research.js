@@ -2,6 +2,7 @@
 function showPanel(p){["sitePanel","agentsPanel","memPanel","projPanel","dashPanel","resPanel","intPanel","setPanel"].forEach(x=>{const e=document.getElementById(x);if(e)e.style.display="none";});p.style.display="flex";}
 const resPanel=document.getElementById("resPanel"),resQ=document.getElementById("resQ"),resGo=document.getElementById("resGo"),
       cmpGo=document.getElementById("cmpGo"),resOut=document.getElementById("resOut"),resStatus=document.getElementById("resStatus");
+function errTxt(e){return (e&&(e.msg||e.message||e.reason))||String(e||"unknown");}
 async function jina(u){
   const r=await fetch("https://r.jina.ai/"+u);
   if(!r.ok)throw new Error("read failed");
@@ -21,6 +22,7 @@ resGo.onclick=async()=>{
   try{
     const plan=await ask("You are a research planner. Turn this question into exactly 3 different web search queries that would find good sources. Reply with ONLY the 3 queries, one per line:\n\n"+q,{textContent:""});
     const qs=plan.split("\n").map(s=>s.replace(/^[\s\-*\d.)]+/,"").trim()).filter(s=>s.length>2).slice(0,3);
+    if(!qs.length){resStatus.textContent="couldn't plan searches — try again.";return;}
     const found=[];
     for(let i=0;i<qs.length;i++){
       resStatus.textContent="🔎 searching "+(i+1)+" of "+qs.length+"…";
@@ -28,7 +30,7 @@ resGo.onclick=async()=>{
     }
     const seen=new Set(),picks=[];
     for(const x of found){if(!seen.has(x.u)){seen.add(x.u);picks.push(x);}if(picks.length>=4)break;}
-    if(!picks.length){resStatus.textContent="search came back empty — try different words.";return;}
+    if(!picks.length){resStatus.textContent="search came back empty — the servers may be napping, tap again.";return;}
     let corpus="";
     for(let i=0;i<picks.length;i++){
       resStatus.textContent="📖 reading source "+(i+1)+" of "+picks.length+"…";
@@ -39,7 +41,7 @@ resGo.onclick=async()=>{
     const rep=await ask("Research question: "+q+"\n\nWrite a clear structured research report with short section headings. Ground every claim in the sources below and cite them like [S1]. If sources conflict or disagree, say so plainly. End with a SOURCES list of the ones you used.\n\n"+corpus.slice(0,40000),{textContent:""});
     resOut.innerHTML=md(rep);
     resStatus.textContent="done — read "+picks.length+" real sources";
-  }catch(e){resStatus.textContent=(e&&e.msg)||"research failed — try again.";}
+  }catch(e){resStatus.textContent="research failed: "+errTxt(e);}
 };
 cmpGo.onclick=async()=>{
   const q=resQ.value.trim();
@@ -49,7 +51,7 @@ cmpGo.onclick=async()=>{
   for(const b of [POOL[0],POOL[1]]){
     resStatus.textContent="asking "+b.name+"…";
     const t0=Date.now();let ans="";
-    try{ans=await askSpace(b,q,{textContent:""},SYSTEM);}catch(e){ans="("+((e&&e.msg)||"failed")+")";}
+    try{ans=await askSpace(b,q,{textContent:""},SYSTEM);}catch(e){ans="("+errTxt(e)+")";}
     const ms=Date.now()-t0;
     runs.push({n:b.name,ms,a:ans});
     const r=document.createElement("div");r.className="m a";
