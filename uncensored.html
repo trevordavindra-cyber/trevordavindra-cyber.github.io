@@ -14,7 +14,6 @@
   .top{flex:0 0 auto;display:flex;align-items:center;gap:5px;padding:calc(env(safe-area-inset-top) + 8px) 10px 8px}
   .ic{width:36px;height:36px;border-radius:10px;border:0;background:transparent;color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
   .model{width:auto;height:auto;font-size:15px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:4px;margin-left:2px;flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-  .model span{font-size:11px;color:var(--dim)}
   main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .wrap{max-width:768px;margin:0 auto;padding:16px 16px 4px}
   .hello{padding:10vh 24px 0;text-align:center}
@@ -36,8 +35,6 @@
   .actions{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
   .actions button{background:var(--soft);border:0;color:var(--dim);border-radius:10px;padding:4px 10px;font-size:12px;cursor:pointer}
   .check{font-size:13.5px;color:var(--dim);border-left:2px solid var(--line);padding-left:10px;margin-top:8px;white-space:pre-wrap;word-break:break-word}
-  table.dt{border-collapse:collapse;font-size:12.5px;margin:6px 0;max-width:100%;display:block;overflow-x:auto}
-  .dt td,.dt th{border:1px solid var(--line);padding:3px 8px;text-align:left}
   .status{max-width:768px;margin:0 auto;padding:2px 16px;font-size:12.5px;color:var(--faint);text-align:center;min-height:18px}
   .dock{flex:0 0 auto;padding:6px 16px calc(env(safe-area-inset-bottom) + 10px)}
   #chipsbar{max-width:768px;margin:0 auto 4px;display:none;flex-wrap:wrap;gap:6px;padding:0 4px}
@@ -67,7 +64,6 @@
   .chatitem button.del{background:none;border:0;color:var(--faint);font-size:15px;padding:8px}
   .panel{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 10px) 12px 12px}
   .panel .prow{display:flex;gap:8px;align-items:center}
-  .panel h3{font-size:16px;font-weight:600;flex:1}
   .ptitle{font-weight:600;font-size:16px;flex:1}
   .tin{width:100%;background:var(--soft);border:0;outline:none;color:var(--txt);border-radius:12px;padding:10px 12px;font:15px/1.4 inherit;resize:none}
   .plist{flex:1;overflow-y:auto;margin-top:10px;-webkit-overflow-scrolling:touch}
@@ -96,3 +92,127 @@
   .taskrow button{background:none;border:0;color:var(--faint);font-size:14px}
 </style>
 </head>
+<body>
+<div class="top">
+  <button class="ic" id="menu">☰</button>
+  <button class="ic model" id="modelbtn" style="padding:0 6px"><span id="modelname">Qwen Uncensored 27B</span> ⌄</button>
+  <button class="ic" id="phonebtn" title="Run the AI on your phone">⚡</button>
+  <button class="ic" id="sitebtn" title="Build and code workspace">🌐</button>
+  <button class="ic" id="agentbtn" title="Agents">🤖</button>
+  <button class="ic" id="membtn" title="Memory">🧠</button>
+  <button class="ic" id="projbtn" title="Projects">📋</button>
+  <button class="ic" id="setbtn" title="Settings">⚙️</button>
+</div>
+<main id="log"><div class="wrap" id="feed"></div>
+  <div class="hello" id="hello">
+    <h1>What can I help with?</h1>
+    <div class="cards">
+      <button class="card" data-p="Summarize the attached file."><b>📎 Read a file</b><small>attach notes, code, pdf, csv</small></button>
+      <button class="card" data-p="Write code that "><b>⌨️ Code</b><small>write or fix something</small></button>
+      <button class="card" data-p="/image "><b>🎨 Image</b><small>make a picture from words</small></button>
+      <button class="card" id="cardAgents"><b>🤖 Agents</b><small>pick a specialist brain</small></button>
+      <button class="card" data-p="Explain "><b>💡 Explain</b><small>any topic, no filters</small></button>
+      <button class="card" data-p="Plan "><b>🗺️ Plan</b><small>map out anything</small></button>
+    </div>
+  </div>
+</main>
+<div class="status" id="status"></div>
+<div class="dock">
+  <div id="chipsbar"></div>
+  <div class="pill">
+    <button class="icb" id="clip" title="Attach a file">📎</button>
+    <button class="icb" id="micBtn" title="Voice input">🎤</button>
+    <textarea id="input" rows="1" placeholder="Ask anything"></textarea>
+    <button class="icb" id="send" title="Send" disabled>↑</button>
+  </div>
+  <div class="fine">Uncensored AI · files are read on your phone, never stored · nothing leaves except your prompt</div>
+</div>
+<input type="file" id="fpick" multiple accept="*/*" style="display:none">
+<div class="shade" id="shade"></div>
+<div class="drawer" id="drawer">
+  <button class="newchat" id="newchat">＋ New chat</button>
+  <div class="dtitle">CHATS</div>
+  <div id="chatlist"></div>
+  <div class="dtitle">UNCENSORED AI</div>
+  <div class="dbody">Server pool with auto-rotation + ⚡ phone brains (chat &amp; coder, run on your phone, no quota). 🤖 agents, 🧠 memory, 📋 projects and 🌐 workspace all live on this page and save only to your phone.</div>
+  <div style="display:flex;gap:8px">
+  <button class="newchat" id="brainChat" style="flex:1">💬 chat brain</button>
+  <button class="newchat" id="brainCode" style="flex:1">💻 coder brain</button>
+  </div>
+  <button class="newchat" id="exportChat">⬇️ Export this chat</button>
+</div>
+<div class="panel" id="sitePanel">
+  <div class="prow">
+    <button class="ic" id="siteClose">✕</button>
+    <div class="ptitle">🌐 Build &amp; code workspace</div>
+  </div>
+  <textarea id="sitePrompt" class="tin" style="margin-top:8px" placeholder="Describe an app or site and Build it — or edit the files yourself below"></textarea>
+  <div class="prow" style="margin-top:8px">
+    <button class="sbtn" id="siteGo">🪄 Build with AI</button>
+    <button class="sbtn" id="wsRun">▶️ Run</button>
+    <button class="sbtn" id="siteDown">⬇️ Save</button>
+    <button class="sbtn" id="siteCopy">📋 Copy</button>
+  </div>
+  <div id="siteStatus" class="mini" style="padding:6px 2px 0;min-height:16px"></div>
+  <div class="filetabs" id="wsTabs" style="margin-top:6px"></div>
+  <textarea id="wsEditor" spellcheck="false"></textarea>
+  <div id="wsConsole"></div>
+  <iframe id="siteFrame" sandbox="allow-scripts allow-modals allow-forms allow-popups" title="preview"></iframe>
+</div>
+<div class="panel" id="agentsPanel">
+  <div class="prow">
+    <button class="ic" id="agentsClose">✕</button>
+    <div class="ptitle">🤖 Agents</div>
+    <button class="sbtn" id="agentNew" style="flex:0 0 auto;padding:8px 12px">＋ New</button>
+  </div>
+  <div class="togglerow" style="margin-top:8px"><span>🧭 Team mode (agents work together)</span><input type="checkbox" id="teamMode"></div>
+  <div class="mini" style="padding:0 2px 6px">Tap an agent to make it answer your next messages. Auto-route picks a specialist from what you type when nothing is picked.</div>
+  <div class="plist" id="agentList"></div>
+</div>
+<div class="panel" id="memPanel">
+  <div class="prow">
+    <button class="ic" id="memClose">✕</button>
+    <div class="ptitle">🧠 Memory</div>
+  </div>
+  <div class="togglerow" style="margin-top:8px"><span>Auto-remember important answers</span><input type="checkbox" id="autoMem"></div>
+  <textarea id="memAdd" class="tin" style="margin-top:4px" placeholder="Add a memory…"></textarea>
+  <div class="prow" style="margin-top:6px">
+    <button class="sbtn" id="memAddBtn">＋ Add</button>
+    <button class="sbtn" id="memExport">⬇️ Export</button>
+    <button class="sbtn" id="memImport">📥 Import</button>
+  </div>
+  <div class="plist" id="memList"></div>
+</div>
+<div class="panel" id="projPanel">
+  <div class="prow">
+    <button class="ic" id="projClose">✕</button>
+    <div class="ptitle">📋 Projects</div>
+  </div>
+  <div class="prow" style="margin-top:8px">
+    <input id="projName" class="tin" placeholder="New project name" style="flex:1">
+    <button class="sbtn" id="projCreate" style="flex:0 0 auto;padding:10px 14px">＋</button>
+  </div>
+  <div class="plist" id="projList"></div>
+  <div id="projDetail" style="display:none;flex-direction:column;gap:8px;flex:1;min-height:0">
+    <div class="prow"><button class="ic" id="projBack">←</button><div class="ptitle" id="projTitle"></div></div>
+    <textarea id="projDesc" class="tin" rows="2" placeholder="What is this project?"></textarea>
+    <button class="sbtn" id="projPlan">🪄 Plan it with AI (breaks it into tasks)</button>
+    <div id="projTasks"></div>
+    <div class="prow"><input id="taskAdd" class="tin" placeholder="Add a task…" style="flex:1"><button class="sbtn" id="taskAddBtn" style="flex:0 0 auto;padding:10px 14px">＋</button></div>
+    <textarea id="projNotes" class="tin" style="flex:1;min-height:60px" placeholder="Notes…"></textarea>
+  </div>
+</div>
+<div class="panel" id="setPanel">
+  <div class="prow">
+    <button class="ic" id="setClose">✕</button>
+    <div class="ptitle">⚙️ Settings</div>
+  </div>
+  <div class="plist" id="setBody" style="padding-right:2px"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
+<script src="ua-core.js?v=17"></script>
+<script src="ua-app.js?v=17"></script>
+</body>
+</html>
