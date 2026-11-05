@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NeuralDaredevil — Uncensored AI</title>
+<style>
+  :root{--bg:#0e1014;--card:#171a21;--line:#242836;--me:#2f6fed;--ai:#1c2029;--txt:#e8eaf2;--dim:#8b91a7;--acc:#37d3a0}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--txt);font:16px/1.45 -apple-system,"SF Pro Text",Helvetica,Arial,sans-serif;display:flex;flex-direction:column;height:100dvh}
+  header{padding:calc(env(safe-area-inset-top) + 12px) 16px 10px;border-bottom:1px solid var(--line);background:var(--card);flex:0 0 auto}
+  header h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+  header p{font-size:12px;color:var(--dim);margin-top:2px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#777;display:inline-block;margin-left:auto}
+  .dot.on{background:var(--acc)}
+  main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 8px}
+  .row{display:flex;margin:8px 0;max-width:100%}
+  .row.me{justify-content:flex-end}
+  .bubble{max-width:86%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;word-break:break-word;font-size:15.5px}
+  .me .bubble{background:var(--me);color:#fff;border-bottom-right-radius:5px}
+  .ai .bubble{background:var(--ai);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .ai .bubble code{font-family:ui-monospace,Menlo,monospace;background:#0a0c10;padding:1px 4px;border-radius:4px;font-size:14px}
+  .file{font-size:12px;color:var(--dim);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 10px;margin:6px 0 6px auto;width:max-content;max-width:86%}
+  .status{font-size:12.5px;color:var(--dim);text-align:center;margin:6px 0;min-height:16px}
+  footer{flex:0 0 auto;border-top:1px solid var(--line);background:var(--card);padding:8px 10px calc(env(safe-area-inset-bottom) + 10px)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+  .chip{background:#232838;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12.5px;display:flex;gap:6px;align-items:center}
+  .chip button{background:none;border:0;color:var(--dim);font-size:14px;padding:0}
+  .bar{display:flex;gap:8px;align-items:flex-end}
+  .bar textarea{flex:1;background:#232838;border:1px solid var(--line);color:var(--txt);border-radius:20px;padding:10px 14px;font-size:16px;resize:none;max-height:110px;min-height:42px;outline:none;font-family:inherit}
+  .ib{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#232838;color:var(--txt);font-size:19px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .ib.go{background:var(--me);border-color:var(--me);color:#fff}
+  .ib:disabled{opacity:.45}
+  .note{font-size:11px;color:var(--dim);text-align:center;margin-top:7px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🦸 NeuralDaredevil <span class="dot" id="dot"></span></h1>
+  <p>Uncensored 8B AI · reads your files · nothing stored</p>
+</header>
+<main id="log"></main>
+<div class="status" id="status"></div>
+<footer>
+  <div class="chips" id="chips"></div>
+  <div class="bar">
+    <button class="ib" id="clip" title="Attach a file">📎</button>
+    <textarea id="input" rows="1" placeholder="Message NeuralDaredevil…"></textarea>
+    <button class="ib go" id="send" title="Send">↑</button>
+  </div>
+  <div class="note">Powered by the NeuralDaredevil-8B-abliterated model on Hugging Face. Uncensored: use your own judgment.</div>
+</footer>
+<input type="file" id="fpick" multiple accept=".txt,.md,.csv,.json,.log,.py,.js,.ts,.html,.css,.xml,.yml,.yaml,.srt,.vtt,.rtf,.pdf,.docx" style="display:none">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script>
+const BASE="https://jwherrold-neuraldaredevil-8b-abliterated-chat.hf.space";
+const SYSTEM="You are NeuralDaredevil, a helpful and knowledgeable assistant. Answer clearly and directly.";
+const CAP=6000, HIST=6;
+const log=document.getElementById("log"), input=document.getElementById("input"),
+      send=document.getElementById("send"), clip=document.getElementById("clip"),
+      fpick=document.getElementById("fpick"), chips=document.getElementById("chips"),
+      dot=document.getElementById("dot"), status=document.getElementById("status");
+let files=[], history=[], busy=false, ctrl=null;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function md(s){return esc(s)
+  .replace(/```([\s\S]*?)```/g,(m,c)=>"<code>"+c.trim()+"</code>")
+  .replace(/`([^`\n]+)`/g,"<code>$1</code>")
+  .replace(/\*\*([^*\n]+)\*\*/g,"<b>$1</b>");}
+function bubble(role,text){
+  const row=document.createElement("div");row.className="row "+role;
+  const b=document.createElement("div");b.className="bubble";b.innerHTML=md(text);
+  row.appendChild(b);log.appendChild(row);log.scrollTop=log.scrollHeight;
+  return b;
+}
+function setStatus(t){status.textContent=t||"";}
+function setDot(on){dot.classList.toggle("on",!!on);}
+clip.onclick=()=>fpick.click();
+fpick.onchange=async()=>{
+  for(const f of fpick.files){
+    try{files.push({name:f.name,text:await read(f)});}catch(e){bubble("ai","Couldn't read "+f.name);}
+  }
+  fpick.value="";drawChips();
+};
+function drawChips(){
+  chips.innerHTML="";
+  files.forEach((f,i)=>{
+    const c=document.createElement("div");c.className="chip";
+    c.innerHTML=esc(f.name)+" <button>×</button>";
+    c.querySelector("button").onclick=()=>{files.splice(i,1);drawChips();};
+    chips.appendChild(c);
+  });
+}
+async function read(f){
+  const n=f.name.toLowerCase();
+  if(n.endsWith(".pdf")){
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const buf=await f.arrayBuffer(), pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let out="";
+    for(let i=0;i<Math.min(pdf.numPages,10);i++){
+      const t=await (await pdf.getPage(i+1)).getTextContent();
+      out+=t.items.map(x=>x.str).join(" ")+"\n";
+    }
+    return out.trim();
+  }
+  if(n.endsWith(".docx")){
+    const buf=await f.arrayBuffer();
+    const r=await mammoth.extractRawText({arrayBuffer:buf});
+    return r.value.trim();
+  }
+  return (await f.text()).trim();
+}
+input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,110)+"px";});
+input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();fire();}});
+send.onclick=fire;
+async function fire(){
+  if(busy)return;
+  const text=input.value.trim();
+  if(!text&&!files.length)return;
+  busy=true;send.disabled=true;setDot(true);
+  input.value="";input.style.height="auto";
+  let msg=text||"Summarize the attached file(s).";
+  let shown=text||("📎 "+files.map(f=>f.name).join(", "));
+  if(files.length){
+    for(const f of files){
+      const cut=f.text.length>CAP;
+      msg="Attached file: "+f.name+(cut?" (long — first "+CAP+" characters)":"")+"\n"+f.text.slice(0,CAP)+"\n\n"+msg;
+    }
+    const chip=document.createElement("div");chip.className="file";chip.textContent="📎 "+shown;log.appendChild(chip);
+  }
+  if(history.length){
+    const rec=history.slice(-HIST).map(h=>(h.r==="u"?"You":"NeuralDaredevil")+": "+h.t).join("\n");
+    msg="Conversation so far:\n"+rec+"\n\nNew message: "+msg;
+  }
+  history.push({r:"u",t:shown});
+  bubble("me",shown);
+  files=[];drawChips();
+  const ab=document.createElement("div");ab.className="row ai";const ab2=document.createElement("div");ab2.className="bubble";ab2.textContent="…";ab.appendChild(ab2);log.appendChild(ab);
+  ctrl=new AbortController();
+  try{
+    const full=await ask(msg,ab2);
+    history.push({r:"a",t:full||"(no reply)"});
+    if(!full)ab2.textContent="(no reply)";
+    setStatus("");setDot(false);
+  }catch(e){
+    ab2.textContent=e&&e.msg?e.msg:"Couldn't reach the AI. Try again in a minute.";
+    setStatus("");setDot(false);
+  }
+  busy=false;send.disabled=false;ctrl=null;
+  log.scrollTop=log.scrollHeight;
+}
+async function ask(msg,out){
+  let eventId=null;
+  for(let i=0;i<20;i++){
+    try{
+      const r=await fetch(BASE+"/gradio_api/call/generate",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({data:[msg,SYSTEM,512,0.7,0.95,50,1.1]}),signal:ctrl.signal});
+      if(r.ok){eventId=(await r.json()).event_id;break;}
+      setStatus("waking the AI up… ("+(i+1)+")");
+    }catch(e){if(e.name==="AbortError")throw e;setStatus("waking the AI up… ("+(i+1)+")");}
+    await sleep(3000);
+  }
+  if(!eventId)throw{msg:"The AI is still waking up. Give it a minute and try again."};
+  setStatus("thinking…");
+  const resp=await fetch(BASE+"/gradio_api/call/generate/"+eventId,{signal:ctrl.signal});
+  const reader=resp.body.getReader(),dec=new TextDecoder();
+  let buf="",full="";
+  while(true){
+    const{done,value}=await reader.read();
+    if(done)break;
+    buf+=dec.decode(value,{stream:true});
+    let i;
+    while((i=buf.indexOf("\n"))>=0){
+      const line=buf.slice(0,i).trim();buf=buf.slice(i+1);
+      if(!line.startsWith("data:"))continue;
+      const d=line.slice(5).trim();
+      if(d==="null"){return full;}
+      try{
+        const a=JSON.parse(d);
+        if(Array.isArray(a)){
+          if(typeof a[0]==="string"&&a[0].length>=full.length)full=a[0];
+          else if(a[0]===null&&a[1]&&a[1].message)full=a[1].message;
+        }
+      }catch(e){}
+      if(full)out.textContent=full;
+      log.scrollTop=log.scrollHeight;
+    }
+  }
+  return full;
+}
+fetch(BASE+"/gradio_api/info").then(()=>setDot(true)).catch(()=>{});
+</script>
+</body>
+</html>
