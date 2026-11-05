@@ -43,11 +43,11 @@ const p=document.createElement("div");p.className="panel";p.id="teamPanel";p.sty
 p.innerHTML=
  '<div class="prow"><button class="ic" id="teamClose">\u2715</button><div class="ptitle">\ud83c\udf1f Team OS</div></div>'
  +'<div class="mini" style="padding:2px 2px 0">ATLAS \u00b7 SAGE \u00b7 FORGE \u00b7 NOVA — four agents, one equal brain, four separate workrooms and a shared mission log. They plan, research, build, review and report. They only work inside this page: anything that would send, buy or publish outside it waits for you.</div>'
- +'<div class="fourgoal"><textarea id="fourGoal" class="tin" rows="2" placeholder="Give the team an objective in plain words…"></textarea><button class="sbtn" id="fourGo" style="flex:0 0 auto;padding:10px 14px">\ud83d\ude80 Run</button></div>'
+ +'<div class="fourgoal" id="fourGoalWrap"><textarea id="fourGoal" class="tin" rows="2" placeholder="Give the team an objective in plain words…"></textarea><button class="sbtn" id="fourGo" style="flex:0 0 auto;padding:10px 14px">\ud83d\ude80 Run</button></div>'
  +'<button class="sbtn" id="fourStop" style="display:none;margin:-4px 0 10px;background:#fdecec;color:#dc2626">\u23f9 stop the team</button>'
  +'<div class="plist" id="fourList"></div>'
  +'<div id="fourRunArea"></div>'
- +'<details style="margin-top:6px"><summary style="font-size:14px;font-weight:600;cursor:pointer">\ud83d\udcdc Mission log</summary><div id="fourLogBox" style="max-height:200px;overflow-y:auto;font-size:12.5px;color:var(--dim);padding:6px 2px;line-height:1.6"></div><div class="prow" style="margin-top:6px"><button class="sbtn" id="fourExp">\u2b07\ufe0f Export</button><button class="sbtn" id="fourClear">\ud83e\uddf9 Clear run</button></div></details>'
+ +'<details id="fourLogD" style="margin-top:6px"><summary style="font-size:14px;font-weight:600;cursor:pointer">\ud83d\udcdc Mission log</summary><div id="fourLogBox" style="max-height:200px;overflow-y:auto;font-size:12.5px;color:var(--dim);padding:6px 2px;line-height:1.6"></div><div class="prow" style="margin-top:6px"><button class="sbtn" id="fourExp">\u2b07\ufe0f Export</button><button class="sbtn" id="fourClear">\ud83e\uddf9 Clear run</button></div></details>'
  +'<div id="fourRoom" style="display:none;flex-direction:column;flex:1;min-height:0">'
  +' <div class="prow"><button class="ic" id="fourBack">\u2190</button><div class="ptitle" id="fourRoomTitle"></div><button class="sbtn" id="fourReset" style="flex:0 0 auto;padding:9px 10px;font-size:12px">reset</button></div>'
  +' <div class="fourfeed" id="fourFeed"></div>'
@@ -87,8 +87,8 @@ function openRoom(id){
  room4=id;const a=byId(id);
  document.getElementById("fourList").style.display="none";
  document.getElementById("fourRunArea").style.display="none";
- document.querySelector("#teamPanel .fourgoal").style.display="none";
- document.querySelector("#teamPanel details").style.display="none";
+ document.getElementById("fourGoalWrap").style.display="none";
+ document.getElementById("fourLogD").style.display="none";
  const r=document.getElementById("fourRoom");r.style.display="flex";
  document.getElementById("fourRoomTitle").textContent=a.em+" "+a.name+" — "+a.role;
  const feed=document.getElementById("fourFeed");feed.innerHTML="";
@@ -103,8 +103,8 @@ function closeRoom(){
  document.getElementById("fourRoom").style.display="none";
  document.getElementById("fourList").style.display="";
  document.getElementById("fourRunArea").style.display="";
- document.querySelector("#teamPanel .fourgoal").style.display="flex";
- document.querySelector("#teamPanel details").style.display="";
+ document.getElementById("fourGoalWrap").style.display="flex";
+ document.getElementById("fourLogD").style.display="";
  renderList();
 }
 async function sendRoom(){
