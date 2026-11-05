@@ -82,7 +82,11 @@
 <div class="drawer" id="drawer">
   <button class="newchat" id="newchat">＋ New chat</button>
   <div class="dtitle">UNCENSORED AI</div>
-  <div class="dbody">Server pool with auto-rotation: two Qwen 27B servers, a Huihui 35B, NeuralDaredevil 8B and an abliterated Gemma. If one is out of quota or asleep, the next one takes over. Tap ⚡ phone to run the brain on your phone itself: no quota, ever. Nothing you type or attach is stored.</div>
+  <div class="dbody">Server pool with auto-rotation: two Qwen 27B servers, a Huihui 35B, NeuralDaredevil 8B and an abliterated Gemma. If one is out of quota or asleep, the next one takes over. Tap ⚡ phone to run the brain on your phone itself: no quota, ever. Two phone brains: chat (Hermes 3B) and coder (Qwen Coder 3B). Nothing you type or attach is stored.</div>
+  <div style="display:flex;gap:8px">
+  <button class="newchat" id="brainChat" style="flex:1">💬 chat brain</button>
+  <button class="newchat" id="brainCode" style="flex:1">💻 coder brain</button>
+  </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
@@ -269,32 +273,43 @@ async function askSpace(b,msg,out){
   if(!full)throw{msg:b.name+" no reply"};
   return full;
 }
-let phoneBtn=document.getElementById("phonebtn"),localMode=false,engine=null;
-const LOCAL_MODEL="Hermes-3-Llama-3.2-3B-q4f16_1-MLC";
+let phoneBtn=document.getElementById("phonebtn"),localMode=false,engine=null,engineModel=null,brainKind="chat";
+const BRAINS={chat:"Hermes-3-Llama-3.2-3B-q4f16_1-MLC",code:"Qwen2.5-Coder-3B-Instruct-q4f16_1-MLC"};
+const BRAINNAME={chat:"chat brain",code:"coder brain"};
 phoneBtn.onclick=async()=>{
   if(engine){localMode=!localMode;phoneBtn.style.color=localMode?"#4ade80":"";
-    setStatus(localMode?"phone brain on — chats run on your phone, no quota":"phone brain off — using the server pool");
+    setStatus(localMode?"phone "+BRAINNAME[brainKind]+" on — runs on your phone, no quota":"phone brain off — using the server pool");
     setTimeout(()=>setStatus(""),2500);return;}
-  if(!navigator.gpu){bubble("ai","The phone brain needs iOS 26 or newer (WebGPU). The free server pool still works — update your phone and try again.");return;}
+  pickBrain(brainKind);
+};
+async function pickBrain(kind){
+  if(!navigator.gpu){bubble("ai","The phone brains need iOS 26 or newer (WebGPU). The free server pool still works — update your phone and try again.");return;}
+  brainKind=kind;
+  if(engineModel&&engineModel!==BRAINS[kind]){engine=null;engineModel=null;}
   localMode=true;phoneBtn.style.color="#4ade80";
   try{
-    await loadLocal(LOCAL_MODEL,t=>setStatus(t));
-    setStatus("phone brain ready — it runs on your phone and never runs out");
+    if(!engine)await loadLocal(BRAINS[kind],t=>setStatus("downloading the "+BRAINNAME[kind]+"… "+t));
+    setStatus(BRAINNAME[kind]+" ready — it runs on your phone and never runs out");
     setTimeout(()=>setStatus(""),3500);
   }catch(e){
-    engine=null;localMode=false;phoneBtn.style.color="";
-    bubble("ai","The phone brain didn't load ("+((e&&e.message)+"").slice(0,80)+"). Using the free server pool instead.");
+    engine=null;engineModel=null;localMode=false;phoneBtn.style.color="";
+    bubble("ai","The phone "+BRAINNAME[kind]+" didn't load ("+((e&&e.message)+"").slice(0,80)+"). Using the free server pool instead.");
   }
-};
+}
+document.getElementById("brainChat").onclick=()=>pickBrain("chat");
+document.getElementById("brainCode").onclick=()=>pickBrain("code");
 async function loadLocal(model,onp){
   const webllm=await import("https://esm.run/@mlc-ai/web-llm");
   engine=await webllm.CreateMLCEngine(model,{initProgressCallback:p=>onp(p.text||"loading…")});
+  engineModel=model;
   return engine;
 }
+const CODE_SYSTEM="You are Qwen2.5-Coder, an expert programming assistant. Write clean, correct, complete code with brief explanations.";
 async function askLocal(msg,out){
-  if(!engine)await loadLocal(LOCAL_MODEL,t=>setStatus("downloading the phone brain… "+t));
-  setStatus("thinking on your phone…");
-  const chunks=await engine.chat.completions.create({messages:[{role:"system",content:SYSTEM},{role:"user",content:msg}],stream:true,max_tokens:512,temperature:0.7});
+  if(!engine)await loadLocal(BRAINS[brainKind],t=>setStatus("downloading the "+BRAINNAME[brainKind]+"… "+t));
+  setStatus("thinking on your phone ("+BRAINNAME[brainKind]+")…");
+  const sys=brainKind==="code"?CODE_SYSTEM:SYSTEM;
+  const chunks=await engine.chat.completions.create({messages:[{role:"system",content:sys},{role:"user",content:msg}],stream:true,max_tokens:768,temperature:0.7});
   let full="";
   for await(const c of chunks){
     const d=(c.choices&&c.choices[0]&&c.choices[0].delta&&c.choices[0].delta.content)||"";
