@@ -1,4 +1,6 @@
 /* ---- research lab + compare + stop + chat search + wiring ---- */
+if(typeof localMode==="undefined")window.localMode=false;
+if(typeof brainKind==="undefined")window.brainKind="chat";
 function showPanel(p){["sitePanel","agentsPanel","memPanel","projPanel","dashPanel","resPanel","intPanel","setPanel"].forEach(x=>{const e=document.getElementById(x);if(e)e.style.display="none";});p.style.display="flex";}
 const resPanel=document.getElementById("resPanel"),resQ=document.getElementById("resQ"),resGo=document.getElementById("resGo"),
       cmpGo=document.getElementById("cmpGo"),resOut=document.getElementById("resOut"),resStatus=document.getElementById("resStatus");
