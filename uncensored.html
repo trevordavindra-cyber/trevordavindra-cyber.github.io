@@ -47,7 +47,7 @@
   .empty-rows{max-width:768px;margin:0 auto 8px}
   .erow{display:flex;gap:12px;align-items:center;background:none;border:0;color:var(--dim);font-size:15.5px;font-weight:600;padding:11px 6px;text-align:left;width:100%;cursor:pointer}
   .pill{max-width:768px;margin:0 auto;background:var(--chip);border:1px solid var(--line);border-radius:26px;padding:6px 8px 6px 10px;display:flex;align-items:flex-end;gap:4px;box-shadow:var(--shadow)}
-  .pill textarea{flex:1;background:transparent;border:0;outline:none;color:var(--txt);font:16px/1.4 inherit;resize:none;max-height:120px;padding:9px 0}
+  .pill textarea{flex:1;background:transparent;border:0;outline:none;color:var(--txt);font-family:inherit;font-size:16px;line-height:1.4;resize:none;max-height:120px;padding:9px 0}
   .pill textarea::placeholder{color:var(--faint)}
   .icb{width:36px;height:36px;border-radius:50%;border:0;background:transparent;color:var(--txt);font-size:18px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;cursor:pointer}
   #send{background:var(--accent);color:#fff;width:34px;height:34px;font-size:16px;margin-left:2px}
@@ -69,7 +69,7 @@
   .panel{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 10px) 14px 12px}
   .panel .prow{display:flex;gap:8px;align-items:center}
   .ptitle{font-weight:700;font-size:17px;flex:1;letter-spacing:-.01em}
-  .tin{width:100%;background:var(--panel);border:0;outline:none;color:var(--txt);border-radius:14px;padding:11px 13px;font:15px/1.4 inherit;resize:none}
+  .tin{width:100%;background:var(--panel);border:0;outline:none;color:var(--txt);border-radius:14px;padding:11px 13px;font-family:inherit;font-size:15px;line-height:1.4;resize:none}
   .plist{flex:1;overflow-y:auto;margin-top:10px;-webkit-overflow-scrolling:touch}
   .pitem{display:flex;gap:10px;align-items:center;background:var(--panel);border-radius:14px;padding:11px 13px;margin-bottom:8px;flex-wrap:wrap}
   .pitem .pi-em{font-size:20px;flex:0 0 auto}
@@ -86,7 +86,7 @@
   .ftab{background:var(--panel);border-radius:10px;padding:6px 10px;font-size:13px;white-space:nowrap;display:flex;gap:6px;align-items:center;border:0;color:var(--txt);cursor:pointer;flex:0 0 auto}
   .ftab.on{outline:1.5px solid var(--accent)}
   .ftab button{background:none;border:0;color:var(--faint);font-size:12px;padding:0}
-  #wsEditor{flex:1;width:100%;background:var(--panel);color:var(--txt);border:1px solid var(--line);outline:none;border-radius:14px;padding:10px;font:13px/1.5 ui-monospace,Menlo,monospace;resize:none;white-space:pre;overflow:auto}
+  #wsEditor{flex:1;width:100%;background:var(--panel);color:var(--txt);border:1px solid var(--line);outline:none;border-radius:14px;padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.5;resize:none;white-space:pre;overflow:auto}
   #siteFrame{flex:1;width:100%;border:1px solid var(--line);border-radius:14px;background:#fff;margin-top:8px;min-height:140px}
   #wsConsole{background:var(--panel);border:1px solid var(--line);border-radius:10px;font:11.5px/1.5 ui-monospace,Menlo,monospace;color:var(--dim);padding:6px 10px;max-height:70px;overflow-y:auto;white-space:pre-wrap;display:none}
   .taskrow{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:14px;border:1px solid var(--line)}
