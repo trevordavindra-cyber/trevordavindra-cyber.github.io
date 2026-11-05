@@ -11,7 +11,7 @@
   body{background:var(--bg);color:var(--txt);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;display:flex;flex-direction:column;height:100dvh}
   .top{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top) + 8px) 12px 8px}
   .ic{width:38px;height:38px;border-radius:10px;border:0;background:transparent;color:var(--txt);font-size:19px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-  .model{font-size:16px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:5px;margin-left:2px}
+  .model{width:auto;height:auto;font-size:16px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:5px;margin-left:2px}
   .model span{font-size:11px;color:var(--dim)}
   main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .wrap{max-width:768px;margin:0 auto;padding:16px 16px 4px}
@@ -39,7 +39,6 @@
   #send:disabled{background:#4d4d4d;color:#8f8f8f}
   .fine{max-width:768px;margin:7px auto 0;font-size:11px;color:var(--faint);text-align:center}
   .chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 2px}
-  .chips .chip{display:none}
   .drawer{position:fixed;inset:0 auto 0 0;width:78%;max-width:320px;background:var(--panel);z-index:30;transform:translateX(-102%);transition:transform .22s ease;padding:calc(env(safe-area-inset-top) + 14px) 12px 14px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
   .drawer.open{transform:none}
   .shade{position:fixed;inset:0;background:#000a;z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
