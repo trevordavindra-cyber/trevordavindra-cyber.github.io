@@ -88,7 +88,7 @@
 const BASE8="https://jwherrold-neuraldaredevil-8b-abliterated-chat.hf.space";
 const BASE27="https://zk-armor-qwen3-8-27b-uncensored-chatbot.hf.space";
 const SYSTEM="You are NeuralDaredevil, a helpful and knowledgeable assistant. Answer clearly and directly.";
-const CAP=24000, HIST=6;
+const CAP=48000, HIST=6;
 const feed=document.getElementById("feed"), log=document.getElementById("log"), input=document.getElementById("input"),
       send=document.getElementById("send"), clip=document.getElementById("clip"),
       fpick=document.getElementById("fpick"), hello=document.getElementById("hello"),
@@ -138,7 +138,7 @@ async function read(f){
     pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     const buf=await f.arrayBuffer(), pdf=await pdfjsLib.getDocument({data:buf}).promise;
     let out="";
-    for(let i=0;i<Math.min(pdf.numPages,10);i++){
+    for(let i=0;i<Math.min(pdf.numPages,20);i++){
       const t=await (await pdf.getPage(i+1)).getTextContent();
       out+=t.items.map(x=>x.str).join(" ")+"\n";
     }
@@ -206,7 +206,14 @@ async function ask(msg,out){
   }catch(e){
     if(e&&e.name==="AbortError")throw e;
     setStatus("27B is busy — switching to the 8B…");
-    return await ask8(msg,out);
+    try{
+      return await ask8(msg,out);
+    }catch(e2){
+      if(e2&&e2.name==="AbortError")throw e2;
+      const both=(((e&&e.msg)+" "+(e2&&e2.msg))+"").toLowerCase();
+      if(both.includes("quota"))throw{msg:"The free servers are out of quota right now. They refill after a bit — try again in a few minutes."};
+      throw (e2&&e2.msg)?e2:{msg:"The AI didn't answer. Try again in a minute."};
+    }
   }
 }
 async function ask27(msg,out){
@@ -276,11 +283,12 @@ async function ask8(msg,out){
       if(d==="null")return full;
       try{
         const a=JSON.parse(d);
+        if(a&&a.error)throw{msg:String(a.error).slice(0,120)};
         if(Array.isArray(a)){
           if(typeof a[0]==="string"&&a[0].length>=full.length)full=a[0];
           else if(a[0]===null&&a[1]&&a[1].message)full=a[1].message;
         }
-      }catch(e){}
+      }catch(e){if(e&&e.msg)throw e;}
       if(full)out.textContent=full;
       log.scrollTop=log.scrollHeight;
     }
