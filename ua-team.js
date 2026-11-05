@@ -133,7 +133,16 @@ async function fourStep(agent,label,fn,statName){
  const step={agent:agent,label:label,output:"",open:true};run.steps.push(step);SV("ua4_run",run);renderRun();
  const box=document.getElementById("fourRunArea");
  const outs=box.querySelectorAll(".fourout");const out=outs[outs.length-1];
- const full=await fn(out);
+ let ok=false,full=null,lastErr=null;
+ for(let att=0;att<3&&!stop4&&!ok;att++){
+  try{full=await fn(out);ok=true;}
+  catch(e){
+   if(e&&(e.name==="Stop"||e.name==="AbortError"))throw e;
+   lastErr=e;
+   if(att<2){out.textContent="the free servers are busy — waiting and retrying (attempt "+(att+2)+" of 3)\u2026";await new Promise(r=>setTimeout(r,15000));}
+  }
+ }
+ if(!ok){if(stop4)throw{name:"Stop"};throw lastErr||new Error("failed");}
  step.output=String(full||"").slice(0,4000);step.open=false;SV("ua4_run",run);
  st4(agent,"Done",label);log4(agent,label+" — done ("+String(full||"").length+" chars)");renderList();renderRun();
  return full;
