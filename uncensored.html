@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v13 -->
+<!-- v14 -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -55,6 +55,7 @@
 <div class="top">
   <button class="ic" id="menu">☰</button>
   <button class="ic model" id="modelbtn" style="padding:0 8px">Qwen Uncensored <span>27B ⌄</span></button>
+  <button class="ic model" id="phonebtn" style="padding:0 8px" title="Run the AI on your phone">⚡ phone</button>
 </div>
 <main id="log"><div class="wrap" id="feed"></div>
   <div class="hello" id="hello">
@@ -81,14 +82,19 @@
 <div class="drawer" id="drawer">
   <button class="newchat" id="newchat">＋ New chat</button>
   <div class="dtitle">UNCENSORED AI</div>
-  <div class="dbody">Qwen 3.8 27B Uncensored (Huihui abliterated lineage), free on Hugging Face. Falls back to NeuralDaredevil 8B when the free GPU quota runs dry. Nothing you type or attach is stored.</div>
+  <div class="dbody">Server pool with auto-rotation: two Qwen 27B servers, a Huihui 35B, NeuralDaredevil 8B and an abliterated Gemma. If one is out of quota or asleep, the next one takes over. Tap ⚡ phone to run the brain on your phone itself: no quota, ever. Nothing you type or attach is stored.</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
 <script>
-const BASE8="https://jwherrold-neuraldaredevil-8b-abliterated-chat.hf.space";
-const BASE27="https://zk-armor-qwen3-8-27b-uncensored-chatbot.hf.space";
+const POOL=[
+ {name:"27B",base:"https://zk-armor-qwen3-8-27b-uncensored-chatbot.hf.space",path:"/chat",payload:m=>[m,SYSTEM,false,0.7,512,0.95,50],tries:3},
+ {name:"27B-2",base:"https://microhero-qwen3-8-27b-uncensored-chat.hf.space",path:"/respond",payload:m=>[m,512,0.7,0.95],tries:6},
+ {name:"35B",base:"https://josssdiff-huihui-qwen3-6-35b-abliterated-chat.hf.space",path:"/chat",payload:m=>[m,SYSTEM,512,0.7],tries:6},
+ {name:"8B",base:"https://jwherrold-neuraldaredevil-8b-abliterated-chat.hf.space",path:"/generate",payload:m=>[m,SYSTEM,512,0.7,0.95,50,1.1],tries:20},
+ {name:"Gemma",base:"https://jokernifty-gemma-4-e4b-it-abliterated-chat.hf.space",path:"/chat",payload:m=>[m],tries:6}
+];
 const SYSTEM="You are NeuralDaredevil, a helpful and knowledgeable assistant. Answer clearly and directly.";
 const CAP=48000, HIST=6;
 const feed=document.getElementById("feed"), log=document.getElementById("log"), input=document.getElementById("input"),
@@ -217,79 +223,24 @@ async function fire(){
   log.scrollTop=log.scrollHeight;
 }
 function clean(s){return String(s||"").replace(/<details[\s\S]*?<\/details>/g,"").replace(/<\/?(details|summary)[^>]*>/g,"").trim();}
-async function ask(msg,out){
-  try{
-    const full=await ask27(msg,out);
-    if(full)return full;
-    throw{msg:"27B empty"};
-  }catch(e){
-    if(e&&e.name==="AbortError")throw e;
-    setStatus("27B is busy — switching to the 8B…");
-    try{
-      return await ask8(msg,out);
-    }catch(e2){
-      if(e2&&e2.name==="AbortError")throw e2;
-      const both=(((e&&e.msg)+" "+(e2&&e2.msg))+"").toLowerCase();
-      if(both.includes("quota"))throw{msg:"The free servers are out of quota right now. They refill after a bit — try again in a few minutes."};
-      throw (e2&&e2.msg)?e2:{msg:"The AI didn't answer. Try again in a minute."};
-    }
-  }
-}
-async function ask27(msg,out){
+let prefer=0;
+async function askSpace(b,msg,out){
   let eventId=null;
-  for(let i=0;i<3;i++){
+  for(let i=0;i<b.tries;i++){
     try{
-      const r=await fetch(BASE27+"/gradio_api/call/chat",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({data:[msg,SYSTEM,false,0.7,512,0.95,50]}),signal:ctrl.signal});
+      const r=await fetch(b.base+"/gradio_api/call"+b.path,{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({data:b.payload(msg)}),signal:ctrl.signal});
       if(r.ok){eventId=(await r.json()).event_id;break;}
     }catch(e){if(e.name==="AbortError")throw e;}
-    await sleep(2500);
-  }
-  if(!eventId)throw{msg:"27B unavailable"};
-  setStatus("thinking with the 27B…");
-  const resp=await fetch(BASE27+"/gradio_api/call/chat/"+eventId,{signal:ctrl.signal});
-  const reader=resp.body.getReader(),dec=new TextDecoder();
-  let buf="",full="";
-  const show=(t)=>{if(t&&t.length>=full.length){full=t;out.textContent=full;log.scrollTop=log.scrollHeight;}};
-  while(true){
-    const{done,value}=await reader.read();
-    if(done)break;
-    buf+=dec.decode(value,{stream:true});
-    let i;
-    while((i=buf.indexOf("\n"))>=0){
-      const line=buf.slice(0,i).trim();buf=buf.slice(i+1);
-      if(!line.startsWith("data:"))continue;
-      const d=line.slice(5).trim();
-      if(d==="null")return full;
-      try{
-        const a=JSON.parse(d);
-        if(typeof a==="string")show(clean(a));
-        else if(Array.isArray(a)&&a.length>1&&a[1]&&a[1].length){
-          const last=a[1][a[1].length-1];
-          if(last&&last.role==="assistant"&&last.content&&last.content[0])show(clean(last.content[0].text));
-        }else if(a&&a.error)throw{msg:String(a.error).slice(0,120)};
-      }catch(e){if(e&&e.msg)throw e;}
-    }
-  }
-  if(!full)throw{msg:"27B no reply"};
-  return full;
-}
-async function ask8(msg,out){
-  let eventId=null;
-  for(let i=0;i<20;i++){
-    try{
-      const r=await fetch(BASE8+"/gradio_api/call/generate",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({data:[msg,SYSTEM,512,0.7,0.95,50,1.1]}),signal:ctrl.signal});
-      if(r.ok){eventId=(await r.json()).event_id;break;}
-      setStatus("waking the AI up… ("+(i+1)+")");
-    }catch(e){if(e.name==="AbortError")throw e;setStatus("waking the AI up… ("+(i+1)+")");}
+    setStatus("waking server "+b.name+"… ("+(i+1)+")");
     await sleep(3000);
   }
-  if(!eventId)throw{msg:"The AI is still waking up. Give it a minute and try again."};
-  setStatus("thinking…");
-  const resp=await fetch(BASE8+"/gradio_api/call/generate/"+eventId,{signal:ctrl.signal});
+  if(!eventId)throw{msg:b.name+" unavailable"};
+  setStatus("thinking with "+b.name+"…");
+  const resp=await fetch(b.base+"/gradio_api/call"+b.path+"/"+eventId,{signal:ctrl.signal});
   const reader=resp.body.getReader(),dec=new TextDecoder();
   let buf="",full="";
+  const show=t=>{if(t&&t.length>=full.length){full=t;out.textContent=full;log.scrollTop=log.scrollHeight;}};
   while(true){
     const{done,value}=await reader.read();
     if(done)break;
@@ -303,18 +254,79 @@ async function ask8(msg,out){
       try{
         const a=JSON.parse(d);
         if(a&&a.error)throw{msg:String(a.error).slice(0,120)};
-        if(Array.isArray(a)){
-          if(typeof a[0]==="string"&&a[0].length>=full.length)full=a[0];
-          else if(a[0]===null&&a[1]&&a[1].message)full=a[1].message;
+        if(typeof a==="string")show(clean(a));
+        else if(Array.isArray(a)){
+          if(typeof a[0]==="string")show(a[0]);
+          else if(a[0]===null&&a[1]&&a[1].message)show(a[1].message);
+          else if(a.length>1&&a[1]&&a[1].length){
+            const last=a[1][a[1].length-1];
+            if(last&&last.role==="assistant"&&last.content&&last.content[0])show(clean(last.content[0].text));
+          }
         }
       }catch(e){if(e&&e.msg)throw e;}
-      if(full)out.textContent=full;
-      log.scrollTop=log.scrollHeight;
     }
   }
+  if(!full)throw{msg:b.name+" no reply"};
   return full;
 }
-fetch(BASE8+"/gradio_api/info").then(()=>{}).catch(()=>{});
+let phoneBtn=document.getElementById("phonebtn"),localMode=false,engine=null;
+const LOCAL_MODEL="Hermes-3-Llama-3.2-3B-q4f16_1-MLC";
+phoneBtn.onclick=async()=>{
+  if(engine){localMode=!localMode;phoneBtn.style.color=localMode?"#4ade80":"";
+    setStatus(localMode?"phone brain on — chats run on your phone, no quota":"phone brain off — using the server pool");
+    setTimeout(()=>setStatus(""),2500);return;}
+  if(!navigator.gpu){bubble("ai","The phone brain needs iOS 26 or newer (WebGPU). The free server pool still works — update your phone and try again.");return;}
+  localMode=true;phoneBtn.style.color="#4ade80";
+  try{
+    await loadLocal(LOCAL_MODEL,t=>setStatus(t));
+    setStatus("phone brain ready — it runs on your phone and never runs out");
+    setTimeout(()=>setStatus(""),3500);
+  }catch(e){
+    engine=null;localMode=false;phoneBtn.style.color="";
+    bubble("ai","The phone brain didn't load ("+((e&&e.message)+"").slice(0,80)+"). Using the free server pool instead.");
+  }
+};
+async function loadLocal(model,onp){
+  const webllm=await import("https://esm.run/@mlc-ai/web-llm");
+  engine=await webllm.CreateMLCEngine(model,{initProgressCallback:p=>onp(p.text||"loading…")});
+  return engine;
+}
+async function askLocal(msg,out){
+  if(!engine)await loadLocal(LOCAL_MODEL,t=>setStatus("downloading the phone brain… "+t));
+  setStatus("thinking on your phone…");
+  const chunks=await engine.chat.completions.create({messages:[{role:"system",content:SYSTEM},{role:"user",content:msg}],stream:true,max_tokens:512,temperature:0.7});
+  let full="";
+  for await(const c of chunks){
+    const d=(c.choices&&c.choices[0]&&c.choices[0].delta&&c.choices[0].delta.content)||"";
+    if(d){full+=d;out.textContent=full;log.scrollTop=log.scrollHeight;}
+  }
+  if(!full)throw{msg:"phone brain no reply"};
+  return full;
+}
+async function ask(msg,out){
+  if(localMode){
+    try{const full=await askLocal(msg,out);if(full)return full;}catch(e){
+      if(e&&e.name==="AbortError")throw e;
+      out.textContent="…";
+    }
+  }
+  let firstErr=null;
+  for(let k=0;k<POOL.length;k++){
+    const idx=(prefer+k)%POOL.length,b=POOL[idx];
+    try{
+      const full=await askSpace(b,msg,out);
+      prefer=idx;
+      if(full)return full;
+    }catch(e){
+      if(e&&e.name==="AbortError")throw e;
+      if(!firstErr)firstErr=e;
+    }
+  }
+  const all=(((firstErr&&firstErr.msg)+"")+"").toLowerCase();
+  if(all.includes("quota"))throw{msg:"All the free servers are out of quota right now. They refill after a bit — or tap ⚡ phone to run the brain on your phone with no quota."};
+  throw firstErr||{msg:"The AI didn't answer. Try again in a minute."};
+}
+POOL.forEach(b=>fetch(b.base+"/gradio_api/info").then(()=>{}).catch(()=>{}));
 </script>
 </body>
 </html>
