@@ -1,4 +1,5 @@
-/* ---- research lab + compare + chat search + stop ---- */
+/* ---- research lab + compare + stop + chat search + wiring ---- */
+function showPanel(p){["sitePanel","agentsPanel","memPanel","projPanel","dashPanel","resPanel","intPanel","setPanel"].forEach(x=>{const e=document.getElementById(x);if(e)e.style.display="none";});p.style.display="flex";}
 const resPanel=document.getElementById("resPanel"),resQ=document.getElementById("resQ"),resGo=document.getElementById("resGo"),
       cmpGo=document.getElementById("cmpGo"),resOut=document.getElementById("resOut"),resStatus=document.getElementById("resStatus");
 async function jina(u){
@@ -63,8 +64,8 @@ cmpGo.onclick=async()=>{
   }catch(e){}
   busy=false;resStatus.textContent="done";
 };
-document.getElementById("resbtn").onclick=()=>{openPanel("resPanel");resStatus.textContent="";};
-document.getElementById("resClose").onclick=closePanels;
+document.getElementById("resbtn").onclick=()=>{showPanel(resPanel);resStatus.textContent="";};
+document.getElementById("resClose").onclick=()=>{resPanel.style.display="none";};
 /* ---- stop button ---- */
 const stopChip=document.getElementById("stopChip");
 setInterval(()=>{stopChip.style.display=busy?"flex":"none";},400);
@@ -87,5 +88,33 @@ renderChats=function(){
   });
   if(!chats.length)el.innerHTML='<div class="mini" style="padding:10px">No chats yet.</div>';
 };
+/* ---- wiring for the new top bar + plus menu ---- */
+const newbtn=document.getElementById("newbtn"),searchbtn=document.getElementById("searchbtn"),plusBtn=document.getElementById("plusBtn"),plusMenu=document.getElementById("plusMenu");
+function openDrawer(){drawer.classList.add("open");shade.classList.add("on");}
+function closeDrawer(){drawer.classList.remove("open");shade.classList.remove("on");}
+newbtn.onclick=()=>{if(newchat.onclick)newchat.onclick();closeDrawer();};
+searchbtn.onclick=()=>{openDrawer();setTimeout(()=>chatSearch.focus(),300);};
+modelbtn.onclick=openDrawer;
+drawer.querySelectorAll("button").forEach(b=>{if(!b.closest(".chatitem"))b.addEventListener("click",()=>setTimeout(closeDrawer,150));});
+function tglPM(){plusMenu.style.display=plusMenu.style.display==="flex"?"none":"flex";}
+plusBtn.onclick=tglPM;
+shade.addEventListener("click",()=>{plusMenu.style.display="none";});
+const pmFiles=document.getElementById("pmFiles"),pmImage=document.getElementById("pmImage"),pmThink=document.getElementById("pmThink"),pmPlug=document.getElementById("pmPlug");
+pmFiles.onclick=()=>{plusMenu.style.display="none";fpick.click();};
+pmImage.onclick=()=>{plusMenu.style.display="none";input.value="/image ";input.focus();};
+pmThink.onclick=()=>{plusMenu.style.display="none";prefs.verify=!prefs.verify;SV("ua_prefs",prefs);setStatus(prefs.verify?"🧠 think harder on for the next answer":"think harder off");};
+pmPlug.onclick=()=>{plusMenu.style.display="none";showPanel(document.getElementById("intPanel"));};
+/* empty-state rows */
+const rowVoice=document.getElementById("rowVoice"),rowWrite=document.getElementById("rowWrite"),emptyRows=document.getElementById("emptyRows");
+rowVoice.onclick=()=>{micBtn.click();};
+rowWrite.onclick=()=>{input.focus();};
+document.querySelectorAll(".erow[data-p]").forEach(b=>b.addEventListener("click",()=>{input.value=b.dataset.p;input.focus();}));
+document.querySelectorAll(".card[data-p]").forEach(b=>b.addEventListener("click",()=>{input.value=b.dataset.p;input.focus();}));
+document.getElementById("cardAgents").onclick=()=>{showPanel(document.getElementById("agentsPanel"));};
+const mo=new MutationObserver(()=>{emptyRows.style.display=hello.style.display==="none"?"none":"";});
+mo.observe(hello,{attributes:true});
+/* theme: flip to light once, matching the app look */
+if(!localStorage.getItem("ua_theme19")){prefs.theme="light";SV("ua_prefs",prefs);localStorage.setItem("ua_theme19","1");document.body.dataset.theme="light";}
+else if(prefs.theme)document.body.dataset.theme=prefs.theme;
 /* ---- pwa ---- */
 if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
