@@ -254,7 +254,7 @@ function rGuard(B){
 
 /* ---------- Marketing desk ---------- */
 function rMkt(B){
- var h='<div class="pitem" style="flex-direction:column;align-items:stretch"><textarea class="tin dk" id="dkMk" placeholder="What should be marketed? Product, audience, vibe."></textarea>'++
+ var h='<div class="pitem" style="flex-direction:column;align-items:stretch"><textarea class="tin dk" id="dkMk" placeholder="What should be marketed? Product, audience, vibe."></textarea>'+
  '<button class="sbtn" id="dkMkGo" style="margin-top:8px">📣 Draft the post pack</button><div class="mini">Drafts only. Nothing posts anywhere until it clears Approvals and you send it yourself.</div></div><div id="dkMkOut"></div>';
  B.innerHTML=h;
  $('dkMkGo').onclick=async function(){
@@ -271,7 +271,7 @@ function rMkt(B){
 var sweepT=null;
 function rAuto(B){
  var h='<div class="togglerow"><span>Autonomy heartbeat (every 10 min while this page is open)</span><input type="checkbox" id="dkAutoT"'+(DS.auto.on?' checked':'')+'></div>'+
- '<div class="mini">While on: advances the next open mission step, scans for one opportunity, and logs everything below. Phones pause background tabs, so it works while the page stays open — open it and let it run.</div>'++
+ '<div class="mini">While on: advances the next open mission step, scans for one opportunity, and logs everything below. Phones pause background tabs, so it works while the page stays open — open it and let it run.</div>'+
  '<div class="prow" style="margin-top:8px"><button class="sbtn" id="dkSweepNow">▶️ Sweep now</button></div><div id="dkLog"></div>';
  B.innerHTML=h;
  $('dkAutoT').onchange=function(){DS.auto.on=this.checked;save();if(DS.auto.on){startSweep()}else{clearInterval(sweepT)}};
@@ -309,8 +309,8 @@ function rAppr(B){
 
 /* ---------- Sandbox ---------- */
 function rTools(B){
- var h='<div class="mini">Agents can build their own tools here: write JavaScript, run it in a locked box (no access to your data on this page), see the result.</div>'++
- '<div class="pitem" style="flex-direction:column;align-items:stretch"><textarea class="tin dk" id="dkJS" style="font-family:ui-monospace,Menlo,monospace" placeholder="Write a JS tool. Example:\nfor(let i=1;i<=5;i++)console.log(i*i)"></textarea>'++
+ var h='<div class="mini">Agents can build their own tools here: write JavaScript, run it in a locked box (no access to your data on this page), see the result.</div>'+
+ '<div class="pitem" style="flex-direction:column;align-items:stretch"><textarea class="tin dk" id="dkJS" style="font-family:ui-monospace,Menlo,monospace" placeholder="Write a JS tool. Example:\nfor(let i=1;i<=5;i++)console.log(i*i)"></textarea>'+
  '<div class="prow" style="margin-top:8px"><button class="sbtn" id="dkJSRun">▶️ Run it</button><button class="sbtn" id="dkJSBrain">🧠 Agent writes it</button></div><div class="mini dkerr" id="dkJSErr"></div></div><div id="dkJSOut" class="mini"></div>';
  B.innerHTML=h;
  $('dkJSRun').onclick=function(){
