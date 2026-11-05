@@ -49,6 +49,11 @@
   .newchat:hover{background:#ffffff12}
   .dtitle{font-size:12px;color:var(--faint);padding:8px 10px 2px}
   .dbody{font-size:13.5px;color:var(--dim);padding:0 10px;line-height:1.6}
+  .sbtn{background:var(--soft);border:0;color:var(--txt);border-radius:12px;padding:11px 12px;font-size:14px;flex:1}
+  #sitePanel{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 10px) 12px 12px}
+  #sitePanel .srow{display:flex;gap:8px;align-items:center}
+  #sitePrompt{width:100%;background:var(--soft);border:0;outline:none;color:var(--txt);border-radius:12px;padding:10px 12px;font:15px/1.4 inherit;resize:none;height:64px}
+  #siteFrame{flex:1;width:100%;border:0;border-radius:12px;background:#fff;margin-top:8px}
 </style>
 </head>
 <body>
@@ -56,6 +61,7 @@
   <button class="ic" id="menu">☰</button>
   <button class="ic model" id="modelbtn" style="padding:0 8px">Qwen Uncensored <span>27B ⌄</span></button>
   <button class="ic model" id="phonebtn" style="padding:0 8px" title="Run the AI on your phone">⚡ phone</button>
+  <button class="ic" id="sitebtn" title="Website builder">🌐</button>
 </div>
 <main id="log"><div class="wrap" id="feed"></div>
   <div class="hello" id="hello">
@@ -87,6 +93,20 @@
   <button class="newchat" id="brainChat" style="flex:1">💬 chat brain</button>
   <button class="newchat" id="brainCode" style="flex:1">💻 coder brain</button>
   </div>
+</div>
+<div id="sitePanel">
+  <div class="srow">
+    <button class="ic" id="siteClose">✕</button>
+    <div style="font-weight:600;font-size:16px">🌐 Site builder</div>
+  </div>
+  <textarea id="sitePrompt" placeholder="Describe the website you want…"></textarea>
+  <div class="srow" style="margin-top:8px">
+    <button class="sbtn" id="siteGo">Build it</button>
+    <button class="sbtn" id="siteDown" style="display:none">⬇️ Save</button>
+    <button class="sbtn" id="siteCopy" style="display:none">📋 Copy</button>
+  </div>
+  <div id="siteStatus" style="font-size:12.5px;color:var(--faint);padding:6px 2px 0;min-height:16px"></div>
+  <iframe id="siteFrame" sandbox="allow-scripts allow-modals allow-forms" title="preview"></iframe>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
@@ -341,6 +361,49 @@ async function ask(msg,out){
   if(all.includes("quota"))throw{msg:"All the free servers are out of quota right now. They refill after a bit — or tap ⚡ phone to run the brain on your phone with no quota."};
   throw firstErr||{msg:"The AI didn't answer. Try again in a minute."};
 }
+/* ---- site builder ---- */
+const SITE_SYSTEM="You are a website builder. Reply with ONE complete single-file website: one HTML document starting with <!DOCTYPE html> that has all HTML, CSS and JavaScript inline. No text before or after it, no markdown code fences. Make it polished, modern and mobile-friendly.";
+let siteHTML="";
+const sitePanel=document.getElementById("sitePanel"),sitePrompt=document.getElementById("sitePrompt"),
+      siteGo=document.getElementById("siteGo"),siteDown=document.getElementById("siteDown"),
+      siteCopy=document.getElementById("siteCopy"),siteFrame=document.getElementById("siteFrame"),
+      siteStatus=document.getElementById("siteStatus");
+function extractHTML(t){
+  const m=t.match(/```(?:html)?\s*([\s\S]*?)```/);
+  let x=m?m[1]:String(t||"");
+  const i=x.search(/<!DOCTYPE|<html/i);
+  return i>=0?x.slice(i).trim():null;
+}
+document.getElementById("sitebtn").onclick=()=>{sitePanel.style.display="flex";input.blur();};
+document.getElementById("siteClose").onclick=()=>{sitePanel.style.display="none";};
+siteGo.onclick=async()=>{
+  const p=sitePrompt.value.trim();
+  if(!p||busy)return;
+  siteHTML="";siteFrame.removeAttribute("srcdoc");siteDown.style.display="none";siteCopy.style.display="none";
+  siteStatus.textContent="building…";
+  const out=document.createElement("div");
+  try{
+    const raw=await ask(SITE_SYSTEM+"\n\nWebsite request: "+p,out);
+    siteHTML=extractHTML(raw);
+    if(siteHTML&&siteHTML.length>200){
+      siteFrame.srcdoc=siteHTML;
+      siteDown.style.display="";siteCopy.style.display="";
+      siteStatus.textContent="done — preview above. want it online? copy it, paste it in our chat, and say publish: I'll put it up and text you the link.";
+    }else{
+      siteStatus.textContent="the brain didn't return a full page — try again or describe it in more detail.";
+    }
+  }catch(e){siteStatus.textContent=(e&&e.msg)||"couldn't build — try again in a minute.";}
+};
+siteDown.onclick=()=>{
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([siteHTML],{type:"text/html"}));
+  a.download="my-site.html";a.click();URL.revokeObjectURL(a.href);
+};
+siteCopy.onclick=async()=>{
+  try{await navigator.clipboard.writeText(siteHTML);siteStatus.textContent="copied! paste it in our chat and say publish — I'll put it online and text you the link.";}
+  catch(e){siteStatus.textContent="copy blocked — long-press the preview to share instead.";}
+};
+
 POOL.forEach(b=>fetch(b.base+"/gradio_api/info").then(()=>{}).catch(()=>{}));
 </script>
 </body>
