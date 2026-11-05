@@ -376,10 +376,10 @@ function renderSettings(){
   const b=document.getElementById("setBody");
   const dark=LS("ua_theme19","light")==="dark";
   b.innerHTML=
-   '<div class="togglerow"><span>🌙 Dark mode</span><input type="checkbox" id="tgDark" '+(dark?"checked":"")+'</div>'+
-   '<div class="togglerow"><span>🧠 Auto-remember facts</span><input type="checkbox" id="tgMem" '+(LS("ua_autoMem",true)?"checked":"")+'</div>'+
-   '<div class="togglerow"><span>🧭 Auto-route to specialist agents</span><input type="checkbox" id="tgRoute" '+(LS("ua_route",true)?"checked":"")+'</div>'+
-   '<div class="togglerow"><span>🧲 Team mode (agents collaborate)</span><input type="checkbox" id="tgTeam" '+(LS("ua_team",false)?"checked":"")+'</div>'+
+   '<div class="togglerow"><span>🌙 Dark mode</span><input type="checkbox" id="tgDark" '+(dark?"checked":"")+'></div>'+
+   '<div class="togglerow"><span>🧠 Auto-remember facts</span><input type="checkbox" id="tgMem" '+(LS("ua_autoMem",true)?"checked":"")+'></div>'+
+   '<div class="togglerow"><span>🧭 Auto-route to specialist agents</span><input type="checkbox" id="tgRoute" '+(LS("ua_route",true)?"checked":"")+'></div>'+
+   '<div class="togglerow"><span>🧲 Team mode (agents collaborate)</span><input type="checkbox" id="tgTeam" '+(LS("ua_team",false)?"checked":"")+'></div>'+
    '<div class="pitem"><div class="pi-tx"><b>⬇️ Export everything</b><small>one file with all chats, agents, memory, projects — your phone only, nothing uploaded</small></div><button class="sbtn" id="exAll" style="flex:0 0 auto;padding:9px 12px">Save</button></div>'+
    '<div class="pitem"><div class="pi-tx"><b>🗑 Wipe local data</b><small>removes everything this app saved on your phone</small></div><button class="sbtn" id="wipeAll" style="flex:0 0 auto;padding:9px 12px">Wipe</button></div>'+
    '<div class="mini" style="padding:10px">Uncensored AI · free server pool + ⚡ phone brains · nothing leaves except what you send</div>';
