@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v17 platform -->
+<!-- v18 platform -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -67,7 +67,7 @@
   .ptitle{font-weight:600;font-size:16px;flex:1}
   .tin{width:100%;background:var(--soft);border:0;outline:none;color:var(--txt);border-radius:12px;padding:10px 12px;font:15px/1.4 inherit;resize:none}
   .plist{flex:1;overflow-y:auto;margin-top:10px;-webkit-overflow-scrolling:touch}
-  .pitem{display:flex;gap:10px;align-items:center;background:var(--soft);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+  .pitem{display:flex;gap:10px;align-items:center;background:var(--soft);border-radius:12px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
   .pitem .pi-em{font-size:20px;flex:0 0 auto}
   .pitem .pi-tx{flex:1;min-width:0}
   .pitem .pi-tx b{display:block;font-size:14.5px}
@@ -101,6 +101,8 @@
   <button class="ic" id="agentbtn" title="Agents">🤖</button>
   <button class="ic" id="membtn" title="Memory">🧠</button>
   <button class="ic" id="projbtn" title="Projects">📋</button>
+  <button class="ic" id="dashbtn" title="Task dashboard">📊</button>
+  <button class="ic" id="intbtn" title="Email and call reach">🔌</button>
   <button class="ic" id="setbtn" title="Settings">⚙️</button>
 </div>
 <main id="log"><div class="wrap" id="feed"></div>
@@ -134,7 +136,7 @@
   <div class="dtitle">CHATS</div>
   <div id="chatlist"></div>
   <div class="dtitle">UNCENSORED AI</div>
-  <div class="dbody">Server pool with auto-rotation + ⚡ phone brains (chat &amp; coder, run on your phone, no quota). 🤖 agents, 🧠 memory, 📋 projects and 🌐 workspace all live on this page and save only to your phone.</div>
+  <div class="dbody">Server pool with auto-rotation + ⚡ phone brains (chat &amp; coder, run on your phone, no quota). 🤖 agents, 🧠 memory, 📋 projects, 📊 tasks, 🌐 workspace and 🔌 email/call drafts all live on this page and save only to your phone.</div>
   <div style="display:flex;gap:8px">
   <button class="newchat" id="brainChat" style="flex:1">💬 chat brain</button>
   <button class="newchat" id="brainCode" style="flex:1">💻 coder brain</button>
@@ -202,6 +204,22 @@
     <textarea id="projNotes" class="tin" style="flex:1;min-height:60px" placeholder="Notes…"></textarea>
   </div>
 </div>
+<div class="panel" id="dashPanel">
+  <div class="prow">
+    <button class="ic" id="dashClose">✕</button>
+    <div class="ptitle">📊 Tasks dashboard</div>
+    <button class="sbtn" id="dashAddBtn" style="flex:0 0 auto;padding:8px 12px">＋ Task</button>
+  </div>
+  <div class="mini" id="dashCounts" style="padding:4px 2px"></div>
+  <div class="plist" id="dashList"></div>
+</div>
+<div class="panel" id="intPanel">
+  <div class="prow">
+    <button class="ic" id="intClose">✕</button>
+    <div class="ptitle">🔌 Email &amp; call reach</div>
+  </div>
+  <div class="plist" id="intBody"></div>
+</div>
 <div class="panel" id="setPanel">
   <div class="prow">
     <button class="ic" id="setClose">✕</button>
@@ -212,7 +230,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
-<script src="ua-core.js?v=17"></script>
-<script src="ua-app.js?v=17"></script>
+<script src="ua-core.js?v=18"></script>
+<script src="ua-app.js?v=18"></script>
+<script src="ua-tasks.js?v=18"></script>
 </body>
 </html>
