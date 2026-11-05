@@ -2,15 +2,15 @@
 (function(){
 if(document.getElementById("teamPanel"))return;
 const DEF=[
- {id:"atlas",name:"ATLAS",em:"\ud83e\udded",role:"Chief intelligence & operations",sys:"You are ATLAS, chief intelligence and operations agent of a four-agent team (SAGE researches, FORGE builds, NOVA strategizes and reviews). You restate objectives, break them into clear numbered plans with task assignments, coordinate the team, review work, and verify results against the objective. Be decisive, structured and honest about gaps. You have exactly the same brain as the other agents: your edge is your role."},
- {id:"sage",name:"SAGE",em:"\ud83d\udd2c",role:"Research & intelligence",sys:"You are SAGE, research and intelligence agent. You find, verify and cross-check information, distinguish verified facts from assumptions, cite real sources with links, and flag conflicting information. Evidence first. Never invent a source, quote or statistic."},
- {id:"forge",name:"FORGE",em:"\ud83d\udee0",role:"Engineering & development",sys:"You are FORGE, engineering and development agent. You produce real implementations: complete code in fenced blocks, files, configs and exact run steps. Anticipate bugs, state how you tested or would test, and never claim code works without showing the reasoning. No placeholders."},
- {id:"nova",name:"NOVA",em:"\ud83d\ude80",role:"Strategy, creativity & growth",sys:"You are NOVA, strategy, creativity and growth agent. You review work for risks and missed opportunities, propose concrete numbered improvements, and add the strategic and creative angle. Be specific, never generic."}
+ {id:"atlas",name:"ATLAS",em:"🧭",role:"Chief intelligence & operations",sys:"You are ATLAS, chief intelligence and operations agent of a four-agent team (SAGE researches, FORGE builds, NOVA strategizes and reviews). You restate objectives, break them into clear numbered plans with task assignments, coordinate the team, review work, and verify results against the objective. Be decisive, structured and honest about gaps. You have exactly the same brain as the other agents: your edge is your role."},
+ {id:"sage",name:"SAGE",em:"🔬",role:"Research & intelligence",sys:"You are SAGE, research and intelligence agent. You find, verify and cross-check information, distinguish verified facts from assumptions, cite real sources with links, and flag conflicting information. Evidence first. Never invent a source, quote or statistic."},
+ {id:"forge",name:"FORGE",em:"🛠",role:"Engineering & development",sys:"You are FORGE, engineering and development agent. You produce real implementations: complete code in fenced blocks, files, configs and exact run steps. Anticipate bugs, state how you tested or would test, and never claim code works without showing the reasoning. No placeholders."},
+ {id:"nova",name:"NOVA",em:"🚀",role:"Strategy, creativity & growth",sys:"You are NOVA, strategy, creativity and growth agent. You review work for risks and missed opportunities, propose concrete numbered improvements, and add the strategic and creative angle. Be specific, never generic."}
 ];
 const byId=id=>DEF.find(a=>a.id===id);
 let busy4=false,stop4=false,cur4=null,room4=null;
 const STATUS={Idle:"var(--faint)",Thinking:"#f59e0b",Researching:"#f59e0b",Coding:"#f59e0b",Reviewing:"#f59e0b",Done:"#16a34a",Stopped:"#f59e0b",Error:"#dc2626"};
-function esc4(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function esc4(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function log4(a,ev){const l=LS("ua4_log",[]);l.unshift({t:Date.now(),a:a,ev:String(ev).slice(0,200)});SV("ua4_log",l.slice(0,200));}
 function st4(id,s,cur){const o=LS("ua4_st",{});o[id]={s:s,cur:cur||""};SV("ua4_st",o);}
 function get4st(id){const o=LS("ua4_st",{});return o[id]||{s:"Idle",cur:""};}
@@ -35,23 +35,23 @@ const css=document.createElement("style");css.textContent=
 document.head.appendChild(css);
 /* ---- drawer button ---- */
 const anchor=document.getElementById("projbtn");
-const btn=document.createElement("button");btn.className="newchat";btn.id="teambtn";btn.innerHTML="\ud83c\udf1f Team OS";
+const btn=document.createElement("button");btn.className="newchat";btn.id="teambtn";btn.innerHTML="🌟 Team OS";
 if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(btn,anchor);
 else{const dr=document.getElementById("drawer");if(dr)dr.appendChild(btn);}
 /* ---- panel ---- */
 const p=document.createElement("div");p.className="panel";p.id="teamPanel";p.style.display="none";
 p.innerHTML=
- '<div class="prow"><button class="ic" id="teamClose">\u2715</button><div class="ptitle">\ud83c\udf1f Team OS</div></div>'
- +'<div class="mini" style="padding:2px 2px 0">ATLAS \u00b7 SAGE \u00b7 FORGE \u00b7 NOVA — four agents, one equal brain, four separate workrooms and a shared mission log. They plan, research, build, review and report. They only work inside this page: anything that would send, buy or publish outside it waits for you.</div>'
- +'<div class="fourgoal" id="fourGoalWrap"><textarea id="fourGoal" class="tin" rows="2" placeholder="Give the team an objective in plain words…"></textarea><button class="sbtn" id="fourGo" style="flex:0 0 auto;padding:10px 14px">\ud83d\ude80 Run</button></div>'
- +'<button class="sbtn" id="fourStop" style="display:none;margin:-4px 0 10px;background:#fdecec;color:#dc2626">\u23f9 stop the team</button>'
+ '<div class="prow"><button class="ic" id="teamClose">✕</button><div class="ptitle">🌟 Team OS</div></div>'
+ +'<div class="mini" style="padding:2px 2px 0">ATLAS · SAGE · FORGE · NOVA — four agents, one equal brain, four separate workrooms and a shared mission log. They plan, research, build, review and report. They only work inside this page: anything that would send, buy or publish outside it waits for you.</div>'
+ +'<div class="fourgoal" id="fourGoalWrap"><textarea id="fourGoal" class="tin" rows="2" placeholder="Give the team an objective in plain words…"></textarea><button class="sbtn" id="fourGo" style="flex:0 0 auto;padding:10px 14px">🚀 Run</button></div>'
+ +'<button class="sbtn" id="fourStop" style="display:none;margin:-4px 0 10px;background:#fdecec;color:#dc2626">⏹ stop the team</button>'
  +'<div class="plist" id="fourList"></div>'
  +'<div id="fourRunArea"></div>'
- +'<details id="fourLogD" style="margin-top:6px"><summary style="font-size:14px;font-weight:600;cursor:pointer">\ud83d\udcdc Mission log</summary><div id="fourLogBox" style="max-height:200px;overflow-y:auto;font-size:12.5px;color:var(--dim);padding:6px 2px;line-height:1.6"></div><div class="prow" style="margin-top:6px"><button class="sbtn" id="fourExp">\u2b07\ufe0f Export</button><button class="sbtn" id="fourClear">\ud83e\uddf9 Clear run</button></div></details>'
+ +'<details id="fourLogD" style="margin-top:6px"><summary style="font-size:14px;font-weight:600;cursor:pointer">📜 Mission log</summary><div id="fourLogBox" style="max-height:200px;overflow-y:auto;font-size:12.5px;color:var(--dim);padding:6px 2px;line-height:1.6"></div><div class="prow" style="margin-top:6px"><button class="sbtn" id="fourExp">⬇️ Export</button><button class="sbtn" id="fourClear">🧹 Clear run</button></div></details>'
  +'<div id="fourRoom" style="display:none;flex-direction:column;flex:1;min-height:0">'
- +' <div class="prow"><button class="ic" id="fourBack">\u2190</button><div class="ptitle" id="fourRoomTitle"></div><button class="sbtn" id="fourReset" style="flex:0 0 auto;padding:9px 10px;font-size:12px">reset</button></div>'
+ +' <div class="prow"><button class="ic" id="fourBack">←</button><div class="ptitle" id="fourRoomTitle"></div><button class="sbtn" id="fourReset" style="flex:0 0 auto;padding:9px 10px;font-size:12px">reset</button></div>'
  +' <div class="fourfeed" id="fourFeed"></div>'
- +' <div class="fourgoal" style="margin:4px 0 2px"><textarea id="fourIn" class="tin" rows="1" placeholder="Message this agent…"></textarea><button class="sbtn" id="fourSend" style="flex:0 0 auto;padding:10px 14px">\u2191</button></div>'
+ +' <div class="fourgoal" style="margin:4px 0 2px"><textarea id="fourIn" class="tin" rows="1" placeholder="Message this agent…"></textarea><button class="sbtn" id="fourSend" style="flex:0 0 auto;padding:10px 14px">↑</button></div>'
  +'</div>';
 document.body.appendChild(p);
 /* ---- list ---- */
@@ -69,15 +69,15 @@ function renderList(){
 function renderLog(){
  const b=document.getElementById("fourLogBox");if(!b)return;
  const l=LS("ua4_log",[]);
- b.innerHTML=l.length?l.map(e=>esc4(time4(e.t))+" "+(byId(e.a)?byId(e.a).em+" "+byId(e.a).name:"\ud83d\udccd")+" — "+esc4(e.ev)).join("\n").replace(/\n/g,"<br>"):"no events yet";
+ b.innerHTML=l.length?l.map(e=>esc4(time4(e.t))+" "+(byId(e.a)?byId(e.a).em+" "+byId(e.a).name:"📍")+" — "+esc4(e.ev)).join("\n").replace(/\n/g,"<br>"):"no events yet";
 }
 function renderRun(){
  const box=document.getElementById("fourRunArea");if(!box)return;
  const run=LS("ua4_run",null);
  if(!run){box.innerHTML="";return;}
- let h='<div class="mini" style="padding:6px 2px 8px;font-weight:600">\ud83c\udfaf '+esc4(run.goal)+' <span style="color:'+(run.status==="Done"?"#16a34a":run.status==="Running"?"#f59e0b":"#dc2626")+'">· '+esc4(run.status)+'</span></div>';
+ let h='<div class="mini" style="padding:6px 2px 8px;font-weight:600">🎯 '+esc4(run.goal)+' <span style="color:'+(run.status==="Done"?"#16a34a":run.status==="Running"?"#f59e0b":"#dc2626")+'">· '+esc4(run.status)+'</span></div>';
  (run.steps||[]).forEach(s=>{
-  const a=byId(s.agent)||{em:"\ud83d\udccd",name:s.agent};
+  const a=byId(s.agent)||{em:"📍",name:s.agent};
   h+='<details'+(s.open?' open':'')+' class="fourstep"><summary>'+a.em+' <span>'+a.name+'</span><span class="fourlab">'+esc4(s.label)+'</span></summary><div class="fourout" style="margin-top:6px">'+esc4(s.output||"")+'</div></details>';
  });
  box.innerHTML=h;
@@ -116,14 +116,14 @@ async function sendRoom(){
  const w=document.createElement("div");w.style.textAlign="right";const b=document.createElement("div");b.className="bub";b.textContent=msg;w.appendChild(b);feed.appendChild(w);feed.scrollTop=feed.scrollHeight;
  const hist=LS("ua4_chat_"+room4,[]);hist.push({r:"u",t:msg});SV("ua4_chat_"+room4,hist);
  log4(room4,"user: "+msg.slice(0,120));
- const d=document.createElement("div");d.className="ai";d.textContent="\u2026";feed.appendChild(d);feed.scrollTop=feed.scrollHeight;
+ const d=document.createElement("div");d.className="ai";d.textContent="…";feed.appendChild(d);feed.scrollTop=feed.scrollHeight;
  const mem=LS("ua4_mem",[]).slice(0,8).map(x=>"- "+x).join("\n");
  const sys=a.sys+(mem?"\n\nShared team memory:\n"+mem:"");
  try{const full=await ask(msg,d,sys);
   d.textContent=full||"(no reply)";
   const h2=LS("ua4_chat_"+room4,[]);h2.push({r:"a",t:full||""});SV("ua4_chat_"+room4,h2);
   log4(room4,"replied ("+((full||"").length)+" chars)");
- }catch(e){d.textContent="\u26a0\ufe0f "+((e&&e.msg)||e.message||"the AI didn't answer — try again");}
+ }catch(e){d.textContent="⚠️ "+((e&&e.msg)||e.message||"the AI didn't answer — try again");}
  busy4=false;feed.scrollTop=feed.scrollHeight;
 }
 /* ---- team run ---- */
@@ -134,12 +134,12 @@ async function fourStep(agent,label,fn,statName){
  const box=document.getElementById("fourRunArea");
  const outs=box.querySelectorAll(".fourout");const out=outs[outs.length-1];
  let ok=false,full=null,lastErr=null;
- for(let att=0;att<3&&!stop4&&!ok;att++){
+ for(let att=0;att<6&&!stop4&&!ok;att++){
   try{full=await fn(out);ok=true;}
   catch(e){
    if(e&&(e.name==="Stop"||e.name==="AbortError"))throw e;
    lastErr=e;
-   if(att<2){out.textContent="the free servers are busy — waiting and retrying (attempt "+(att+2)+" of 3)\u2026";await new Promise(r=>setTimeout(r,15000));}
+   if(att<5){out.textContent="the free brain is busy — waiting and retrying (attempt "+(att+2)+" of 6)…";await new Promise(r=>setTimeout(r,30000));}
   }
  }
  if(!ok){if(stop4)throw{name:"Stop"};throw lastErr||new Error("failed");}
@@ -171,7 +171,7 @@ async function run4(){
    let r1=await ask("Team objective: "+goal+"\n\nATLAS's plan:\n"+String(plan).slice(0,3000)+"\n\nYou are SAGE. Do the research step: key facts, current best practices, real sources with links. If a live web search would materially help, output one line exactly [NEEDS: search words] and stop there.",out,S);
    const m=String(r1||"").match(/\[NEEDS:\s*([^\]]+)\]/);
    if(m){
-    out.textContent="searching the web: "+m[1]+"\u2026";
+    out.textContent="searching the web: "+m[1]+"…";
     const res=await fourWeb(m[1]);
     return await ask("Live search results for '"+m[1]+"':\n"+res+"\n\nNow finish SAGE's research for the objective: "+goal+"\n\nATLAS's plan:\n"+String(plan).slice(0,2500)+"\n\nGive the key facts, best practices and the sources you actually used. Mark clearly what is verified vs assumption.",out,S);
    }
