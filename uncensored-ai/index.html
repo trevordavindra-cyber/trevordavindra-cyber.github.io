@@ -97,6 +97,9 @@ html[data-theme=light] #toc-btn{background:#fff;border-color:#d9deec;color:#3d4a
   #top-btn{bottom:16px;right:16px}
 }
 hr{border:none;border-top:1px solid #1d2742;margin:28px 0}
+footer{max-width:900px;margin:0 auto;padding:0 20px 44px;color:#7d90c4;font-size:12px}
+@media(min-width:1101px){footer{margin-left:320px}}
+html[data-theme=light] footer{color:#5c6a8f}
 @media print{
   body{background:#fff;color:#000;font-size:12px}
   #toc,#progress,#search-bar,.h-anchor,#theme-toggle,#top-btn,#toc-btn{display:none!important}
@@ -117,6 +120,7 @@ hr{border:none;border-top:1px solid #1d2742;margin:28px 0}
 </head>
 <body>
 <main><div id="content"><p class="loading">Loading document…</p></div></main>
+<footer>UNCENSORED AI — last updated <span id="built-at"></span></footer>
 <script type="text/markdown" id="doc">
 # UNCENSORED AI — Autonomous AI Operating System (fullstack rebuild)
 
@@ -334,6 +338,8 @@ optional worker service; the UI states this rather than implying otherwise.
 <script>
 var raw=document.getElementById("doc").textContent.replace(/^\n/,"").replace(/\n\s*$/,"\n");
 var box=document.getElementById("content");
+var ba=document.getElementById("built-at");
+if(ba){ba.textContent="November 7, 2026, 2:45 AM ET";}
 if(window.marked&&marked.parse){
   box.innerHTML=marked.parse(raw);
 }else{
