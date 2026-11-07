@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAX AI Mission Control</title>
+<style>
+:root{--bg:#070a12;--panel:#0d1220;--panel2:#111830;--line:#1d2742;--tx:#e8ecf8;--dim:#8b96b8;--ok:#2dd4a7;--warn:#f5a524;--bad:#f0554d;--off:#5b6584;--accent:#4f7cff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:24px 16px 60px}
+.wrap{max-width:1060px;margin:0 auto}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+h1{font-size:22px;letter-spacing:.5px}
+h1 span{color:var(--accent)}
+.sub{color:var(--dim);font-size:13px;margin-top:2px}
+.controls{display:flex;gap:10px;align-items:center}
+.clock{font-variant-numeric:tabular-nums;color:var(--dim);font-size:13px}
+button{background:var(--accent);border:0;color:#fff;padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600}
+button.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--tx);font-weight:500}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.b-ok{background:#0c2b24;color:var(--ok)}
+.b-warn{background:#2b230c;color:var(--warn)}
+.b-bad{background:#2b0f0d;color:var(--bad)}
+.b-off{background:#161b2c;color:var(--off)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.card h2 .st{font-size:11px;letter-spacing:.4px;text-transform:none}
+ul.kv{list-style:none}
+ul.kv li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #ffffff08;font-size:14px}
+ul.kv li:last-child{border-bottom:0}
+ul.kv li b{color:var(--dim);font-weight:500;flex-shrink:0}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:baseline}
+.d-ok{background:var(--ok)}.d-warn{background:var(--warn)}.d-bad{background:var(--bad)}.d-off{background:var(--off)}
+.muted{color:var(--dim);font-size:13px}
+textarea,input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:9px 11px;font:14px/1.4 inherit;margin-top:6px}
+.row{display:flex;gap:8px;margin-top:8px}
+.note{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.5}
+footer{margin-top:22px;color:var(--dim);font-size:12px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+.logline{font-size:13px;padding:6px 0;border-bottom:1px solid #ffffff08;word-break:break-word}
+.logline:last-child{border-bottom:0}
+.logline time{color:var(--dim);font-size:12px;margin-right:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>MAX AI <span>MISSION CONTROL</span></h1>
+    <div class="sub">Live system checks only. Anything not backed by a real check reads "not configured".</div>
+  </div>
+  <div class="controls">
+    <span class="clock" id="clock">--:--:--</span>
+    <button class="ghost" id="btn-refresh">Run all checks</button>
+  </div>
+</header>
+
+<div class="grid">
+
+  <div class="card" id="c-sys">
+    <h2>System health <span class="st" id="sys-st"></span></h2>
+    <ul class="kv" id="sys-kv"></ul>
+  </div>
+
+  <div class="card" id="c-net">
+    <h2>Connectivity <span class="st" id="net-st"></span></h2>
+    <ul class="kv" id="net-kv"></ul>
+    <div class="note">Checks are real fetches made from this page: this origin, and api.github.com (unauthenticated rate-limit endpoint). Latency is measured per call.</div>
+  </div>
+
+  <div class="card" id="c-backend">
+    <h2>Backend connection <span class="st" id="be-st"></span></h2>
+    <input id="be-url" placeholder="Backend base URL, e.g. https://your-api.example.com" autocomplete="off">
+    <div class="row"><button class="ghost" id="be-test">Test connection</button><button class="ghost" id="be-save">Save URL</button></div>
+    <div class="note" id="be-note">No backend URL configured. A static build has no server; enter one to run a real health probe (GET &lt;url&gt;/healthz, 5s timeout).</div>
+  </div>
+
+  <div class="card" id="c-ai">
+    <h2>AI provider configuration <span class="st" id="ai-st"></span></h2>
+    <ul class="kv" id="ai-kv"></ul>
+    <div class="note">Providers are read from this browser's storage key "maxai_providers". Keys are never displayed, only whether an entry exists. None ship configured.</div>
+  </div>
+
+  <div class="card" id="c-agents">
+    <h2>Agent status <span class="st" id="ag-st"></span></h2>
+    <div id="ag-body" class="muted">No agent runtime is present in a static build, so no agents can report status here. If you run the MAX AI agent service later, it registers itself in storage key "maxai_agents" and this panel reads it.</div>
+    <ul class="kv" id="ag-kv" style="margin-top:8px"></ul>
+  </div>
+
+  <div class="card" id="c-projects">
+    <h2>Project status <span class="st" id="pr-st"></span></h2>
+    <div id="pr-body" class="muted">Checking…</div>
+    <ul class="kv" id="pr-kv" style="margin-top:8px"></ul>
+  </div>
+
+  <div class="card" id="c-tasks">
+    <h2>Task execution history <span class="st" id="tk-st"></span></h2>
+    <div id="tk-body" class="muted">Checking…</div>
+  </div>
+
+  <div class="card" id="c-err">
+    <h2>Error reporting <span class="st" id="er-st"></span></h2>
+    <div id="er-body" class="muted">No runtime errors captured this session.</div>
+  </div>
+
+</div>
+
+<footer>
+  <span>Last full check: <span id="last-check">never</span></span>
+  <span>MAX AI Mission Control · build 1.0 · all statuses are measured, not assumed</span>
+</footer>
+</div>
+
+<script>
+"use strict";
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+function stamp(){return new Date().toLocaleTimeString();}
+function setBadge(id,cls,text){var n=el(id);n.innerHTML='<span class="badge '+cls+'">'+esc(text)+'</span>';}
+
+/* error capture */
+var ERRORS=[];
+window.addEventListener("error",function(e){ERRORS.push({t:stamp(),msg:e.message+" ("+(e.filename||"inline")+":"+e.lineno+")"});renderErrors();});
+window.addEventListener("unhandledrejection",function(e){ERRORS.push({t:stamp(),msg:"unhandled promise rejection: "+String(e.reason)});renderErrors();});
+function renderErrors(){
+  if(ERRORS.length===0){el("er-body").textContent="No runtime errors captured this session.";setBadge("er-st","b-ok","0 errors");return;}
+  el("er-body").innerHTML=ERRORS.slice(-12).reverse().map(function(x){return '<div class="logline"><time>'+esc(x.t)+"</time>"+esc(x.msg)+"</div>";}).join("");
+  setBadge("er-st",ERRORS.length>3?"b-bad":"b-warn",ERRORS.length+" error"+(ERRORS.length===1?"":"s"));
+}
+
+/* clock */
+setInterval(function(){el("clock").textContent=new Date().toLocaleTimeString();},1000);
+
+/* storage helpers */
+function lsJSON(key){try{var raw=localStorage.getItem(key);return raw?JSON.parse(raw):null;}catch(err){return {__parseError:String(err)};}}
+
+/* 1. system health */
+function checkSystem(){
+  var nav=navigator, rows=[];
+  rows.push(["Online",nav.onLine?"yes":"no"]);
+  rows.push(["CPU cores",nav.hardwareConcurrency?String(nav.hardwareConcurrency):"unreported"]);
+  rows.push(["Device memory",nav.deviceMemory?"~"+nav.deviceMemory+" GB":"unreported"]);
+  rows.push(["Platform",nav.platform||"unreported"]);
+  rows.push(["Timezone",Intl.DateTimeFormat().resolvedOptions().timeZone||"unreported"]);
+  rows.push(["Language",nav.language||"unreported"]);
+  rows.push(["Viewport",window.innerWidth+" x "+window.innerHeight]);
+  var perf=performance.getEntriesByType("navigation")[0];
+  if(perf&&perf.domContentLoadedEventEnd){rows.push(["Page load",Math.round(perf.domContentLoadedEventEnd)+" ms"]);}
+  el("sys-kv").innerHTML=rows.map(function(r){return "<li><b>"+esc(r[0])+"</b><span>"+esc(r[1])+"</span></li>";}).join("");
+  setBadge("sys-st",nav.onLine?"b-ok":"b-bad",nav.onLine?"healthy":"offline");
+}
+
+/* 2. connectivity: real fetches */
+function timedFetch(url,ms){
+  var c=new AbortController(),t=setTimeout(function(){c.abort();},ms||6000);
+  var start=performance.now();
+  return fetch(url,{signal:c.signal,cache:"no-store",mode:"cors"}).then(function(r){
+    clearTimeout(t);
+    return {ok:r.ok,status:r.status,ms:Math.round(performance.now()-start)};
+  }).catch(function(err){
+    clearTimeout(t);
+    return {ok:false,err:(err&&err.name==="AbortError")?"timeout":String(err&&err.message||err)};
+  });
+}
+function checkNetwork(){
+  el("net-kv").innerHTML="<li><b>Checking…</b><span>running live fetches</span></li>";
+  setBadge("net-st","b-warn","testing");
+  var jobs=[
+    timedFetch(location.href,6000).then(function(r){
+      return ["This page origin",r.ok?("reachable · "+r.status+" · "+r.ms+" ms"):("failed: "+r.err)];
+    }),
+    timedFetch("https://api.github.com/rate_limit",6000).then(function(r){
+      return ["GitHub API",r.ok?("reachable · "+r.status+" · "+r.ms+" ms"):("failed: "+(r.err||("HTTP "+r.status)))];
+    })
+  ];
+  Promise.all(jobs).then(function(rows){
+    el("net-kv").innerHTML=rows.map(function(r){return "<li><b>"+esc(r[0])+"</b><span>"+esc(r[1])+"</span></li>";}).join("");
+    var bad=rows.filter(function(r){return /failed/.test(r[1]);}).length;
+    setBadge("net-st",bad===0?"b-ok":(bad===rows.length?"b-bad":"b-warn"),bad===0?"all reachable":(bad+" of "+rows.length+" failed"));
+  });
+}
+
+/* 3. backend probe */
+function beUrl(){return localStorage.getItem("maxai_backend_url")||"";}
+function renderBackend(){
+  el("be-url").value=beUrl();
+  if(!beUrl()){
+    el("be-note").textContent="No backend URL configured. A static build has no server; enter one to run a real health probe (GET <url>/healthz, 5s timeout).";
+    setBadge("be-st","b-off","not configured");
+  }
+}
+function probeBackend(){
+  var url=(el("be-url").value||"").trim().replace(/\/+$/,'');
+  if(!url){el("be-note").textContent="Enter a backend URL first. Nothing was tested.";setBadge("be-st","b-off","not configured");return;}
+  el("be-note").textContent="Probing "+url+"/healthz …";
+  setBadge("be-st","b-warn","testing");
+  timedFetch(url+"/healthz",5000).then(function(r){
+    if(r.ok){el("be-note").textContent="Backend answered: HTTP "+r.status+" in "+r.ms+" ms at "+stamp()+".";setBadge("be-st","b-ok","reachable");}
+    else{el("be-note").textContent="Backend probe failed: "+(r.err||("HTTP "+r.status))+". No connection is being assumed.";setBadge("be-st","b-bad","unreachable");}
+  });
+}
+el("be-save").addEventListener("click",function(){
+  var v=(el("be-url").value||"").trim();
+  if(v){localStorage.setItem("maxai_backend_url",v);}else{localStorage.removeItem("maxai_backend_url");}
+  renderBackend();
+});
+el("be-test").addEventListener("click",probeBackend);
+
+/* 4. AI providers */
+function checkProviders(){
+  var data=lsJSON("maxai_providers");
+  var names=["OpenAI","Anthropic","Google AI","Local model"];
+  var rows=[];
+  if(!data){
+    rows=names.map(function(n){return [n,'<span class="dot d-off"></span>not configured'];});
+    setBadge("ai-st","b-off","none configured");
+  } else if(data.__parseError){
+    rows=[["Storage","<span class=\"dot d-bad\"></span>corrupt: "+esc(data.__parseError)]];
+    setBadge("ai-st","b-bad","storage corrupt");
+  } else {
+    var any=false;
+    rows=names.map(function(n){
+      var p=data&&data[n&&n.toLowerCase&&n.toLowerCase()?n.toLowerCase():n];
+      var has=p&&typeof p==="object"&&(p.apiKeySet===true||p.configured===true);
+      if(has){any=true;}
+      return [n,'<span class="dot '+(has?"d-ok":"d-off")+'"></span>'+(has?"configured (key present, hidden)":"not configured")];
+    });
+    setBadge("ai-st",any?"b-ok":"b-off",any?"configured":"none configured");
+  }
+  el("ai-kv").innerHTML=rows.map(function(r){return "<li><b>"+esc(r[0])+"</b><span>"+r[1]+"</span></li>";}).join("");
+}
+
+/* 5. agents */
+function checkAgents(){
+  var data=lsJSON("maxai_agents");
+  if(!data||data.__parseError||(Array.isArray(data)&&data.length===0)){
+    el("ag-kv").innerHTML="";
+    setBadge("ag-st","b-off","none registered");
+    el("ag-body").textContent="No agent runtime is present in a static build, so no agents can report status here. If you run the MAX AI agent service later, it registers itself in storage key \"maxai_agents\" and this panel reads it.";
+    return;
+  }
+  if(data.__parseError){
+    el("ag-kv").innerHTML="<li><b>Storage</b><span>corrupt: "+esc(data.__parseError)+"</span></li>";
+    setBadge("ag-st","b-bad","storage corrupt");return;
+  }
+  var list=Array.isArray(data)?data:Object.keys(data).map(function(k){return {name:k,state:data[k]};});
+  el("ag-body").textContent="";
+  el("ag-kv").innerHTML=list.map(function(a){
+    var st=a.state||a.status||"unknown";
+    return "<li><b>"+esc(a.name||"agent")+"</b><span>"+esc(st)+"</span></li>";
+  }).join("");
+  setBadge("ag-st","b-ok",list.length+" registered");
+}
+
+/* 6. projects */
+function checkProjects(){
+  var data=lsJSON("maxai_projects");
+  if(!data||data.__parseError||(Array.isArray(data)&&data.length===0)){
+    el("pr-body").textContent="No projects recorded in this environment.";
+    el("pr-kv").innerHTML="";setBadge("pr-st","b-off","none recorded");return;
+  }
+  if(data.__parseError){el("pr-body").textContent="";el("pr-kv").innerHTML="<li><b>Storage</b><span>corrupt: "+esc(data.__parseError)+"</span></li>";setBadge("pr-st","b-bad","storage corrupt");return;}
+  var list=Array.isArray(data)?data:[data];
+  el("pr-body").textContent="";
+  el("pr-kv").innerHTML=list.slice(0,8).map(function(p){return "<li><b>"+esc(p.name||"project")+"</b><span>"+esc(p.status||p.state||"unknown")+"</span></li>";}).join("");
+  setBadge("pr-st","b-ok",list.length+" recorded");
+}
+
+/* 7. task history */
+function checkTasks(){
+  var data=lsJSON("maxai_task_log");
+  if(!data||data.__parseError||(Array.isArray(data)&&data.length===0)){
+    el("tk-body").textContent="No task executions recorded in this environment. Executions log themselves to storage key \"maxai_task_log\" when a real agent service runs.";
+    setBadge("tk-st","b-off","no history");return;
+  }
+  if(data.__parseError){el("tk-body").textContent="Task log storage is corrupt: "+data.__parseError;setBadge("tk-st","b-bad","storage corrupt");return;}
+  var list=Array.isArray(data)?data:[data];
+  el("tk-body").innerHTML=list.slice(-12).reverse().map(function(t){
+    return '<div class="logline"><time>'+esc(t.at||t.time||"")+"</time>"+esc(t.what||t.task||JSON.stringify(t))+"</div>";
+  }).join("");
+  setBadge("tk-st","b-ok",list.length+" recorded");
+}
+
+function runAll(){
+  checkSystem();checkNetwork();renderBackend();checkProviders();checkAgents();checkProjects();checkTasks();renderErrors();
+  el("last-check").textContent=new Date().toLocaleString();
+}
+el("btn-refresh").addEventListener("click",runAll);
+runAll();
+</script>
+</body>
+</html>
