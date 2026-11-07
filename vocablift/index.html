@@ -235,7 +235,7 @@ if (typeof module !== 'undefined') module.exports = buildEngine;
 </script>
 <script>
 (function(){
-  var merged = { w: Object.assign({}, window.VDATA1.w, window.VDATA2.w, window.VDATA3.w), p: Object.assign({}, window.VDATA1.p, window.VDATA2.p, window.VDATA3.p) };
+  var merged = { w: Object.assign({}, window.VDATA1.w, window.VDATA2.w, window.VDATA3.w, window.VDATA4.w, window.VDATA5.w, window.VDATA6.w), p: Object.assign({}, window.VDATA1.p, window.VDATA2.p, window.VDATA3.p, window.VDATA4.p, window.VDATA5.p, window.VDATA6.p) };
   var E = buildEngine(merged);
   var inBox = document.getElementById('in');
   var results = document.getElementById('results');
@@ -281,5 +281,8 @@ if (typeof module !== 'undefined') module.exports = buildEngine;
 <script src="data1.js"></script>
 <script src="data2.js"></script>
 <script src="data3.js"></script>
+<script src="data4.js"></script>
+<script src="data5.js"></script>
+<script src="data6.js"></script>
 </body>
 </html>
