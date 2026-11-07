@@ -15,6 +15,8 @@ header h1 span{color:var(--accent)}
 .spacer{flex:1}
 button{background:var(--panel2);border:1px solid var(--line);color:var(--tx);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500}
 button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.iconbtn{padding:8px 10px}
+button.listening{background:#7f1d1d;border-color:#b91c1c;color:#fff}
 select,input,textarea{background:var(--panel2);border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:8px 10px;font:14px/1.4 inherit;outline:none}
 main{flex:1;overflow-y:auto;padding:18px 14px}
 .wrap{max-width:760px;margin:0 auto}
@@ -24,12 +26,13 @@ main{flex:1;overflow-y:auto;padding:18px 14px}
 .msg.ai .who{background:#12312a;color:var(--ok)}
 .bubble{flex:1;min-width:0}
 .msg.user .bubble{color:#cdd7f5}
+.chatimg{max-width:100%;max-height:320px;border-radius:10px;display:block;margin:4px 0;border:1px solid var(--line)}
 .bubble pre{background:#0a0e1a;border:1px solid var(--line);border-radius:10px;padding:12px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:8px 0;white-space:pre-wrap}
 .bubble code{font:13px ui-monospace,Menlo,Consolas,monospace;background:#0a0e1a;border-radius:4px;padding:1px 5px}
 .bubble pre code{background:none;padding:0}
 .typing{color:var(--dim);font-size:13px}
 footer{border-top:1px solid var(--line);background:var(--panel);padding:12px 14px}
-.inputrow{max-width:760px;margin:0 auto;display:flex;gap:10px}
+.inputrow{max-width:760px;margin:0 auto;display:flex;gap:8px}
 .inputrow textarea{flex:1;resize:none;max-height:140px}
 .hint{max-width:760px;margin:8px auto 0;color:var(--dim);font-size:11.5px;text-align:center}
 .modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
@@ -54,10 +57,13 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:12px 14p
 <main id="feed"><div class="wrap" id="feedwrap"></div></main>
 <footer>
   <div class="inputrow">
+    <input type="file" id="imgfile" accept="image/*" style="display:none">
     <textarea id="box" rows="1" placeholder="Message MAX…"></textarea>
+    <button id="imgbtn" class="iconbtn" title="Attach an image">img</button>
+    <button id="micbtn" class="iconbtn" title="Voice input">mic</button>
     <button class="primary" id="send">Send</button>
   </div>
-  <div class="hint" id="hint">Web search and code runner can be toggled in Settings. Your key is stored only in this browser and goes nowhere except the AI provider. The calls, emails, and shopping parts of Fo need real accounts, so this assistant covers the thinking-and-typing side.</div>
+  <div class="hint" id="hint">Web search, code runner and image understanding are in. Your key is stored only in this browser and goes nowhere except the AI provider. The calls, emails, and shopping parts of Fo need real accounts, so this assistant covers the thinking-and-typing side.</div>
 </footer>
 
 <div class="modal" id="settings">
@@ -75,6 +81,10 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:12px 14p
       <label style="margin:0;display:flex;align-items:center;gap:6px"><input type="checkbox" id="s-web" style="width:auto"> Web search</label>
       <label style="margin:0;display:flex;align-items:center;gap:6px"><input type="checkbox" id="s-code" style="width:auto"> Code runner</label>
     </div>
+    <label>Voice</label>
+    <div style="font-size:13px;color:var(--tx)">
+      <label style="margin:0;display:flex;align-items:center;gap:6px"><input type="checkbox" id="s-speak" style="width:auto"> Speak replies aloud</label>
+    </div>
     <label>API key</label>
     <input id="s-key" class="full" type="password" autocomplete="off" placeholder="paste your key">
     <label>Personality / system prompt</label>
@@ -87,11 +97,11 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:12px 14p
 
 <script>
 "use strict";
-var DEFAULT_SYS="You are MAX, a sharp, warm AI assistant with live web search and a code runner. Be direct and concise, use markdown sparingly, cite your sources when you search, and admit what you don't know.";
-var S=loadLS("max_settings",{provider:"gemini",model:"gemini-2.0-flash",key:"",sys:DEFAULT_SYS,web:true,code:false});
+var DEFAULT_SYS="You are MAX, a sharp, warm AI assistant with live web search, a code runner, and image understanding. Be direct and concise, use markdown sparingly, cite your sources when you search, and admit what you don't know.";
+var S=loadLS("max_settings",{provider:"gemini",model:"gemini-2.0-flash",key:"",sys:DEFAULT_SYS,web:true,code:false,speak:false});
 var CHATS=loadLS("max_chats",[]);
 var activeId=CHATS.length?CHATS[0].id:null;
-var busy=false;
+var busy=false,pendingImg=null;
 
 function loadLS(k,fb){try{var r=localStorage.getItem(k);return r?JSON.parse(r):fb;}catch(e){return fb;}}
 function saveLS(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
@@ -125,19 +135,36 @@ function cur(){for(var i=0;i<CHATS.length;i++){if(CHATS[i].id===activeId)return 
 function renderList(){
   var sel=el("chatSel");sel.innerHTML='<option value="">Current chat</option>'+CHATS.slice(0,20).map(function(c){return '<option value="'+esc(c.id)+'"'+(c.id===activeId?" selected":"")+">"+esc(c.title.slice(0,34))+"</option>";}).join("");
 }
+function renderMsg(m){
+  return '<div class="msg '+m.role+'"><div class="who">'+(m.role==="user"?"T":"MAX")+'</div><div class="bubble">'+(m.img?'<img src="'+m.img+'" class="chatimg" alt="attached image">':'')+(m.content?md(m.content):"")+"</div></div>";
+}
 function render(){
   var c=cur(),w=el("feedwrap");
-  if(!c){w.innerHTML='<p class="typing">Say something to start.</p>';return;}
-  if(!c.messages.length){w.innerHTML='<p class="typing">Say something to start.</p>';return;}
-  w.innerHTML=c.messages.map(function(m){return '<div class="msg '+m.role+'"><div class="who">'+(m.role==="user"?"T":"MAX")+'</div><div class="bubble">'+md(m.content)+"</div></div>";}).join("");
+  if(!c||!c.messages.length){w.innerHTML='<p class="typing">Say something to start.</p>';return;}
+  w.innerHTML=c.messages.map(renderMsg).join("");
   var main=el("feed");main.scrollTop=main.scrollHeight;
+}
+
+/* message -> provider shapes */
+function gemParts(m){
+  var parts=[];
+  if(m.img){
+    var i=m.img.indexOf(";base64,");
+    if(i>-1)parts.push({inlineData:{mimeType:m.img.slice(5,i),data:m.img.slice(i+8)}});
+  }
+  parts.push({text:m.content||""});
+  return parts;
+}
+function oaContent(m){
+  if(!m.img)return m.content||"";
+  return [{type:"text",text:m.content||""},{type:"image_url",image_url:{url:m.img}}];
 }
 
 /* providers */
 function apiCall(messages,onDelta){
   var sys=S.sys||DEFAULT_SYS;
   if(S.provider==="gemini"){
-    var contents=messages.map(function(m){return {role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]};});
+    var contents=messages.map(function(m){return {role:m.role==="assistant"?"model":"user",parts:gemParts(m)};});
     var body={contents:contents,systemInstruction:{parts:[{text:sys}]},generationConfig:{temperature:0.8}};
     var tools=[];
     if(S.web!==false)tools.push({google_search:{}});
@@ -148,7 +175,7 @@ function apiCall(messages,onDelta){
       if(d){for(var i=0;i<d.length;i++){if(d[i].text)onDelta(d[i].text);}}
     });
   }
-  var msgs=[{role:"system",content:sys}].concat(messages.map(function(m){return {role:m.role,content:m.content};}));
+  var msgs=[{role:"system",content:sys}].concat(messages.map(function(m){return {role:m.role,content:oaContent(m)};}));
   return streamPOST("https://api.openai.com/v1/chat/completions",{model:S.model,messages:msgs,stream:true},{
     headers:{"Authorization":"Bearer "+S.key}
   },function(j){
@@ -182,19 +209,64 @@ function streamPOST(url,body,onJson,opts){
   });
 }
 
+/* image attach */
+el("imgbtn").addEventListener("click",function(){el("imgfile").click();});
+el("imgfile").addEventListener("change",function(e){
+  var f=e.target.files[0];
+  if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      var c=document.createElement("canvas");
+      var scale=Math.min(1,1024/Math.max(im.width,im.height));
+      c.width=Math.max(1,Math.round(im.width*scale));
+      c.height=Math.max(1,Math.round(im.height*scale));
+      c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+      pendingImg=c.toDataURL("image/jpeg",0.85);
+      el("imgbtn").textContent="img ✓";
+    };
+    im.src=r.result;
+  };
+  r.readAsDataURL(f);
+  this.value="";
+});
+
+/* voice input */
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null;
+if(SR){
+  rec=new SR();rec.lang="en-US";rec.interimResults=false;rec.maxAlternatives=1;
+  rec.onresult=function(e){el("box").value=(el("box").value?el("box").value+" ":"")+e.results[0][0].transcript;};
+  rec.onend=function(){el("micbtn").classList.remove("listening");};
+  rec.onerror=function(){el("micbtn").classList.remove("listening");};
+  el("micbtn").addEventListener("click",function(){
+    if(el("micbtn").classList.contains("listening")){rec.stop();return;}
+    try{rec.start();el("micbtn").classList.add("listening");}catch(e){}
+  });
+}else{el("micbtn").style.display="none";}
+
+function speakOut(t){
+  if(!S.speak||!window.speechSynthesis)return;
+  var clean=t.replace(/```[\s\S]*?```/g," code block shown. ").replace(/[*_`#>]/g,"");
+  var u=new SpeechSynthesisUtterance(clean);
+  u.rate=1.05;window.speechSynthesis.speak(u);
+}
+
 function send(){
   if(busy)return;
   var text=el("box").value.trim();
-  if(!text)return;
+  if(!text&&!pendingImg)return;
   if(!S.key){openSettings();el("s-err").textContent="Add an API key first — the assistant has no brain without one.";return;}
   var c=cur()||null;
   if(!c){newChat();c=cur();}
-  c.messages.push({role:"user",content:text});
-  if(c.title==="New chat")c.title=text.slice(0,40);
+  var m={role:"user",content:text};
+  if(pendingImg){m.img=pendingImg;m.content=text||"What is in this image?";pendingImg=null;el("imgbtn").textContent="img";}
+  c.messages.push(m);
+  if(c.title==="New chat")c.title=(text||"Image chat").slice(0,40);
   saveLS("max_chats",CHATS);renderList();
   el("box").value="";el("box").style.height="auto";
   var w=el("feedwrap");
-  w.insertAdjacentHTML("beforeend",'<div class="msg user"><div class="who">T</div><div class="bubble">'+md(text)+"</div></div>");
+  w.insertAdjacentHTML("beforeend",renderMsg(m));
   var ai=document.createElement("div");ai.className="msg ai";
   ai.innerHTML='<div class="who">MAX</div><div class="bubble"><span class="typing">thinking…</span></div>';
   w.appendChild(ai);
@@ -208,7 +280,7 @@ function send(){
     busy=false;el("send").disabled=false;
     if(!acc)acc="(no response came back — check the key and model in settings)";
     c.messages.push({role:"assistant",content:acc});
-    saveLS("max_chats",CHATS);render();
+    saveLS("max_chats",CHATS);render();speakOut(acc);
   }).catch(function(e){
     busy=false;el("send").disabled=false;
     bub.innerHTML='<span class="err">'+esc(String(e.message||e))+"</span>";
@@ -222,14 +294,14 @@ var MODELS={gemini:["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-pro","gemi
 function fillModels(){el("s-model").value=MODELS[el("s-provider").value][0];}
 function openSettings(){
   el("s-provider").value=S.provider;el("s-model").value=S.model;el("s-key").value=S.key;el("s-sys").value=S.sys;
-  el("s-web").checked=S.web!==false;el("s-code").checked=S.code===true;
+  el("s-web").checked=S.web!==false;el("s-code").checked=S.code===true;el("s-speak").checked=S.speak===true;
   el("s-err").textContent="";el("settings").classList.add("open");
 }
 function closeSettings(){el("settings").classList.remove("open");}
 function saveSettings(){
   S.provider=el("s-provider").value;S.model=el("s-model").value.trim()||MODELS[S.provider][0];
   S.key=el("s-key").value.trim();S.sys=el("s-sys").value.trim()||DEFAULT_SYS;
-  S.web=el("s-web").checked;S.code=el("s-code").checked;
+  S.web=el("s-web").checked;S.code=el("s-code").checked;S.speak=el("s-speak").checked;
   if(!S.key){el("s-err").textContent="A key is required.";return;}
   saveLS("max_settings",S);closeSettings();
   el("hint").textContent="Connected: "+S.provider+" · "+S.model+". Key stays in this browser.";
