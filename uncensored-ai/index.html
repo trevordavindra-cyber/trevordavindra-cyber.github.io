@@ -45,6 +45,34 @@ h2,h3{position:relative}
 .h-anchor:hover{background:#1a2444;color:#fff}
 h2:hover .h-anchor,h3:hover .h-anchor{opacity:1}
 @media(hover:none){.h-anchor{opacity:.55}}
+.toc-title{display:flex;align-items:center}
+#theme-toggle{margin-left:auto;padding:3px 8px;border:1px solid #1d2742;border-radius:6px;background:#0d1326;color:#a9b6d8;font:11.5px/1.4 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;cursor:pointer}
+#theme-toggle:hover{color:#fff;background:#131a30}
+html[data-theme=light] body{background:#f6f7fb;color:#1c2333}
+html[data-theme=light] #toc{background:#eef0f7;border-right-color:#d9deec}
+html[data-theme=light] .toc-title{color:#5c6a8f}
+html[data-theme=light] .toc-link{color:#3d4a6b}
+html[data-theme=light] .toc-link:hover{color:#111;background:#e2e6f2}
+html[data-theme=light] .toc-link.toc-active{color:#111;background:#dce2f2;border-left-color:#4a6cf7}
+html[data-theme=light] .toc-link.toc-hit{color:#111;background:#fdf3d0;border-left-color:#c9a227}
+html[data-theme=light] #search-bar.mobile{background:#f6f7fb}
+html[data-theme=light] #site-search{background:#fff;border-color:#d9deec;color:#1c2333}
+html[data-theme=light] #site-search::placeholder{color:#8b97b5}
+html[data-theme=light] #search-count{color:#5c6a8f}
+html[data-theme=light] #theme-toggle{background:#fff;border-color:#d9deec;color:#3d4a6b}
+html[data-theme=light] #theme-toggle:hover{background:#e2e6f2;color:#111}
+html[data-theme=light] mark{background:#ffd54a;color:#333}
+html[data-theme=light] h2{border-top-color:#d9deec}
+html[data-theme=light] table,html[data-theme=light] th,html[data-theme=light] td{border-color:#d9deec}
+html[data-theme=light] th{background:#e8ebf5}
+html[data-theme=light] pre{background:#eef1f8;border-color:#d9deec}
+html[data-theme=light] code{background:#eef1f8}
+html[data-theme=light] strong{color:#111}
+html[data-theme=light] a{color:#4a6cf7}
+html[data-theme=light] .h-anchor{background:#e2e6f2;color:#4a6cf7}
+html[data-theme=light] .h-anchor:hover{background:#d3d9ec;color:#111}
+html[data-theme=light] .toc-empty{color:#5c6a8f}
+html[data-theme=light] hr{border-top-color:#d9deec}
 hr{border:none;border-top:1px solid #1d2742;margin:28px 0}
 </style>
 </head>
@@ -305,6 +333,21 @@ if(window.marked&&marked.parse){
   var toc=document.createElement("nav");toc.id="toc";
   var title=document.createElement("div");title.className="toc-title";title.textContent="Contents";
   toc.appendChild(title);
+  var themeBtn=document.createElement("button");themeBtn.id="theme-toggle";themeBtn.type="button";
+  function applyTheme(t){
+    document.documentElement.setAttribute("data-theme",t);
+    themeBtn.textContent=t==="light"?"dark mode":"light mode";
+  }
+  var savedTheme=null;
+  try{savedTheme=localStorage.getItem("uncai-theme");}catch(e){}
+  if(savedTheme!=="light"&&savedTheme!=="dark"){savedTheme=null;}
+  applyTheme(savedTheme||"dark");
+  themeBtn.addEventListener("click",function(){
+    var next=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
+    applyTheme(next);
+    try{localStorage.setItem("uncai-theme",next);}catch(e){}
+  });
+  title.appendChild(themeBtn);
   var bar=document.createElement("div");bar.id="search-bar";
   var input=document.createElement("input");input.id="site-search";input.type="search";input.placeholder="Search the document…";input.setAttribute("aria-label","Search the document");
   var count=document.createElement("div");count.id="search-count";
