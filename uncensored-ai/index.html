@@ -100,6 +100,8 @@ hr{border:none;border-top:1px solid #1d2742;margin:28px 0}
 footer{max-width:900px;margin:0 auto;padding:0 20px 44px;color:#7d90c4;font-size:12px}
 @media(min-width:1101px){footer{margin-left:320px}}
 html[data-theme=light] footer{color:#5c6a8f}
+.doc-meta{font-size:12px;color:#7d90c4;margin:0 0 18px;padding-bottom:10px;border-bottom:1px solid #1d2742}
+html[data-theme=light] .doc-meta{color:#5c6a8f;border-bottom-color:#d9deec}
 @media print{
   body{background:#fff;color:#000;font-size:12px}
   #toc,#progress,#search-bar,.h-anchor,#theme-toggle,#top-btn,#toc-btn{display:none!important}
@@ -115,6 +117,7 @@ html[data-theme=light] footer{color:#5c6a8f}
   pre{background:#f4f4f4;color:#000;border-color:#ccc;break-inside:avoid}
   code{background:#f4f4f4;color:#000}
   hr{border-top-color:#bbb}
+  .doc-meta{color:#444;border-bottom-color:#bbb}
 }
 </style>
 </head>
@@ -339,13 +342,19 @@ optional worker service; the UI states this rather than implying otherwise.
 var raw=document.getElementById("doc").textContent.replace(/^\n/,"").replace(/\n\s*$/,"\n");
 var box=document.getElementById("content");
 var ba=document.getElementById("built-at");
-if(ba){ba.textContent="November 7, 2026, 2:45 AM ET";}
+if(ba){ba.textContent="November 7, 2026, 3:00 AM ET";}
 if(window.marked&&marked.parse){
   box.innerHTML=marked.parse(raw);
 }else{
   box.innerHTML="<p>Renderer did not load — showing the document as plain text.</p><pre></pre>";
   box.querySelector("pre").textContent=raw;
 }
+var meta=document.createElement("div");meta.className="doc-meta";
+var nSections=(raw.match(/^## /gm)||[]).length;
+var nLedger=(raw.match(/^\| \d+ \|/gm)||[]).length;
+var nWords=raw.split(/\s+/).filter(Boolean).length;
+meta.textContent=nSections+" sections \u00b7 "+nLedger+" status items \u00b7 "+nWords.toLocaleString()+" words \u00b7 updated November 7, 2026, 3:00 AM ET";
+box.parentNode.insertBefore(meta,box);
 (function(){
   function slugify(t){return "s-"+t.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
   var used={},heads=box.querySelectorAll("h1,h2,h3");
