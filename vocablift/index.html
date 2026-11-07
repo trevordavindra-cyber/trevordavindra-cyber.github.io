@@ -87,12 +87,39 @@ footer{margin-top:26px;color:#5b6884;font-size:12px;text-align:center;line-heigh
 <script src="vocab5.js"></script>
 <script src="vocab6.js"></script>
 <script src="vocab7.js"></script>
+<script src="profanity.js"></script>
 <script>
 
 (function(){
   Object.assign(VDATA.w, window.EXTRA.w);
   Object.assign(VDATA.p, window.EXTRA.p);
+  if (window.PROF){
+    Object.assign(VDATA.w, window.PROF.w);
+    Object.assign(VDATA.p, window.PROF.p);
+  }
   var E = buildEngine(VDATA);
+  try {
+    var mx = new XMLHttpRequest();
+    mx.open('GET', 'chunks/manifest.json', false);
+    mx.send();
+    if (mx.status === 200){
+      var loaded = 0;
+      JSON.parse(mx.responseText).chunks.forEach(function(c){
+        try {
+          var cx = new XMLHttpRequest();
+          cx.open('GET', c, false);
+          cx.send();
+          if (cx.status === 200){
+            var ch = JSON.parse(cx.responseText);
+            Object.assign(VDATA.w, ch.w || {});
+            Object.assign(VDATA.p, ch.p || {});
+            loaded++;
+          }
+        } catch(e) {}
+      });
+      if (loaded) E = buildEngine(VDATA);
+    }
+  } catch(e) {}
   var inBox = document.getElementById('in');
   var results = document.getElementById('results');
   function go(){
