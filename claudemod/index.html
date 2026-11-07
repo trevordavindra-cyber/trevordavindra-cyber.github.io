@@ -1,1 +1,179 @@
-FILE_CONTENT_PLACEHOLDER
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FreeMode &#8212; Claude-style multi-model chat</title>
+<style>
+:root{--bg:#faf9f5;--panel:#f0eee6;--side:#1f1e1d;--side2:#2e2c2a;--txt:#3d3929;--mut:#8a8578;--acc:#d97757;--acc2:#c15f3f;--line:#e5e2d9;--ok:#7d9b76}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt);display:flex}
+#side{width:264px;flex:none;background:var(--side);color:#d8d4c8;display:flex;flex-direction:column;height:100vh}
+#side .top{padding:14px}
+.logo{font-family:Georgia,serif;font-size:19px;color:#fff;padding:0 0 10px 2px}
+.logo span{color:var(--acc)}
+#newchat{width:100%;background:var(--acc);color:#fff;border:0;border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer}
+#newchat:hover{background:var(--acc2)}
+#chatlist{flex:1;overflow-y:auto;padding:6px 8px}
+.crow{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:#c9c5b9}
+.crow:hover{background:var(--side2)}
+.crow.on{background:var(--side2);color:#fff}
+.crow .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .x{opacity:.5;font-size:12px;padding:2px 4px}
+.crow .x:hover{opacity:1;color:#e88}
+#side .bottom{padding:12px;border-top:1px solid #38352f;font-size:12px}
+#side label{display:block;color:#8a8578;margin:8px 0 4px}
+#msel{width:100%;background:var(--side2);color:#fff;border:1px solid #45423c;border-radius:8px;padding:8px;font-size:12px;max-height:120px}
+.tog{display:flex;align-items:center;gap:6px;margin-top:6px;color:#b5b0a3;cursor:pointer}
+#keyrow{margin-top:10px;display:flex;gap:6px;align-items:center}
+#keybtn{background:var(--side2);border:1px solid #45423c;color:#d8d4c8;border-radius:8px;padding:7px 10px;font-size:12px;cursor:pointer}
+#keyst{font-size:11px;color:var(--ok)}
+main{flex:1;display:flex;flex-direction:column;height:100vh;min-width:0}
+#topb{display:flex;justify-content:flex-end;align-items:center;padding:12px 22px;font-size:12px;color:var(--mut);border-bottom:1px solid var(--line)}
+#mname b{color:var(--txt);font-weight:600}
+#msgs{scroll-behavior:smooth}
+::-webkit-scrollbar{width:9px}
+::-webkit-scrollbar-thumb{background:#d8d4c8;border-radius:5px}
+::-webkit-scrollbar-track{background:transparent}
+#msgs{flex:1;overflow-y:auto;padding:22px 0}
+.col{max-width:720px;margin:0 auto;padding:0 20px}
+.greet{text-align:center;margin-top:12vh}
+.greet h1{font-family:Georgia,'Times New Roman',serif;font-size:40px;font-weight:500;letter-spacing:-.5px}
+.greet h1 span{color:var(--acc)}
+.greet p{color:var(--mut);margin-top:10px;font-size:14px}
+.chips{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-size:13px;cursor:pointer;color:var(--txt)}
+.chip:hover{border-color:var(--acc)}
+.m{display:flex;flex-direction:column;margin-bottom:26px}
+.m .who{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);margin-bottom:6px}
+.m.u .body{background:var(--panel);border-radius:14px;padding:12px 16px;white-space:pre-wrap;align-self:flex-end;max-width:85%}
+.m.u{align-items:flex-end}
+.m .body{font-size:15px;line-height:1.65}
+.m.a .body code{background:#eceae0;border-radius:4px;padding:1px 5px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.m.a .body pre{background:#2b2926;color:#e8e4da;border-radius:10px;padding:14px;overflow-x:auto;margin:10px 0;font-size:13px;line-height:1.5}
+.m.a .body pre code{background:none;padding:0;color:inherit}
+.m.a .body h1,.m.a .body h2,.m.a .body h3{font-family:Georgia,serif;margin:14px 0 6px}
+.m.a .body ul,.m.a .body ol{margin:8px 0 8px 22px}
+.m.a .body a{color:var(--acc2)}
+.m.a .body table{border-collapse:collapse;margin:10px 0}
+.m.a .body td,.m.a .body th{border:1px solid var(--line);padding:6px 10px;font-size:13px}
+.copy{font-size:11px;color:var(--mut);background:none;border:0;cursor:pointer;padding:4px 0;opacity:0;align-self:flex-start;font-family:inherit}
+.copy:hover{color:var(--acc2)}
+.m.a{animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.err{border:1px solid #e0b4a8;background:#fdf1ec;color:#9a4a2f;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:20px}
+#composer{flex:none;padding:14px 0 8px}
+.box{max-width:720px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:0 1px 3px rgba(60,50,30,.06)}
+.box .row{display:flex;align-items:flex-end;gap:10px}
+#in{flex:1;border:0;outline:0;resize:none;font:inherit;font-size:15px;max-height:180px;background:transparent;line-height:1.5}
+#go{flex:none;width:36px;height:36px;border:0;border-radius:10px;background:var(--acc);color:#fff;font-size:16px;cursor:pointer}
+#go:disabled{background:#d8d4c8;cursor:default}
+#foot{text-align:center;font-size:11px;color:var(--mut);padding:6px 0 12px}
+.badge{display:inline-block;font-size:10px;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle}
+.free{background:#e8f0e6;color:#4e7146}
+.paid{background:#f4e6da;color:#9a6a3c}
+#modal{position:fixed;inset:0;background:rgba(30,28,25,.5);display:none;align-items:center;justify-content:center;z-index:9}
+#modal.on{display:flex}
+.card{background:#fff;border-radius:14px;padding:24px;width:340px}
+.card h3{font-family:Georgia,serif;font-size:18px;margin-bottom:6px}
+.card p{font-size:13px;color:var(--mut);margin-bottom:12px}
+.card p a{color:var(--acc2)}
+#keyin{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;margin-bottom:12px}
+.card .btns{display:flex;gap:8px}
+.card button{flex:1;border:0;border-radius:8px;padding:10px;cursor:pointer;font-size:13px}
+#savek{background:var(--acc);color:#fff}
+#cancelk{background:var(--panel);color:var(--txt)}
+@media(max-width:720px){#side{position:fixed;z-index:5;left:-280px;transition:left .2s}#side.open{left:0}#burger{display:block!important}}
+#burger{display:none;background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:10px 0 0 14px;font-size:15px;cursor:pointer}
+#msearch{width:100%;background:var(--side2);color:#fff;border:1px solid #45423c;border-radius:8px;padding:7px 10px;font-size:12px;margin-top:4px;outline:0}
+#msearch:focus{border-color:var(--acc)}
+#msearch::placeholder{color:#8a8578}
+#msel{max-height:150px}
+.m .who{display:flex;align-items:center;gap:7px}
+.av{width:18px;height:18px;border-radius:50%;background:var(--acc);color:#fff;font-size:10px;line-height:18px;text-align:center;flex:none;font-family:Georgia,serif}
+.caret{display:inline-block;width:7px;height:15px;background:var(--acc);border-radius:2px;vertical-align:text-bottom;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.m.u .body{background:#ead9c9;border-radius:16px 16px 4px 16px}
+.m:hover .copy{opacity:1}
+#topb{justify-content:center}
+.chip{transition:all .15s}
+.chip:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(60,50,30,.08)}
+.box{transition:border-color .15s}
+.box:focus-within{border-color:var(--acc)}
+</style>
+</head>
+<body>
+<aside id="side">
+ <div class="top"><div class="logo">Free<span>Mode</span></div><button id="newchat">+ New chat</button></div>
+ <div id="chatlist"></div>
+ <div class="bottom">
+  <label>Model</label>
+  <input id="msearch" placeholder="Search models&#8230;">
+  <select id="msel"></select>
+  <label class="tog"><input type="checkbox" id="alltog"> all models (some cost credits)</label>
+  <div id="keyrow"><button id="keybtn">API key</button><span id="keyst"></span></div>
+ </div>
+</aside>
+<main>
+ <button id="burger">&#9776;</button>
+ <div id="topb"><span id="mname"></span></div>
+ <div id="msgs"><div class="col" id="inner"></div></div>
+ <div id="composer"><div class="box"><div class="row">
+  <textarea id="in" rows="1" placeholder="Message FreeMode&#8230;"></textarea>
+  <button id="go">&#8593;</button>
+ </div></div></div>
+ <div id="foot">Models can make mistakes. Free models are rate-limited; paid ones need OpenRouter credits.</div>
+</main>
+<div id="modal"><div class="card">
+ <h3>OpenRouter API key</h3>
+ <p>Create a free key at <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>, paste it here. It stays in this browser only.</p>
+ <input id="keyin" type="password" placeholder="sk-or-v1-&#8230;">
+ <div class="btns"><button id="savek">Save</button><button id="cancelk">Cancel</button></div>
+</div></div>
+<script>
+var FREE_STATIC=[["cohere/north-mini-code:free","Cohere North Mini Code"],["dots-studio/dots-3-note-preview:free","Dots Studio Dots3-Note"],["google/gemma-4-26b-a4b-it:free","Gemma 4 26B A4B"],["google/gemma-4-31b-it:free","Gemma 4 31B"],["liquid/lfm-2.5-2.6b:free","Liquid LFM2.5 2.6B"],["liquid/lfm-3-1.7b:free","Liquid LFM3 1.7B"],["nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free","Nemotron 3 Nano Omni"],["nvidia/nemotron-3-ultra-550b-a55b:free","Nemotron 3 Ultra 550B"],["nvidia/nemotron-3.5-lightning:free","Nemotron 3.5 Lightning"],["nvidia/nemotron-3.5-super-vl:free","Nemotron 3.5 Super VL"],["recursive/flint-v1.0:free","Recursive Flint"],["xingchen-agi/xing4.0-29b-a4b:free","XingChen Xing4.0 29B"]];
+var S={key:localStorage.orkey||"",showAll:localStorage.showall==="0"?false:true,chats:JSON.parse(localStorage.chats||"[]"),cur:localStorage.cur||null,model:localStorage.model||"google/gemma-4-31b-it:free"};
+var busy=false,allCache=null;
+var $=function(id){return document.getElementById(id)};
+function save(){localStorage.orkey=S.key;localStorage.showall=S.showAll?"1":"0";localStorage.chats=JSON.stringify(S.chats);localStorage.cur=S.cur||"";localStorage.model=S.model}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function md(src){var t=esc(src);t=t.replace(/```(\w*)\n([\s\S]*?)```/g,function(m,l,c){return "\x01"+l+"\x02"+c.replace(/\n$/,"")+"\x03"});t=t.replace(/`([^`\n]+)`/g,"<code>$1</code>");t=t.replace(/\*\*([^*\n]+)\*\*/g,"<b>$1</b>");t=t.replace(/(^|\W)\*([^*\n]+)\*(?=\W|$)/g,"$1<i>$2</i>");t=t.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,'<a href="$2" target="_blank">$1</a>');var out=[],i,lines=t.split("\n"),inul=false,inol=false;for(i=0;i<lines.length;i++){var L=lines[i];var h=L.match(/^(#{1,3})\s+(.*)/);if(h){closeLists();out.push("<h"+h[1].length+">"+h[2]+"</h"+h[1].length+">");continue}var ul=L.match(/^\s*[-*]\s+(.*)/);var ol=L.match(/^\s*\d+\.\s+(.*)/);if(ul){if(!inul){closeLists();out.push("<ul>");inul=true}out.push("<li>"+ul[1]+"</li>");continue}if(ol){if(!inol){closeLists();out.push("<ol>");inol=true}out.push("<li>"+ol[1]+"</li>");continue}closeLists();out.push(L?L+"<br>":"")}closeLists();function closeLists(){if(inul){out.push("</ul>");inul=false}if(inol){out.push("</ol>");inol=false}}t=out.join("\n").replace(/\x01(\w*)\x02([\s\S]*?)\x03/g,function(m,l,c){return '<pre><code>'+c+"</code></pre>"});return t}
+function curChat(){for(var i=0;i<S.chats.length;i++)if(S.chats[i].id===S.cur)return S.chats[i];return null}
+function ensureChat(){var c=curChat();if(!c){c={id:Date.now()+""+Math.floor(Math.random()*999),title:"New chat",msgs:[]};S.chats.unshift(c);S.cur=c.id}return c}
+function renderList(){var h="";for(var i=0;i<S.chats.length;i++){var c=S.chats[i];h+='<div class="crow'+(c.id===S.cur?" on":"")+"\" data-id=\""+c.id+'"><span class="t">'+esc(c.title||"New chat")+'</span><span class="x" data-x="'+c.id+'">\u2715</span></div>'}$("chatlist").innerHTML=h||'<div style="padding:10px;font-size:12px;color:#8a8578">No chats yet</div>'}
+function greet(){var g='<div class="greet"><h1>Free<span>Mode</span></h1><p>Every model on OpenRouter, in one place. Add your key once, then chat.</p><div class="chips"><span class="chip">Explain black holes like I am five</span><span class="chip">Write a Python script to rename files</span><span class="chip">Give me 10 essay title ideas about the ocean</span></div></div>';$("inner").innerHTML=g}
+function renderChat(){var c=curChat();if(!c||!c.msgs.length){greet();return}var h="";for(var i=0;i<c.msgs.length;i++){var m=c.msgs[i];h+='<div class="m '+(m.r==="u"?"u":"a")+'"><div class="who">'+(m.r==="u"?"You":'<span class="av">F</span>FreeMode')+'</div><div class="body">'+(m.r==="u"?esc(m.t):md(m.t))+"</div>"+'<button class="copy" data-i="'+i+'">Copy</button>'+"</div>"}$("inner").innerHTML=h;scroll()}
+function scroll(){var b=$("msgs");b.scrollTop=b.scrollHeight}
+async function loadModels(){var list;if(S.showAll){if(!allCache){try{var r=await fetch("https://openrouter.ai/api/v1/models");var j=await r.json();allCache=j.data.map(function(m){return[m.id,m.name.replace(/^.*?:\s*/,""),m.id.slice(-5)===':free']}).sort(function(a,b){return(a[2]===b[2])?a[1].localeCompare(b[1]):(a[2]?-1:1)})}catch(e){allCache=FREE_STATIC.map(function(f){return[f[0],f[1],true]})}}list=allCache}else{list=FREE_STATIC.map(function(f){return[f[0],f[1],true]})}var h="",disp="";for(var i=0;i<list.length;i++){var L=list[i];var paid=!L[2];if(L[0]===S.model)disp=L[1];h+='<option value="'+L[0]+'"'+(L[0]===S.model?" selected":"")+">"+esc(L[1])+(paid?" \u2014 paid":"")+"</option>"}$("msel").innerHTML=h;var cur=null;for(var i=0;i<list.length;i++)if(list[i][0]===S.model)cur=list[i];$("mname").innerHTML='<b>'+esc(disp||"Gemma 4 31B")+"</b> \u00b7 "+(cur&&cur[2]?"free":"paid")}
+$("msel").onchange=function(){S.model=this.value;save();loadModels()};
+$("msearch").oninput=function(){var q=this.value.toLowerCase(),o=$("msel").options;for(var i=0;i<o.length;i++)o[i].style.display=o[i].text.toLowerCase().indexOf(q)>=0?"":"none"};
+$("alltog").onchange=function(){S.showAll=this.checked;localStorage.showall=S.showAll?"1":"0";loadModels()};
+$("keybtn").onclick=function(){$("keyin").value=S.key;$("modal").classList.add("on")};
+$("cancelk").onclick=function(){$("modal").classList.remove("on")};
+$("savek").onclick=function(){S.key=$("keyin").value.trim();save();$("modal").classList.remove("on");keyState()};
+function keyState(){$("keyst").textContent=S.key?"saved \u2713":""}
+$("newchat").onclick=function(){S.cur=null;save();renderChat();renderList();$("side").classList.remove("open")};
+$("chatlist").onclick=function(e){var x=e.target.getAttribute("data-x");if(x){S.chats=S.chats.filter(function(c){return c.id!==x});if(S.cur===x)S.cur=null;save();renderChat();renderList();return}var id=e.target.closest(".crow");if(id){S.cur=id.getAttribute("data-id");save();renderChat();renderList();$("side").classList.remove("open")}};
+$("burger").onclick=function(){$("side").classList.toggle("open")};
+$("inner").onclick=function(e){var b=e.target.closest(".copy");if(!b)return;var c=curChat();var i=parseInt(b.getAttribute("data-i"),10);if(!c||!c.msgs[i])return;navigator.clipboard.writeText(c.msgs[i].t).then(function(){b.textContent="Copied \u2713";setTimeout(function(){b.textContent="Copy"},1200)})};
+document.addEventListener("click",function(e){if(e.target.closest(".chip")){$("in").value=e.target.textContent;$("in").focus();auto()}});
+var inp=$("in");
+function auto(){inp.style.height="auto";inp.style.height=Math.min(inp.scrollHeight,180)+"px"}
+inp.addEventListener("input",auto);
+inp.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+$("go").onclick=send;
+async function send(){if(busy)return;var t=inp.value.trim();if(!t)return;if(!S.key){$("keyin").value=S.key;$("modal").classList.add("on");return}busy=true;$("go").disabled=true;
+ var c=ensureChat();c.msgs.push({r:"u",t:t});if(c.title==="New chat")c.title=t.slice(0,34);save();renderChat();renderList();inp.value="";auto();
+ var wrap=document.createElement("div");wrap.className="m a";wrap.innerHTML='<div class="who"><span class="av">F</span>FreeMode</div><div class="body"><span class="caret"></span></div>';$("inner").appendChild(wrap);var body=wrap.querySelector(".body");scroll();
+ try{var res=await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+S.key,"X-Title":"FreeMode Chat"},body:JSON.stringify({model:S.model,messages:c.msgs.map(function(m){return{role:m.r==="u"?"user":"assistant",content:m.t}}),stream:true})});
+ if(!res.ok){var et=await res.text();var msg="Error "+res.status;if(res.status===401){msg="Key rejected (401). Check it at openrouter.ai/keys.";$("keyin").value=S.key;$("modal").classList.add("on")}else if(res.status===429)msg="Rate limited (429). Free models have daily caps \u2014 try another free model or wait.";try{var j=JSON.parse(et);if(j.error&&j.error.message)msg=j.error.message}catch(e){}body.className="body err";body.textContent=msg;c.msgs.pop();save();busy=false;$("go").disabled=false;scroll();return}
+ var rd=res.body.getReader(),dec=new TextDecoder(),buf="",acc="";
+ while(true){var r2=await rd.read();if(r2.done)break;buf+=dec.decode(r2.value,{stream:true});var nl;while((nl=buf.indexOf("\n"))>=0){var line=buf.slice(0,nl).trim();buf=buf.slice(nl+1);if(line.indexOf("data:")!==0)continue;var p=line.slice(5).trim();if(p==="[DONE]")continue;try{var j2=JSON.parse(p);var d=j2.choices&&j2.choices[0]&&j2.choices[0].delta;if(d&&d.content){acc+=d.content;body.innerHTML=md(acc)+'<span class="caret"></span>';scroll()}}catch(e){}}}
+ if(!acc){body.textContent="(empty response \u2014 try another model)";c.msgs.pop()}else{c.msgs.push({r:"a",t:acc});body.innerHTML=md(acc);var cb=document.createElement("button");cb.className="copy";cb.setAttribute("data-i",c.msgs.length-1);cb.textContent="Copy";wrap.appendChild(cb)}
+ save()}catch(e){body.className="body err";body.textContent="Network error: "+e.message;c.msgs.pop();save()}
+ busy=false;$("go").disabled=false;scroll()}
+loadModels();keyState();$("alltog").checked=S.showAll;renderChat();renderList();auto();if(!S.key){$("keyin").value="";$("modal").classList.add("on")}
+</script>
+</body>
+</html>
