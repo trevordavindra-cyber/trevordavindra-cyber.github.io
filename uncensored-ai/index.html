@@ -40,6 +40,11 @@ code{font:13px ui-monospace,Menlo,Consolas,monospace;background:#0a0e1a;border-r
 pre code{background:none;padding:0}
 strong{color:#fff}
 a{color:#7ea2ff}
+h2,h3{position:relative}
+.h-anchor{margin-left:8px;padding:2px 7px;border:none;border-radius:5px;background:#131a30;color:#7ea2ff;font:12px/1.4 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;cursor:pointer;opacity:0;transition:opacity .15s;vertical-align:middle}
+.h-anchor:hover{background:#1a2444;color:#fff}
+h2:hover .h-anchor,h3:hover .h-anchor{opacity:1}
+@media(hover:none){.h-anchor{opacity:.55}}
 hr{border:none;border-top:1px solid #1d2742;margin:28px 0}
 </style>
 </head>
@@ -276,6 +281,27 @@ if(window.marked&&marked.parse){
     while(used[s]){s=base+"-"+n;n++;}
     used[s]=1;h.id=s;
   });
+  heads.forEach(function(h){
+    if(h.tagName!=="H2"&&h.tagName!=="H3")return;
+    var b=document.createElement("button");
+    b.className="h-anchor";b.type="button";b.textContent="link";
+    b.title="Copy link to this section";b.setAttribute("aria-label","Copy link to this section");
+    b.addEventListener("click",function(){
+      var url=location.origin+location.pathname+"#"+h.id;
+      function done(){b.textContent="copied";setTimeout(function(){b.textContent="link";},1200);}
+      function fallback(){
+        var ta=document.createElement("textarea");
+        ta.value=url;ta.style.position="fixed";ta.style.opacity="0";
+        document.body.appendChild(ta);ta.select();
+        try{document.execCommand("copy");done();}catch(e){}
+        document.body.removeChild(ta);
+      }
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(done,fallback);
+      }else{fallback();}
+    });
+    h.appendChild(b);
+  });
   var toc=document.createElement("nav");toc.id="toc";
   var title=document.createElement("div");title.className="toc-title";title.textContent="Contents";
   toc.appendChild(title);
@@ -326,6 +352,7 @@ if(window.marked&&marked.parse){
     var added=0,nodes=textNodesUnder(el);
     nodes.forEach(function(node){
       if(node.parentNode&&node.parentNode.nodeName==="MARK")return;
+      if(node.parentNode.closest&&node.parentNode.closest(".h-anchor"))return;
       var text=node.nodeValue;if(!text)return;
       var low=text.toLowerCase(),idx=low.indexOf(q);
       if(idx<0)return;
