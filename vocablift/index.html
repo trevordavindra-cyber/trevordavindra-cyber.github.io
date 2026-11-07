@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VocabLift — say it plain, leave it polished</title>
+<meta name="description" content="Type what you'd normally say and get it back sharper and more sophisticated, with every upgraded word defined. Works offline. No outside AI.">
+<style>
+:root{--bg:#0b0f1a;--card:#131a2b;--card2:#1a2338;--line:#263252;--text:#e8edf7;--dim:#93a1bd;--a:#6ea8ff;--b:#8f7bff;--c:#ffd166;--up:#7ef0c4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.5;min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+header{text-align:center;padding:26px 0 8px}
+.logo{font-size:34px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.tag{color:var(--dim);margin-top:6px;font-size:15px}
+.badge{display:inline-block;margin-top:10px;font-size:12px;color:var(--up);border:1px solid rgba(126,240,196,.35);border-radius:99px;padding:3px 10px;background:rgba(126,240,196,.08)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:18px}
+textarea{width:100%;min-height:96px;background:transparent;border:none;outline:none;resize:vertical;color:var(--text);font-size:16px;font-family:inherit}
+textarea::placeholder{color:#5b6884}
+.gobtn{width:100%;margin-top:12px;padding:13px;border:none;border-radius:10px;font-size:16px;font-weight:700;color:#08101f;background:linear-gradient(90deg,var(--a),var(--b));cursor:pointer}
+.gobtn:active{transform:scale(.99)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{font-size:12px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:5px 10px;cursor:pointer;background:var(--card2)}
+.chip:hover{color:var(--text);border-color:var(--a)}
+.results{margin-top:18px;display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.card h3{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.tiername{font-weight:700}
+.t2 .tiername{color:var(--a)} .t3 .tiername{color:var(--b)}
+.badge2{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+.txt{font-size:17px;line-height:1.65}
+.txt.orig{color:var(--dim)}
+.up{color:var(--up);border-bottom:1px dashed rgba(126,240,196,.55);cursor:pointer;position:relative}
+.up.b{color:var(--c);border-bottom-color:rgba(255,209,102,.55)}
+.def{display:none;position:absolute;left:0;bottom:calc(100% + 6px);background:#050810;border:1px solid var(--line);color:var(--text);font-size:13px;line-height:1.4;padding:8px 10px;border-radius:8px;width:240px;z-index:9;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.def.show{display:block}
+@media(hover:hover){.up:hover .def{display:block}}
+.empty{color:var(--dim);font-style:italic}
+.wod{background:linear-gradient(135deg,rgba(110,168,255,.10),rgba(143,123,255,.10));border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:18px}
+.wod .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim)}
+.wod .w{font-size:22px;font-weight:700;color:var(--a);margin-top:4px}
+.wod .d{color:var(--text);font-size:14px;margin-top:2px}
+footer{margin-top:26px;color:#5b6884;font-size:12px;text-align:center;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">VocabLift</div>
+    <div class="tag">Say it plain. Leave it polished.</div>
+    <div class="badge">100% offline — the whole dictionary lives on this page</div>
+  </header>
+
+  <div class="box">
+    <textarea id="in" placeholder="Type what you'd normally say... e.g. I want to tell you something very important about a big problem at work."></textarea>
+    <button class="gobtn" id="go">Upgrade my words</button>
+    <div class="chips">
+      <span class="chip">The food was very good</span>
+      <span class="chip">We need to fix this fast</span>
+      <span class="chip">She was very tired after work</span>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="card t1"><h3><span class="tiername">How you said it</span></h3><div class="txt orig" id="t1"></div></div>
+    <div class="card t2"><h3><span class="tiername">Sharper</span><span class="badge2" id="c2"></span></h3><div class="txt" id="t2"></div></div>
+    <div class="card t3"><h3><span class="tiername">Sophisticated</span><span class="badge2" id="c3"></span></h3><div class="txt" id="t3"></div></div>
+  </div>
+
+  <div class="wod" id="wod">
+    <div class="lbl">Word of the day</div>
+    <div class="w" id="wodw"></div>
+    <div class="d" id="wodd"></div>
+  </div>
+
+  <footer>
+    VocabLift runs entirely in your browser — no internet needed, no outside AI, nothing you type leaves your device.<br>
+    Dictionary data: WordNet 3.0 (Princeton University) + word frequency data. Tap any green or gold word to see what it means.
+  </footer>
+</div>
+
+<script>
+function buildEngine(DATA){
+  var W = DATA.w, P = DATA.p;
+  var PHRASES = [];
+  for (var k in P) PHRASES.push({ words: k.split('_'), s: P[k][0], e: P[k][1] });
+  PHRASES.sort(function(a,b){ return b.words.length - a.words.length; });
+
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function cap(w, wasUpper){ return wasUpper ? w.charAt(0).toUpperCase() + w.slice(1) : w; }
+
+  function lemmaOf(tok){
+    var t = tok;
+    var cands = [];
+    function add(c){ if (c && c.length > 1 && cands.indexOf(c) < 0) cands.push(c); }
+    if (/ies$/.test(t) && t.length > 4) add(t.slice(0,-3)+'y');
+    if (/ied$/.test(t) && t.length > 4) add(t.slice(0,-3)+'y');
+    if (/es$/.test(t)) add(t.slice(0,-2));
+    if (/s$/.test(t)) add(t.slice(0,-1));
+    if (/ed$/.test(t)) { add(t.slice(0,-1)); add(t.slice(0,-2)); }
+    if (/ing$/.test(t)) { add(t.slice(0,-3)+'e'); add(t.slice(0,-3)); }
+    if (/ier$/.test(t)) add(t.slice(0,-3)+'y');
+    if (/iest$/.test(t)) add(t.slice(0,-4)+'y');
+    if (/er$/.test(t)) { add(t.slice(0,-1)); add(t.slice(0,-2)); }
+    if (/est$/.test(t)) { add(t.slice(0,-2)); add(t.slice(0,-3)); }
+    var more = [];
+    for (var i = 0; i < cands.length; i++){
+      var c = cands[i];
+      if (c.length >= 3 && /(.)\1$/.test(c)) more.push(c.slice(0,-1));
+    }
+    for (var j = 0; j < more.length; j++) add(more[j]);
+    for (var m = 0; m < cands.length; m++) if (W[cands[m]]) return cands[m];
+    if (W[t]) return t;
+    return null;
+  }
+
+  function suffixOf(tok){
+    if (/ies$|ied$/.test(tok) && tok.length > 4) return 'y';
+    if (/(ss|us|is)$/.test(tok)) return '';
+    if (/es$/.test(tok)) return 'es';
+    if (/s$/.test(tok)) return 's';
+    if (/ed$/.test(tok)) return 'ed';
+    if (/ing$/.test(tok)) return 'ing';
+    if (/ier$/.test(tok)) return 'ier';
+    if (/iest$/.test(tok)) return 'iest';
+    if (/er$/.test(tok)) return 'er';
+    if (/est$/.test(tok)) return 'est';
+    return '';
+  }
+
+  function inflect(base, kind){
+    if (!kind) return base;
+    var y = /[^aeiou]y$/.test(base), e = /e$/.test(base);
+    if (kind === "s" || kind === "es") return /(s|x|z|ch|sh)$/.test(base) ? base+"es" : (y ? base.slice(0,-1)+"ies" : base+"s");
+    if (kind === "y") return y ? base.slice(0,-1)+"ied" : (e ? base+"d" : base+"ed");
+    if (kind === "ed") return e ? base+"d" : (y ? base.slice(0,-1)+"ied" : base+"ed");
+    if (kind === "ing") return e ? base.slice(0,-1)+"ing" : base+"ing";
+    if (kind === "ier") return e ? base+"r" : (y ? base.slice(0,-1)+"ier" : base+"er");
+    if (kind === "iest") return e ? base+"st" : (y ? base.slice(0,-1)+"iest" : base+"est");
+    if (kind === "er") return e ? base+"r" : (y ? base.slice(0,-1)+"ier" : base+"er");
+    if (kind === "est") return e ? base+"st" : (y ? base.slice(0,-1)+"iest" : base+"est");
+    return base;
+  }
+
+  function upgrade(text){
+    var tier = function(which){
+      var out = '', count = 0;
+      var re = /[A-Za-z]+(?:'[A-Za-z]+)?|\s+|[^\sA-Za-z]+/g;
+      var m, buf = [];
+      while ((m = re.exec(text)) !== null) buf.push(m[0]);
+      var i = 0;
+      while (i < buf.length){
+        var tok = buf[i];
+        if (/^\s+$/.test(tok)){ out += tok; i++; continue; }
+        if (!/^[A-Za-z]/.test(tok)){ out += esc(tok); i++; continue; }
+        // phrase match (words separated by whitespace in buf)
+        var matched = null, span = 0;
+        for (var p = 0; p < PHRASES.length; p++){
+          var ph = PHRASES[p], n = ph.words.length;
+          if (i + n*2 - 1 > buf.length) continue;
+          var ok = true;
+          for (var q = 0; q < n; q++){
+            var wt = buf[i + q*2];
+            if (!wt || !/^[A-Za-z]+$/.test(wt) || wt.toLowerCase() !== ph.words[q]){ ok = false; break; }
+          }
+          if (ok){ matched = ph; span = n*2 - 1; break; }
+        }
+        if (matched){
+          var rep = matched[which];
+          if (rep && rep[0]){
+            var uw = /^[A-Z]/.test(buf[i]);
+            out += '<span class="up" data-def="' + esc(rep[1]) + '">' + esc(cap(rep[0], uw)) + '</span>';
+            count++;
+          } else {
+            for (var s2 = 0; s2 < span; s2++) out += esc(buf[i+s2]);
+          }
+          i += span;
+          continue;
+        }
+        var low = tok.toLowerCase();
+        var poss = /'s$/.test(low);
+        var core = poss ? low.slice(0,-2) : low;
+        var isProper = /^[A-Z]/.test(tok) && i > 0;
+        var firstWord = /^[A-Z]/.test(tok) && (i === 0 || /(?:[.!?]["')\]]*)$/.test(buf[i-1] || ''));
+        var entry = null, sfx = '';
+        if (!isProper && core.length > 2){
+          var lemma = lemmaOf(core);
+          if (lemma){
+            entry = W[lemma];
+            sfx = suffixOf(core);
+            if (poss) sfx = 'pos';
+            else if (sfx && inflect(lemma, sfx) !== core) sfx = '';
+          }
+        }
+        var replaced = false;
+        if (entry){
+          var repw = which === 's' ? entry[0] : entry[1];
+          var repd = which === 'e' ? (entry[2] || '') : '';
+          if (repw){
+            var final = repw;
+            if (sfx === 'pos') final += "'s";
+            else if (sfx) final = inflect(repw, sfx);
+            final = cap(final, firstWord);
+            out += '<span class="up"' + (repd ? ' data-def="' + esc(repd) + '"' : '') + '>' + esc(final) + '</span>';
+            count++; replaced = true;
+          }
+        }
+        if (!replaced){
+          var shown = tok;
+          if (firstWord && !replaced) shown = cap(shown, true);
+          out += esc(shown);
+        }
+        i++;
+      }
+      return { html: out, count: count };
+    };
+    var t2 = tier('s'), t3 = tier('e');
+    return { tier2: t2, tier3: t3 };
+  }
+
+  function wordOfDay(){
+    var keys = Object.keys(W);
+    var d = new Date();
+    var seed = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
+    for (var i = 0; i < keys.length; i++){
+      var k = keys[(seed + i*97) % keys.length];
+      if (W[k] && W[k][2]) return { word: k, def: W[k][2] };
+    }
+    return { word: keys[seed % keys.length], def: '' };
+  }
+
+  return { upgrade: upgrade, wordOfDay: wordOfDay };
+}
+if (typeof module !== 'undefined') module.exports = buildEngine;
+</script>
+<script>
+(function(){
+  var merged = { w: Object.assign({}, window.VDATA1.w, window.VDATA2.w, window.VDATA3.w), p: Object.assign({}, window.VDATA1.p, window.VDATA2.p, window.VDATA3.p) };
+  var E = buildEngine(merged);
+  var inBox = document.getElementById('in');
+  var results = document.getElementById('results');
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function go(){
+    var text = inBox.value.trim();
+    if (!text) return;
+    var r = E.upgrade(text);
+    document.getElementById('t1').textContent = text;
+    document.getElementById('t2').innerHTML = r.tier2.html || '<span class="empty">nothing to sharpen</span>';
+    document.getElementById('t3').innerHTML = r.tier3.html || '<span class="empty">nothing to elevate</span>';
+    document.getElementById('c2').textContent = r.tier2.count + ' word' + (r.tier2.count === 1 ? '' : 's') + ' upgraded';
+    document.getElementById('c3').textContent = r.tier3.count + ' word' + (r.tier3.count === 1 ? '' : 's') + ' upgraded';
+    document.querySelectorAll('.up').forEach(function(el){
+      var def = el.getAttribute('data-def');
+      if (def){
+        var d = document.createElement('span');
+        d.className = 'def';
+        d.textContent = def;
+        el.appendChild(d);
+        el.addEventListener('click', function(ev){
+          ev.stopPropagation();
+          var open = d.classList.contains('show');
+          document.querySelectorAll('.def.show').forEach(function(o){o.classList.remove('show');});
+          if (!open) d.classList.add('show');
+        });
+      }
+    });
+    results.style.display = 'block';
+    results.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  document.getElementById('go').addEventListener('click', go);
+  inBox.addEventListener('keydown', function(e){ if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') go(); });
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.addEventListener('click', function(){ inBox.value = c.textContent + '.'; go(); });
+  });
+  var w = E.wordOfDay();
+  document.getElementById('wodw').textContent = w.word;
+  document.getElementById('wodd').textContent = w.def || '';
+  inBox.addEventListener('input', function(){ if (!inBox.value.trim()) results.style.display = 'none'; });
+})();
+</script>
+<script src="data1.js"></script>
+<script src="data2.js"></script>
+<script src="data3.js"></script>
+</body>
+</html>
