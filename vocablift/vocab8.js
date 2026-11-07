@@ -155,15 +155,15 @@ Object.assign(VDATA.w, {
 "equal":["equivalent","on a par","the same in value"],
 "near":["nearby","close at hand","a short way off"],
 "narrow":["tight","pinched","not much room"],
-"thick":["dense","heavyset","meaty through the middle"],
+"thick":["dense","heavyset","meaty through the middle"]
 });
 Object.assign(VDATA.p, {
-"walk_away":[["bow out","":["turn and leave",""]],
-"take_care":[["look after yourself","":["be well",""]],
-"good_job":[["well done","":["nicely played",""]],
-"no_way":[["not a chance","":["out of the question",""]],
-"at_last":[["at long last","":["after all this time",""]],
-"in_general":[["on the whole","":["as a rule",""]],
-"more_or_less":[["roughly","":["just about",""]],
-"step_by_step":[["one step at a time","":["in order",""]],
+"walk_away":[["bow out",""],["turn and leave",""]],
+"take_care":[["look after yourself",""],["be well",""]],
+"good_job":[["well done",""],["nicely played",""]],
+"no_way":[["not a chance",""],["out of the question",""]],
+"at_last":[["at long last",""],["after all this time",""]],
+"in_general":[["on the whole",""],["as a rule",""]],
+"more_or_less":[["roughly",""],["just about",""]],
+"step_by_step":[["one step at a time",""],["in order",""]]
 });
