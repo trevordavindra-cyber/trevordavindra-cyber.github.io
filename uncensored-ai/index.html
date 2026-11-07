@@ -419,6 +419,12 @@ if(window.marked&&marked.parse){
   topBtn.title="Back to top";topBtn.setAttribute("aria-label","Back to top");
   topBtn.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"});});
   document.body.appendChild(topBtn);
+  document.addEventListener("keydown",function(e){
+    if(e.defaultPrevented||e.metaKey||e.ctrlKey||e.altKey)return;
+    var tgt=e.target,tag=(tgt&&tgt.tagName||"").toLowerCase();
+    if(tag==="input"||tag==="textarea"||tag==="select"||(tgt&&tgt.isContentEditable))return;
+    if(e.key==="t"||e.key==="T"){window.scrollTo({top:0,behavior:"smooth"});}
+  });
   function onScroll(){
     var y=window.scrollY+140,i=0;
     for(var k=0;k<tops.length;k++){if(tops[k].getBoundingClientRect().top+window.scrollY<=y){i=k;}}
