@@ -44,16 +44,35 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:12px 14p
 .sheet .row{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
 .note{color:var(--dim);font-size:11.5px;margin-top:8px;line-height:1.5}
 .err{color:#ff8f88;font-size:13px;margin:6px 0}
+#scrim{position:fixed;inset:0;background:#000a;display:none;z-index:7}
+#scrim.open{display:block}
+#sidebar{position:fixed;top:0;bottom:0;left:0;width:250px;background:var(--panel);border-right:1px solid var(--line);transform:translateX(-105%);transition:transform .18s ease;z-index:8;display:flex;flex-direction:column;padding:14px 0}
+#sidebar.open{transform:translateX(0)}
+#sbhead{display:flex;align-items:center;justify-content:space-between;padding:0 14px 10px;border-bottom:1px solid var(--line);margin-bottom:8px;font-size:14px}
+.mini{background:none;border:none;color:var(--dim);padding:2px 4px;font-size:12px;cursor:pointer}
+.mini:hover{color:var(--tx)}
+#sbhead .mini{color:var(--accent)}
+.chatrow{display:flex;align-items:center;gap:4px;padding:8px 10px;border-radius:8px;cursor:pointer}
+.chatrow:hover,.chatrow.active{background:var(--panel2)}
+.chatrow .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.chatrow .mini{padding:2px}
 </style>
 </head>
 <body>
 <header>
   <h1>MAX <span>ASSISTANT</span></h1>
   <div class="spacer"></div>
-  <select id="chatSel" onchange="openChat(this.value)"><option value="">Current chat</option></select>
+  <button id="menubtn" class="iconbtn" onclick="openSidebar()" title="Chats">☰</button>
   <button onclick="newChat()">New chat</button>
   <button onclick="openSettings()">Settings</button>
 </header>
+
+<div id="scrim" onclick="closeSidebar()"></div>
+<aside id="sidebar">
+  <div id="sbhead"><span>Chats</span><button class="mini" onclick="newChat()">+ new chat</button></div>
+  <div id="chatlist"></div>
+</aside>
+
 <main id="feed"><div class="wrap" id="feedwrap"></div></main>
 <footer>
   <div class="inputrow">
@@ -105,7 +124,7 @@ var busy=false,pendingImg=null;
 
 function loadLS(k,fb){try{var r=localStorage.getItem(k);return r?JSON.parse(r):fb;}catch(e){return fb;}}
 function saveLS(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
 function el(id){return document.getElementById(id);}
 
 function md(t){
@@ -125,15 +144,34 @@ function md(t){
 
 function newChat(){
   var c={id:Date.now()+""+Math.floor(Math.random()*1e4),title:"New chat",messages:[]};
-  CHATS.unshift(c);activeId=c.id;saveLS("max_chats",CHATS);renderList();render();el("box").focus();
+  CHATS.unshift(c);activeId=c.id;saveLS("max_chats",CHATS);renderList();render();closeSidebar();el("box").focus();
 }
-function openChat(id){
-  if(!id)return;
-  activeId=id;render();
+function pickChat(id){
+  activeId=id;renderList();render();closeSidebar();
 }
+function renameChat(id){
+  var c=null;for(var i=0;i<CHATS.length;i++){if(CHATS[i].id===id)c=CHATS[i];}
+  if(!c)return;
+  var name=prompt("Rename chat:",c.title||"");
+  if(name!==null){c.title=name.trim()||c.title;saveLS("max_chats",CHATS);renderList();if(c.id===activeId)render();}
+}
+function delChat(id){
+  var i=-1;for(var k=0;k<CHATS.length;k++){if(CHATS[k].id===id)i=k;}
+  if(i<0)return;
+  if(!confirm("Delete this chat?"))return;
+  CHATS.splice(i,1);
+  if(activeId===id)activeId=CHATS.length?CHATS[0].id:null;
+  saveLS("max_chats",CHATS);renderList();render();
+}
+function openSidebar(){el("sidebar").classList.add("open");el("scrim").classList.add("open");}
+function closeSidebar(){el("sidebar").classList.remove("open");el("scrim").classList.remove("open");}
 function cur(){for(var i=0;i<CHATS.length;i++){if(CHATS[i].id===activeId)return CHATS[i];}return null;}
 function renderList(){
-  var sel=el("chatSel");sel.innerHTML='<option value="">Current chat</option>'+CHATS.slice(0,20).map(function(c){return '<option value="'+esc(c.id)+'"'+(c.id===activeId?" selected":"")+">"+esc(c.title.slice(0,34))+"</option>";}).join("");
+  var list=el("chatlist");
+  if(!CHATS.length){list.innerHTML='<p class="typing" style="padding:4px 12px">No chats yet.</p>';return;}
+  list.innerHTML=CHATS.map(function(c){
+    return '<div class="chatrow'+(c.id===activeId?" active":"")+"\" onclick=\"pickChat('"+c.id+"')\"><span class=\"t\">"+esc(c.title||"New chat")+'</span><button class="mini" title="Rename" onclick="event.stopPropagation();renameChat(\''+c.id+'\')">✎</button><button class="mini" title="Delete" onclick="event.stopPropagation();delChat(\''+c.id+'\')">✕</button></div>';
+  }).join("");
 }
 function renderMsg(m){
   return '<div class="msg '+m.role+'"><div class="who">'+(m.role==="user"?"T":"MAX")+'</div><div class="bubble">'+(m.img?'<img src="'+m.img+'" class="chatimg" alt="attached image">':'')+(m.content?md(m.content):"")+"</div></div>";
