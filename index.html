@@ -69,7 +69,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:12px 14p
 
 <div id="scrim" onclick="closeSidebar()"></div>
 <aside id="sidebar">
-  <div id="sbhead"><span>Chats</span><button class="mini" onclick="newChat()">+ new chat</button></div>
+  <div id="sbhead"><span>Chats</span><span><button class="mini" onclick="exportChat()" title="Export this chat as markdown">export</button><button class="mini" onclick="newChat()">+ new</button></span></div>
   <div id="chatlist"></div>
 </aside>
 
@@ -124,7 +124,7 @@ var busy=false,pendingImg=null;
 
 function loadLS(k,fb){try{var r=localStorage.getItem(k);return r?JSON.parse(r):fb;}catch(e){return fb;}}
 function saveLS(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function el(id){return document.getElementById(id);}
 
 function md(t){
@@ -165,12 +165,31 @@ function delChat(id){
 }
 function openSidebar(){el("sidebar").classList.add("open");el("scrim").classList.add("open");}
 function closeSidebar(){el("sidebar").classList.remove("open");el("scrim").classList.remove("open");}
+function exportChat(){
+  var c=cur();
+  if(!c||!c.messages.length){alert("This chat is empty - nothing to export.");return;}
+  var lines=["# "+(c.title||"Chat"),""];
+  for(var i=0;i<c.messages.length;i++){
+    var m=c.messages[i];
+    lines.push("## "+(m.role==="user"?"Trevor":"MAX"));
+    if(m.img)lines.push("*(attached image)*");
+    if(m.content)lines.push(m.content);
+    lines.push("");
+  }
+  var blob=new Blob([lines.join("\n")],{type:"text/markdown"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  var base=(c.title||"chat").replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"-").toLowerCase()||"chat";
+  a.download=base+".md";
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+}
 function cur(){for(var i=0;i<CHATS.length;i++){if(CHATS[i].id===activeId)return CHATS[i];}return null;}
 function renderList(){
   var list=el("chatlist");
   if(!CHATS.length){list.innerHTML='<p class="typing" style="padding:4px 12px">No chats yet.</p>';return;}
   list.innerHTML=CHATS.map(function(c){
-    return '<div class="chatrow'+(c.id===activeId?" active":"")+"\" onclick=\"pickChat('"+c.id+"')\"><span class=\"t\">"+esc(c.title||"New chat")+'</span><button class="mini" title="Rename" onclick="event.stopPropagation();renameChat(\''+c.id+'\')">✎</button><button class="mini" title="Delete" onclick="event.stopPropagation();delChat(\''+c.id+'\')">✕</button></div>';
+    return '<div class="chatrow'+(c.id===activeId?" active":"")+'" onclick="pickChat(\''+c.id+'\')"><span class="t">'+esc(c.title||"New chat")+'</span><button class="mini" title="Rename" onclick="event.stopPropagation();renameChat(\''+c.id+'\')">✎</button><button class="mini" title="Delete" onclick="event.stopPropagation();delChat(\''+c.id+'\')">✕</button></div>';
   }).join("");
 }
 function renderMsg(m){
