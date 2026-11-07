@@ -74,6 +74,22 @@ html[data-theme=light] .h-anchor:hover{background:#d3d9ec;color:#111}
 html[data-theme=light] .toc-empty{color:#5c6a8f}
 html[data-theme=light] hr{border-top-color:#d9deec}
 hr{border:none;border-top:1px solid #1d2742;margin:28px 0}
+@media print{
+  body{background:#fff;color:#000;font-size:12px}
+  #toc,#progress,#search-bar,.h-anchor,#theme-toggle{display:none!important}
+  main{max-width:none;margin:0;padding:0}
+  h1,h2,h3,p,li,td{color:#000}
+  strong{color:#000}
+  a{color:#000;text-decoration:none}
+  h2{border-top-color:#bbb;break-after:avoid}
+  h3{break-after:avoid}
+  table,th,td{border-color:#999}
+  th{background:#eee;color:#000}
+  tr{break-inside:avoid}
+  pre{background:#f4f4f4;color:#000;border-color:#ccc;break-inside:avoid}
+  code{background:#f4f4f4;color:#000}
+  hr{border-top-color:#bbb}
+}
 </style>
 </head>
 <body>
