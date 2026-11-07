@@ -57,7 +57,7 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:12px 14p
     <textarea id="box" rows="1" placeholder="Message MAX…"></textarea>
     <button class="primary" id="send">Send</button>
   </div>
-  <div class="hint" id="hint">Your key is stored only in this browser and goes nowhere except the AI provider. The calls, emails, and shopping parts of Fo need real accounts, so this assistant covers the thinking-and-typing side.</div>
+  <div class="hint" id="hint">Web search and code runner can be toggled in Settings. Your key is stored only in this browser and goes nowhere except the AI provider. The calls, emails, and shopping parts of Fo need real accounts, so this assistant covers the thinking-and-typing side.</div>
 </footer>
 
 <div class="modal" id="settings">
@@ -70,6 +70,11 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:12px 14p
     </select>
     <label>Model</label>
     <input id="s-model" class="full" autocomplete="off">
+    <label>Tools (Gemini)</label>
+    <div style="display:flex;gap:18px;font-size:13px;color:var(--tx)">
+      <label style="margin:0;display:flex;align-items:center;gap:6px"><input type="checkbox" id="s-web" style="width:auto"> Web search</label>
+      <label style="margin:0;display:flex;align-items:center;gap:6px"><input type="checkbox" id="s-code" style="width:auto"> Code runner</label>
+    </div>
     <label>API key</label>
     <input id="s-key" class="full" type="password" autocomplete="off" placeholder="paste your key">
     <label>Personality / system prompt</label>
@@ -82,8 +87,8 @@ footer{border-top:1px solid var(--line);background:var(--panel);padding:12px 14p
 
 <script>
 "use strict";
-var DEFAULT_SYS="You are MAX, a sharp, warm AI assistant. Be direct and concise, use markdown sparingly, admit what you don't know.";
-var S=loadLS("max_settings",{provider:"gemini",model:"gemini-2.0-flash",key:"",sys:DEFAULT_SYS});
+var DEFAULT_SYS="You are MAX, a sharp, warm AI assistant with live web search and a code runner. Be direct and concise, use markdown sparingly, cite your sources when you search, and admit what you don't know.";
+var S=loadLS("max_settings",{provider:"gemini",model:"gemini-2.0-flash",key:"",sys:DEFAULT_SYS,web:true,code:false});
 var CHATS=loadLS("max_chats",[]);
 var activeId=CHATS.length?CHATS[0].id:null;
 var busy=false;
@@ -134,6 +139,10 @@ function apiCall(messages,onDelta){
   if(S.provider==="gemini"){
     var contents=messages.map(function(m){return {role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]};});
     var body={contents:contents,systemInstruction:{parts:[{text:sys}]},generationConfig:{temperature:0.8}};
+    var tools=[];
+    if(S.web!==false)tools.push({google_search:{}});
+    if(S.code===true)tools.push({codeExecution:{}});
+    if(tools.length)body.tools=tools;
     return streamPOST("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(S.model)+":streamGenerateContent?alt=sse&key="+encodeURIComponent(S.key),body,function(j){
       var d=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts;
       if(d){for(var i=0;i<d.length;i++){if(d[i].text)onDelta(d[i].text);}}
@@ -213,12 +222,14 @@ var MODELS={gemini:["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-pro","gemi
 function fillModels(){el("s-model").value=MODELS[el("s-provider").value][0];}
 function openSettings(){
   el("s-provider").value=S.provider;el("s-model").value=S.model;el("s-key").value=S.key;el("s-sys").value=S.sys;
+  el("s-web").checked=S.web!==false;el("s-code").checked=S.code===true;
   el("s-err").textContent="";el("settings").classList.add("open");
 }
 function closeSettings(){el("settings").classList.remove("open");}
 function saveSettings(){
   S.provider=el("s-provider").value;S.model=el("s-model").value.trim()||MODELS[S.provider][0];
   S.key=el("s-key").value.trim();S.sys=el("s-sys").value.trim()||DEFAULT_SYS;
+  S.web=el("s-web").checked;S.code=el("s-code").checked;
   if(!S.key){el("s-err").textContent="A key is required.";return;}
   saveLS("max_settings",S);closeSettings();
   el("hint").textContent="Connected: "+S.provider+" · "+S.model+". Key stays in this browser.";
