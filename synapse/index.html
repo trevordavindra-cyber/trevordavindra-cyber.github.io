@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYNAPSE — AI with attitude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07070c; --ink:#f2f0ff; --dim:#8b87a3;
+    --neon:#7c5cff; --hot:#ff4ecd; --lime:#c8ff3e; --cyan:#3ef0ff;
+    --card:rgba(255,255,255,.04); --line:rgba(255,255,255,.09);
+    --radius:20px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Space Grotesk',sans-serif;
+    overflow-x:hidden; cursor:none;
+  }
+  ::selection{background:var(--hot);color:#07070c}
+  .mono{font-family:'IBM Plex Mono',monospace}
+
+  /* cursor glow */
+  .cursor-glow{
+    position:fixed;width:420px;height:420px;border-radius:50%;
+    background:radial-gradient(circle,rgba(124,92,255,.14),transparent 60%);
+    pointer-events:none;z-index:1;transform:translate(-50%,-50%);
+    transition:transform .12s ease-out;
+  }
+  .cursor-dot{
+    position:fixed;width:8px;height:8px;border-radius:50%;
+    background:var(--lime);z-index:99;pointer-events:none;
+    transform:translate(-50%,-50%);mix-blend-mode:difference;
+  }
+
+  /* background layers */
+  .bg-grid{
+    position:fixed;inset:0;z-index:0;opacity:.5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,black 40%,transparent 100%);
+  }
+  .orb{
+    position:fixed;border-radius:50%;filter:blur(110px);z-index:0;opacity:.55;
+    animation:drift 18s ease-in-out infinite alternate;
+  }
+  .orb-1{width:520px;height:520px;background:var(--neon);top:-160px;left:-120px}
+  .orb-2{width:460px;height:460px;background:var(--hot);top:30%;right:-160px;animation-delay:-6s}
+  .orb-3{width:400px;height:400px;background:var(--cyan);bottom:-140px;left:30%;animation-delay:-12s}
+  @keyframes drift{
+    0%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(60px,-40px) scale(1.15)}
+    100%{transform:translate(-40px,50px) scale(.95)}
+  }
+
+  /* noise */
+  .noise{
+    position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  }
+
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 40px;
+    backdrop-filter:blur(18px);
+    background:rgba(7,7,12,.55);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{font-weight:700;font-size:1.25rem;letter-spacing:.08em}
+  .logo span{color:var(--lime)}
+  .nav-links{display:flex;gap:28px;font-size:.9rem}
+  .nav-links a{color:var(--dim);text-decoration:none;transition:color .2s}
+  .nav-links a:hover{color:var(--lime)}
+  .nav-cta{
+    padding:9px 20px;border-radius:100px;border:1px solid var(--lime);
+    color:var(--lime);text-decoration:none;font-size:.85rem;font-weight:600;
+    transition:all .25s;
+  }
+  .nav-cta:hover{background:var(--lime);color:#07070c;box-shadow:0 0 30px rgba(200,255,62,.4)}
+
+  main{position:relative;z-index:3}
+
+  /* HERO */
+  .hero{
+    min-height:100vh;display:flex;flex-direction:column;
+    justify-content:center;align-items:center;text-align:center;
+    padding:120px 24px 80px;position:relative;
+  }
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:7px 16px;border-radius:100px;
+    border:1px solid var(--line);background:var(--card);
+    font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--dim);
+    margin-bottom:32px;
+  }
+  .badge .pulse{
+    width:7px;height:7px;border-radius:50%;background:var(--lime);
+    box-shadow:0 0 10px var(--lime);animation:pulse 2s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  h1{
+    font-size:clamp(3rem,9vw,7.5rem);font-weight:700;line-height:.95;
+    letter-spacing:-.03em;
+  }
+  .grad{
+    background:linear-gradient(90deg,var(--neon),var(--hot),var(--lime),var(--cyan));
+    background-size:300% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:shimmer 6s linear infinite;
+  }
+  @keyframes shimmer{to{background-position:300% 0}}
+  .type-wrap{
+    font-family:'IBM Plex Mono',monospace;color:var(--dim);
+    font-size:clamp(.95rem,2.4vw,1.3rem);margin-top:28px;min-height:1.6em;
+  }
+  .type-wrap .typed{color:var(--cyan)}
+  .type-wrap .caret{
+    display:inline-block;width:9px;height:1.2em;background:var(--hot);
+    vertical-align:text-bottom;animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0}}
+  .hero-sub{
+    max-width:560px;color:var(--dim);margin-top:24px;font-size:1.05rem;line-height:1.6;
+  }
+  .hero-btns{display:flex;gap:16px;margin-top:44px;flex-wrap:wrap;justify-content:center}
+  .btn{
+    padding:15px 34px;border-radius:100px;font-weight:600;font-size:.95rem;
+    text-decoration:none;transition:all .25s;display:inline-block;
+  }
+  .btn-primary{
+    background:linear-gradient(90deg,var(--neon),var(--hot));color:#fff;
+    box-shadow:0 8px 40px rgba(124,92,255,.35);
+  }
+  .btn-primary:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 12px 60px rgba(255,78,205,.45)}
+  .btn-ghost{border:1px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--lime);color:var(--lime);transform:translateY(-3px)}
+
+  /* marquee */
+  .marquee{
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:16px 0;overflow:hidden;white-space:nowrap;background:rgba(255,255,255,.02);
+  }
+  .marquee-track{display:inline-flex;gap:48px;animation:scroll 24s linear infinite}
+  .marquee span{
+    font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:var(--dim);
+    text-transform:uppercase;letter-spacing:.14em;
+  }
+  .marquee span::after{content:"✦";color:var(--hot);margin-left:48px}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+
+  section{padding:110px 24px;max-width:1180px;margin:0 auto}
+  .kicker{
+    font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:var(--lime);
+    text-transform:uppercase;letter-spacing:.2em;margin-bottom:14px;
+  }
+  h2{font-size:clamp(2rem,5vw,3.4rem);font-weight:700;letter-spacing:-.02em;line-height:1.05}
+  .sec-head{margin-bottom:64px;max-width:640px}
+  .sec-head p{color:var(--dim);margin-top:16px;font-size:1.05rem;line-height:1.6}
+
+  /* reveal on scroll */
+  .reveal{opacity:0;transform:translateY(34px);transition:opacity .8s ease,transform .8s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:34px 30px;position:relative;overflow:hidden;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s;
+  }
+  .card::before{
+    content:"";position:absolute;inset:0;opacity:0;transition:opacity .35s;
+    background:radial-gradient(400px circle at var(--mx,50%) var(--my,50%),rgba(124,92,255,.13),transparent 45%);
+  }
+  .card:hover{transform:translateY(-7px);border-color:rgba(124,92,255,.5);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .card:hover::before{opacity:1}
+  .card .icon{
+    font-size:1.7rem;width:58px;height:58px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;margin-bottom:22px;
+    border:1px solid var(--line);
+  }
+  .card h3{font-size:1.25rem;margin-bottom:10px;font-weight:600}
+  .card p{color:var(--dim);font-size:.95rem;line-height:1.65}
+  .card .tag{
+    position:absolute;top:24px;right:24px;font-family:'IBM Plex Mono',monospace;
+    font-size:.65rem;color:var(--dim);letter-spacing:.1em;
+  }
+  .c1 .icon{background:rgba(124,92,255,.14)} .c1:hover{border-color:var(--neon)}
+  .c2 .icon{background:rgba(255,78,205,.14)} .c2:hover{border-color:var(--hot)}
+  .c3 .icon{background:rgba(200,255,62,.12)} .c3:hover{border-color:var(--lime)}
+  .c4 .icon{background:rgba(62,240,255,.12)} .c4:hover{border-color:var(--cyan)}
+  .c5 .icon{background:rgba(255,180,62,.12)} .c5:hover{border-color:orange}
+  .c6 .icon{background:rgba(255,255,255,.08)} .c6:hover{border-color:#fff}
+
+  /* stats */
+  .stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;
+    border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--card);padding:48px 40px;
+  }
+  .stat{text-align:center}
+  .stat .num{
+    font-size:clamp(2.4rem,5vw,3.6rem);font-weight:700;
+    background:linear-gradient(180deg,#fff,var(--dim));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .stat .lbl{color:var(--dim);font-family:'IBM Plex Mono',monospace;font-size:.78rem;text-transform:uppercase;letter-spacing:.15em;margin-top:8px}
+
+  /* manifesto / big quote */
+  .manifesto{
+    text-align:center;padding:130px 24px;
+  }
+  .manifesto p{
+    font-size:clamp(1.5rem,4vw,2.8rem);font-weight:500;line-height:1.3;
+    max-width:880px;margin:0 auto;letter-spacing:-.02em;
+  }
+  .manifesto .hl{color:var(--hot);font-style:italic}
+  .manifesto .sig{font-family:'IBM Plex Mono',monospace;color:var(--dim);font-size:.8rem;margin-top:36px;letter-spacing:.2em;text-transform:uppercase}
+
+  /* terminal */
+  .terminal{
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    background:#0a0a12;max-width:760px;margin:0 auto;
+    box-shadow:0 30px 90px rgba(0,0,0,.6);
+  }
+  .term-bar{
+    display:flex;gap:8px;align-items:center;padding:14px 18px;
+    border-bottom:1px solid var(--line);background:rgba(255,255,255,.03);
+  }
+  .term-bar i{width:11px;height:11px;border-radius:50%;display:block}
+  .term-bar i:nth-child(1){background:#ff5f57}.term-bar i:nth-child(2){background:#febc2e}.term-bar i:nth-child(3){background:#28c840}
+  .term-title{margin-left:12px;font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--dim)}
+  .term-body{
+    padding:26px;font-family:'IBM Plex Mono',monospace;font-size:.88rem;line-height:1.9;
+  }
+  .term-body .p{color:var(--hot)}
+  .term-body .u{color:var(--cyan)}
+  .term-body .ok{color:var(--lime)}
+  .term-body .dim{color:var(--dim)}
+
+  /* cta */
+  .cta{
+    text-align:center;padding:130px 24px;position:relative;
+  }
+  .cta h2{font-size:clamp(2.4rem,7vw,5rem)}
+  .cta p{color:var(--dim);margin-top:18px;font-size:1.05rem}
+  .orbit{
+    position:relative;width:120px;height:120px;margin:0 auto 44px;
+  }
+  .orbit .core{
+    position:absolute;inset:36px;border-radius:50%;
+    background:conic-gradient(from 0deg,var(--neon),var(--hot),var(--cyan),var(--neon));
+    animation:spin 4s linear infinite;filter:blur(1px);
+  }
+  .orbit .ring{
+    position:absolute;inset:0;border-radius:50%;
+    border:1px dashed rgba(255,255,255,.25);animation:spin 14s linear infinite reverse;
+  }
+  .orbit .ring::before{
+    content:"";position:absolute;top:-4px;left:50%;width:9px;height:9px;border-radius:50%;
+    background:var(--lime);box-shadow:0 0 14px var(--lime);
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  footer{
+    border-top:1px solid var(--line);padding:44px 24px;text-align:center;
+    color:var(--dim);font-family:'IBM Plex Mono',monospace;font-size:.78rem;
+    position:relative;z-index:3;
+  }
+  footer .heart{color:var(--hot)}
+
+  @media (max-width:640px){
+    .nav-links{display:none}
+    nav{padding:16px 22px}
+    section{padding:80px 20px}
+    .cursor-glow,.cursor-dot{display:none}
+    body{cursor:auto}
+  }
+</style>
+</head>
+<body>
+<div class="cursor-glow" id="glow"></div>
+<div class="cursor-dot" id="dot"></div>
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+<div class="noise"></div>
+
+<nav>
+  <div class="logo">SYN<span>APSE</span></div>
+  <div class="nav-links">
+    <a href="#powers">Powers</a>
+    <a href="#numbers">Numbers</a>
+    <a href="#manifesto">Manifesto</a>
+    <a href="#demo">Demo</a>
+  </div>
+  <a href="#cta" class="nav-cta">Get early access</a>
+</nav>
+
+<main>
+  <header class="hero">
+    <div class="badge"><span class="pulse"></span> v0.1 — trained on vibes &amp; vector math</div>
+    <h1>The future<br>doesn't wait.<br><span class="grad">Neither do we.</span></h1>
+    <div class="type-wrap">&gt; teaching silicon to <span class="typed" id="typed"></span><span class="caret"></span></div>
+    <p class="hero-sub">Synapse is an AI studio for people who'd rather build the sci-fi than wait for it. Models, agents, and a little bit of mischief.</p>
+    <div class="hero-btns">
+      <a href="#cta" class="btn btn-primary">Join the waitlist</a>
+      <a href="#demo" class="btn btn-ghost">Watch it think</a>
+    </div>
+  </header>
+
+  <div class="marquee">
+    <div class="marquee-track" id="mtrack">
+      <span>Machine learning</span><span>Neural nets</span><span>Transformers</span>
+      <span>Agents</span><span>Fine-tuning</span><span>Embeddings</span><span>Inference</span>
+      <span>Machine learning</span><span>Neural nets</span><span>Transformers</span>
+      <span>Agents</span><span>Fine-tuning</span><span>Embeddings</span><span>Inference</span>
+    </div>
+  </div>
+
+  <section id="powers">
+    <div class="sec-head reveal">
+      <div class="kicker">// what it does</div>
+      <h2>Powers we're still<br>figuring out</h2>
+      <p>Six ways we're teaching machines to be useful. Some of these even work already.</p>
+    </div>
+    <div class="grid">
+      <div class="card c1 reveal"><span class="tag">01</span><div class="icon">🧠</div><h3>Agents that actually finish</h3><p>Not the kind that narrate a plan and quit. Ours book the flight, send the email, and only speak up when a human actually needs to decide something.</p></div>
+      <div class="card c2 reveal"><span class="tag">02</span><div class="icon">⚡</div><h3>Inference at silly speed</h3><p>Custom kernels, quantization tricks, and a refusal to accept "the GPU is just slow." Sub-100ms responses on hardware you already own.</p></div>
+      <div class="card c3 reveal"><span class="tag">03</span><div class="icon">🎨</div><h3>Taste, not just pixels</h3><p>Generative tools with opinions. It learns what you like, argues with you about kerning, and gets better every round.</p></div>
+      <div class="card c4 reveal"><span class="tag">04</span><div class="icon">🛡️</div><h3>Alignment with teeth</h3><p>Safety work that isn't a blog post. Red-teaming, evals, and circuit-level interpretability, shipped before the model is.</p></div>
+      <div class="card c5 reveal"><span class="tag">05</span><div class="icon">📡</div><h3>Memory that survives</h3><p>A context that remembers you between sessions. Preferences, projects, that weird thing you said at 2am. All yours, all encrypted.</p></div>
+      <div class="card c6 reveal"><span class="tag">06</span><div class="icon">♾️</div><h3>Open by default</h3><p>Weights, evals, and research notes in the open. If the future belongs to everyone, the blueprint should too.</p></div>
+    </div>
+  </section>
+
+  <section id="numbers">
+    <div class="sec-head reveal">
+      <div class="kicker">// receipts</div>
+      <h2>Numbers that go up</h2>
+      <p>We ran the benchmarks so you don't have to squint at a leaderboard.</p>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><div class="num" data-count="99">0</div><div class="lbl">% task completion</div></div>
+      <div class="stat"><div class="num" data-count="42">0</div><div class="lbl">ms median latency</div></div>
+      <div class="stat"><div class="num" data-count="12">0</div><div class="lbl">models in the wild</div></div>
+      <div class="stat"><div class="num" data-count="1">0</div><div class="lbl">existential crisis</div></div>
+    </div>
+  </section>
+
+  <section id="manifesto" class="manifesto reveal">
+    <p>We believe intelligence is not a product feature. It's <span class="hl">a new substrate</span> for everything humans make — and the people building it should answer to everyone who has to live in it.</p>
+    <div class="sig">— the synapse manifesto, clause 1</div>
+  </section>
+
+  <section id="demo">
+    <div class="sec-head reveal">
+      <div class="kicker">// live demo</div>
+      <h2>Watch it think</h2>
+      <p>A real session with our research agent, faithfully re-enacted by HTML.</p>
+    </div>
+    <div class="terminal reveal">
+      <div class="term-bar"><i></i><i></i><i></i><span class="term-title">synapse-agent — session #4171</span></div>
+      <div class="term-body">
+        <div><span class="u">you:</span> can you actually do something useful today?</div>
+        <div><span class="p">agent:</span> bold opening. yes.</div>
+        <div class="dim">▸ reading 340 papers on diffusion models… done (8.2s)</div>
+        <div class="dim">▸ spotting contradiction in paper #212… flagged</div>
+        <div class="dim">▸ drafting summary with receipts… done</div>
+        <div><span class="p">agent:</span> three of the four papers cite a result that <span style="text-decoration:line-through">doesn't replicate</span> <span class="ok">doesn't replicate cleanly</span>. summary attached. also, hydrate.</div>
+        <div><span class="u">you:</span> …did an AI just tell me to drink water?</div>
+        <div><span class="p">agent:</span> someone has to.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cta" class="cta">
+    <div class="orbit reveal"><div class="ring"></div><div class="core"></div></div>
+    <h2 class="reveal">Build the future<br><span class="grad">on purpose.</span></h2>
+    <p class="reveal">Early access opens soon. The waitlist is where the interesting people are.</p>
+    <div class="hero-btns reveal">
+      <a href="#" class="btn btn-primary" onclick="this.textContent='you're on the list ✦';this.style.pointerEvents='none';return false">Claim a spot</a>
+    </div>
+  </section>
+</main>
+
+<footer>made with silicon &amp; <span class="heart">attitude</span> — synapse labs, 2026 · no GPUs were harmed</footer>
+
+<script>
+  // typewriter
+  const phrases=["finish your to-do list","write the docs nobody reads","dream in embeddings","argue about fonts","debug itself at 3am","make the future feel close"];
+  const typedEl=document.getElementById('typed');
+  let pi=0,ci=0,deleting=false;
+  function type(){
+    const cur=phrases[pi];
+    typedEl.textContent=deleting?cur.slice(0,ci--):cur.slice(0,ci++);
+    let wait=deleting?38:72;
+    if(!deleting&&ci>cur.length){deleting=true;wait=1600}
+    else if(deleting&&ci<0){deleting=false;pi=(pi+1)%phrases.length;wait=350}
+    setTimeout(type,wait);
+  }
+  type();
+
+  // cursor glow (mouse only)
+  const glow=document.getElementById('glow'),dot=document.getElementById('dot');
+  let gx=innerWidth/2,gy=innerHeight/2,tx=gx,ty=gy;
+  addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY;dot.style.left=tx+'px';dot.style.top=ty+'px'});
+  (function loop(){gx+=(tx-gx)*.09;gy+=(ty-gy)*.09;glow.style.left=gx+'px';glow.style.top=gy+'px';requestAnimationFrame(loop)})();
+
+  // card spotlight follows mouse
+  document.querySelectorAll('.card').forEach(c=>{
+    c.addEventListener('mousemove',e=>{
+      const r=c.getBoundingClientRect();
+      c.style.setProperty('--mx',(e.clientX-r.left)+'px');
+      c.style.setProperty('--my',(e.clientY-r.top)+'px');
+    });
+  });
+
+  // scroll reveal
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}
+  }),{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // count-up stats
+  const cio=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const el=e.target,target=+el.dataset.count;cio.unobserve(el);
+    let n=0;const step=()=>{n+=Math.max(1,target/40);if(n>=target){el.textContent=target+(target===1?'':'')}else{el.textContent=Math.floor(n);requestAnimationFrame(step)}};
+    step();
+  }),{threshold:.5});
+  document.querySelectorAll('.num').forEach(el=>cio.observe(el));
+</script>
+</body>
+</html>
