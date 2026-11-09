@@ -11,20 +11,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Space Grotesk',sans-serif;background:#f6f6f8;color:#14141c}
+body{font-family:'Space Grotesk',sans-serif;background:#f6f6f8;color:#14141c;transition:background .2s,color .2s}
+body.dark{background:#0b0b12;color:#f0eef8}
 button{font-family:inherit;cursor:pointer}
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:12px 20px;background:#fff;border-bottom:1px solid #e8e8ee}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:12px 20px;background:#fff;border-bottom:1px solid #e8e8ee}
+body.dark .top{background:#12121c;border-color:#1e1e2a}
 .logo{font-weight:700;font-size:1.15rem;letter-spacing:.04em;background:linear-gradient(90deg,#7c5cff,#ff4ecd);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
 .search{flex:1;display:flex;max-width:560px}
-.search input{flex:1;border:1px solid #d9d9e3;border-radius:100px 0 0 100px;padding:10px 16px;font-size:.95rem;outline:none;font-family:inherit}
+.search input{flex:1;border:1px solid #d9d9e3;border-radius:100px 0 0 100px;padding:10px 16px;font-size:.95rem;outline:none;font-family:inherit;background:#fff;color:inherit}
+body.dark .search input{background:#1a1a26;border-color:#26263a}
 .search input:focus{border-color:#7c5cff}
 .search button{border:none;background:#14141c;color:#fff;border-radius:0 100px 100px 0;padding:0 18px}
-.icon-btn{position:relative;border:1px solid #e4e4ec;background:#fff;border-radius:12px;width:42px;height:42px;font-size:1.1rem}
+body.dark .search button{background:#7c5cff}
+.icon-btn{position:relative;border:1px solid #e4e4ec;background:#fff;border-radius:12px;width:42px;height:42px;font-size:1.05rem}
+body.dark .icon-btn{background:#1a1a26;border-color:#26263a;color:#f0eef8}
 .icon-btn b{position:absolute;top:-6px;right:-6px;background:#ff4ecd;color:#fff;font-size:.65rem;border-radius:100px;padding:2px 6px}
 .console-link{border:1px solid #14141c;background:#14141c;color:#fff;border-radius:12px;padding:10px 14px;font-size:.85rem;text-decoration:none;white-space:nowrap}
+body.dark .console-link{background:#c8ff3e;color:#0b0b12;border-color:#c8ff3e}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:12px 20px;background:#fff;border-bottom:1px solid #f0f0f4}
-.chip{border:1px solid #e4e4ec;background:#fff;border-radius:100px;padding:8px 16px;font-size:.85rem;white-space:nowrap}
+body.dark .chips{background:#12121c;border-color:#1e1e2a}
+.chip{border:1px solid #e4e4ec;background:#fff;border-radius:100px;padding:8px 16px;font-size:.85rem;white-space:nowrap;color:inherit}
+body.dark .chip{background:#1a1a26;border-color:#26263a}
 .chip.on{background:#14141c;color:#fff;border-color:#14141c}
+body.dark .chip.on{background:#c8ff3e;color:#0b0b12;border-color:#c8ff3e}
 .hero{margin:18px 20px;border-radius:22px;padding:34px 26px;background:linear-gradient(120deg,#14141c,#3a2a6e 55%,#7c5cff);color:#fff}
 .hero h1{font-size:clamp(1.6rem,5vw,2.6rem);line-height:1.1}
 .hero h1 span{color:#c8ff3e}
@@ -33,10 +42,13 @@ button{font-family:inherit;cursor:pointer}
 .wrap{padding:0 20px 60px;max-width:1200px;margin:0 auto}
 .sec{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 12px;gap:10px}
 .sec h2{font-size:1.15rem}
-.sec select{border:1px solid #d9d9e3;border-radius:10px;padding:8px 10px;font-size:.85rem;font-family:inherit;background:#fff}
+.sec select{border:1px solid #d9d9e3;border-radius:10px;padding:8px 10px;font-size:.85rem;font-family:inherit;background:#fff;color:inherit}
+body.dark .sec select{background:#1a1a26;border-color:#26263a}
 .row{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
-.card{background:#fff;border:1px solid #ececf2;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;position:relative;transition:transform .15s, box-shadow .15s}
+.card{background:#fff;border:1px solid #ececf2;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;position:relative;transition:transform .15s, box-shadow .15s;flex-shrink:0;width:200px}
+.grid .card{width:auto}
+body.dark .card{background:#161622;border-color:#22222f}
 .card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(20,20,28,.08)}
 .tile{aspect-ratio:1.25;display:flex;align-items:center;justify-content:center;font-size:3rem;background:linear-gradient(135deg,var(--g1),var(--g2))}
 .deal-tag{position:absolute;top:10px;left:10px;background:#ff4ecd;color:#fff;font-size:.62rem;font-weight:700;letter-spacing:.06em;border-radius:100px;padding:4px 9px}
@@ -44,48 +56,74 @@ button{font-family:inherit;cursor:pointer}
 .cbody{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}
 .cname{font-size:.9rem;font-weight:600;line-height:1.3}
 .cmeta{font-size:.72rem;color:#6f6f80}
+body.dark .cmeta{color:#9a97b0}
 .cprice{font-weight:700;font-size:1rem}
 .cprice s{color:#9a9aa8;font-weight:400;font-size:.8rem;margin-left:6px}
 .cbtn{margin-top:auto;border:1px solid #14141c;background:#14141c;color:#fff;border-radius:10px;padding:9px;font-size:.82rem}
+body.dark .cbtn{background:#7c5cff;border-color:#7c5cff}
 .empty{color:#8a8a99;font-size:.9rem;padding:30px 0;text-align:center}
 .overlay{position:fixed;inset:0;background:rgba(12,12,20,.55);z-index:40;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.on{display:flex}
 .sheet{background:#fff;border-radius:20px;max-width:760px;width:100%;max-height:92vh;overflow-y:auto;padding:22px}
+body.dark .sheet{background:#161622}
 .sheet h3{font-size:1.3rem;margin-bottom:4px}
-.close{float:right;border:1px solid #e4e4ec;background:#fff;border-radius:10px;width:34px;height:34px}
+.close{float:right;border:1px solid #e4e4ec;background:#fff;border-radius:10px;width:34px;height:34px;color:inherit}
+body.dark .close{background:#1a1a26;border-color:#26263a}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:640px){.pgrid{grid-template-columns:1fr}.console-link{display:none}}
 .pimg{border-radius:16px;aspect-ratio:1.1;display:flex;align-items:center;justify-content:center;font-size:5rem;background:linear-gradient(135deg,var(--g1),var(--g2))}
-.stars{color:#f5a623;font-size:.9rem}
 .rev{border-top:1px solid #f0f0f4;padding:10px 0;font-size:.85rem}
+body.dark .rev{border-color:#22222f}
 .rev b{font-size:.8rem}
 .rev span{color:#6f6f80;font-size:.72rem;display:block}
 .qty{display:inline-flex;align-items:center;gap:10px;border:1px solid #d9d9e3;border-radius:10px;padding:6px 10px}
-.qty button{border:none;background:none;font-size:1rem}
+body.dark .qty{border-color:#26263a}
+.qty button{border:none;background:none;font-size:1rem;color:inherit}
 .btn{display:inline-block;background:#14141c;color:#fff;border:none;border-radius:100px;padding:12px 20px;font-size:.9rem}
+body.dark .btn{background:#7c5cff}
 .btn.pink{background:linear-gradient(90deg,#7c5cff,#ff4ecd)}
 .buyrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .drawer{position:fixed;top:0;right:0;height:100%;width:min(400px,100%);background:#fff;z-index:50;box-shadow:-20px 0 60px rgba(0,0,0,.2);transform:translateX(105%);transition:transform .25s;display:flex;flex-direction:column}
+body.dark .drawer{background:#12121c}
 .drawer.on{transform:none}
 .dhead{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid #ececf2}
+body.dark .dhead{border-color:#22222f}
 .dbody{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
 .citem{display:flex;gap:12px;align-items:center;border:1px solid #ececf2;border-radius:14px;padding:10px}
+body.dark .citem{border-color:#22222f}
 .ctile{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
 .cinfo{flex:1;font-size:.85rem}
 .dfoot{border-top:1px solid #ececf2;padding:16px;display:flex;flex-direction:column;gap:10px}
+body.dark .dfoot{border-color:#22222f}
 .totline{display:flex;justify-content:space-between;font-size:.9rem}
 .totline.big{font-weight:700;font-size:1.05rem}
-.dfoot input{border:1px solid #d9d9e3;border-radius:10px;padding:10px 12px;font-size:.9rem;font-family:inherit;outline:none;width:100%}
+.dfoot input,.sheet input{border:1px solid #d9d9e3;border-radius:10px;padding:10px 12px;font-size:.9rem;font-family:inherit;outline:none;width:100%;background:#fff;color:inherit;margin-bottom:8px}
+body.dark .dfoot input,body.dark .sheet input{background:#1a1a26;border-color:#26263a}
+.dfoot input:focus,.sheet input:focus{border-color:#7c5cff}
 .note{font-size:.72rem;color:#8a8a99}
 footer{border-top:1px solid #e8e8ee;padding:22px;text-align:center;color:#8a8a99;font-size:.8rem}
+body.dark footer{border-color:#1e1e2a}
 .tagrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .tag{background:#f1efff;color:#5b45c9;border-radius:100px;font-size:.7rem;padding:3px 9px}
+body.dark .tag{background:#24203a;color:#b9a8ff}
+.tl{margin:14px 0}
+.tstep{display:flex;gap:12px;align-items:flex-start;padding:6px 0}
+.tdot{width:14px;height:14px;border-radius:50%;background:#e4e4ec;margin-top:3px;flex-shrink:0}
+.tstep.done .tdot{background:#3cdc84}
+.tstep.now .tdot{background:#ff4ecd;box-shadow:0 0 0 4px rgba(255,78,205,.2)}
+.tstep small{display:block;color:#8a8a99}
+.orderrow{border:1px solid #ececf2;border-radius:12px;padding:12px;margin-bottom:8px;font-size:.88rem}
+body.dark .orderrow{border-color:#22222f}
+.orderrow b{font-size:.92rem}
 </style>
 </head>
 <body>
 <div class="top">
   <div class="logo">FLIPSIDE</div>
   <div class="search"><input id="q" placeholder="Search flipside…"><button id="qbtn">🔍</button></div>
+  <button class="icon-btn" id="themebtn" title="dark mode">🌙</button>
+  <button class="icon-btn" id="ordersbtn" title="track orders">📦</button>
+  <button class="icon-btn" id="acctbtn" title="account">👤</button>
   <button class="icon-btn" id="wishbtn" title="wishlist">♥<b id="wishn">0</b></button>
   <button class="icon-btn" id="cartbtn" title="cart">🛒<b id="cartn">0</b></button>
   <a class="console-link" href="console.html">Boss console</a>
@@ -104,6 +142,7 @@ footer{border-top:1px solid #e8e8ee;padding:22px;text-align:center;color:#8a8a99
   <div class="sec"><h2>Everything</h2><select id="sort"><option value="feat">Featured</option><option value="lo">Price: low to high</option><option value="hi">Price: high to low</option><option value="rate">Top rated</option></select></div>
   <div class="grid" id="grid"></div>
   <div id="recentwrap" style="display:none"><div class="sec"><h2>Recently viewed</h2></div><div class="row" id="recentrow"></div></div>
+  <div id="pickswrap" style="display:none"><div class="sec"><h2>Picked for you</h2></div><div class="row" id="picksrow"></div></div>
 </div>
 
 <div class="overlay" id="ov"><div class="sheet" id="sheet"></div></div>
@@ -114,7 +153,7 @@ footer{border-top:1px solid #e8e8ee;padding:22px;text-align:center;color:#8a8a99
   <div class="dfoot" id="dfoot"></div>
 </div>
 
-<footer>FLIPSIDE · flip smarter, not harder · demo store v1</footer>
+<footer>FLIPSIDE · flip smarter, not harder · demo store v2 · <a href="#" id="foottheme" style="color:inherit">dark mode</a></footer>
 
 <script src="data.js"></script>
 <script>
@@ -123,10 +162,13 @@ let state={q:"",cat:"all",sort:"feat"};
 const $=id=>document.getElementById(id);
 function grad(p){return FS.G[[...p.id].reduce((s,c)=>s+c.charCodeAt(0),0)%FS.G.length];}
 
-function tile(p){
-  const g=grad(p);
-  return `<div class="tile" style="--g1:${g[0]};--g2:${g[1]}">${p.e}</div>`;
-}
+// theme
+function setTheme(t){document.body.classList.toggle("dark",t==="dark");FS.sv("fs_theme",t);$("themebtn").textContent=t==="dark"?"☀️":"🌙";}
+setTheme(FS.ls("fs_theme","light"));
+$("themebtn").onclick=()=>setTheme(document.body.classList.contains("dark")?"light":"dark");
+$("foottheme").onclick=e=>{e.preventDefault();$("themebtn").click();};
+
+function tile(p){const g=grad(p);return `<div class="tile" style="--g1:${g[0]};--g2:${g[1]}">${p.e}</div>`;}
 function stars(r){return "★"+r.toFixed(1)}
 
 function renderChips(){
@@ -159,14 +201,18 @@ function renderGrid(){
   const a=filtered();
   $("grid").innerHTML=a.length?a.map(cardHTML).join(""):`<div class="empty">nothing matches that — try another search.</div>`;
 }
-function renderDeals(){
-  const a=P().filter(p=>p.compare);
-  $("dealrow").innerHTML=a.length?a.map(cardHTML).join(""):"";
-}
+function renderDeals(){const a=P().filter(p=>p.compare);$("dealrow").innerHTML=a.length?a.map(cardHTML).join(""):"";}
 function renderRecent(){
   const r=FS.ls("fs_recent",[]).map(id=>P().find(p=>p.id===id)).filter(Boolean).slice(0,6);
   $("recentwrap").style.display=r.length?"block":"none";
   $("recentrow").innerHTML=r.map(cardHTML).join("");
+}
+function renderPicks(){
+  const seen=FS.ls("fs_recent",[]),cart=Object.keys(FS.ls("fs_cart",{}));
+  const cats=new Set(seen.concat(cart).map(id=>(P().find(p=>p.id===id)||{}).cat).filter(Boolean));
+  const picks=P().filter(p=>cats.has(p.cat)&&!seen.includes(p.id)).slice(0,6);
+  $("pickswrap").style.display=picks.length?"block":"none";
+  $("picksrow").innerHTML=picks.map(cardHTML).join("");
 }
 function bump(){
   const c=FS.ls("fs_cart",{}),w=FS.ls("fs_wish",[]);
@@ -223,10 +269,54 @@ function openProduct(id){
   $("pclose").onclick=closeOv;
   $("qm").onclick=()=>{const e=$("pqty");e.textContent=Math.max(1,+e.textContent-1)};
   $("qp").onclick=()=>{const e=$("pqty");e.textContent=+e.textContent+1};
-  renderRecent();bump();
+  renderRecent();renderPicks();bump();
 }
 function closeOv(){$("ov").classList.remove("on")}
 $("ov").addEventListener("click",e=>{if(e.target===$("ov"))closeOv()});
+
+// order tracking
+function timeline(st){
+  const stages=[["Order placed","we got it"],["Processing","being packed"],["Shipped","on the way"],["Delivered","at your door"]];
+  const idx={processing:1,shipped:2,delivered:3}[st]||1;
+  return `<div class="tl">`+stages.map((s,i)=>`<div class="tstep ${i<idx?"done":i===idx?"now":""}"><div class="tdot"></div><div>${s[0]}<small>${i<idx?s[1]:i===idx?"current":"pending"}</small></div></div>`).join("")+`</div>`;
+}
+$("ordersbtn").onclick=()=>{
+  const u=FS.ls("fs_user",null),orders=FS.ls("fs_orders",[]);
+  const mine=u?orders.filter(o=>(o.email||"").toLowerCase()===u.email.toLowerCase()):[];
+  $("sheet").innerHTML=`
+    <button class="close" id="pclose2">×</button>
+    <h3>Track an order</h3>
+    <input id="t_id" placeholder="order number, like FS-1001">
+    <div class="buyrow"><button class="btn" id="t_go">Track</button></div>
+    <div id="t_out"></div>
+    ${mine.length?`<h3 style="font-size:1rem;margin:18px 0 8px">Your orders</h3>`+mine.map(o=>`<div class="orderrow"><b>${o.id}</b> · ${FS.money(o.total)} · <span class="note">${o.status}</span></div>`).join(""):(u?`<p class="note" style="margin-top:12px">no orders on your account yet.</p>:`")}`;
+  $("ov").classList.add("on");
+  $("pclose2").onclick=closeOv;
+  $("t_go").onclick=()=>{
+    const id=$("t_id").value.trim().toUpperCase();
+    const o=orders.find(x=>x.id.toUpperCase()===id);
+    $("t_out").innerHTML=o?`<div class="orderrow" style="margin-top:12px"><b>${o.id}</b> · ${o.date} · ${FS.money(o.total)}<br><span class="note">${o.items.map(i=>i.qty+"× "+i.name).join(", ")}</span></div>${timeline(o.status)}`:`<p class="note" style="margin-top:12px">no order with that number on this device — demo orders live in this browser's storage.</p>`;
+  };
+};
+
+// account
+$("acctbtn").onclick=()=>{
+  const u=FS.ls("fs_user",null);
+  $("sheet").innerHTML=`
+    <button class="close" id="pclose3">×</button>
+    <h3>${u?"Your account":"Create account"}</h3>
+    <p class="note" style="margin:6px 0 12px">demo accounts live in this browser only — no passwords, no servers.</p>
+    <input id="a_name" placeholder="Full name" value="${u?u.name:""}">
+    <input id="a_email" placeholder="Email" value="${u?u.email:""}">
+    <div class="buyrow"><button class="btn pink" id="a_save">Save</button>${u?`<button class="btn" id="a_out" style="background:#e4e4ec;color:#14141c">Sign out</button>`:""}</div>
+    <div id="a_orders" style="margin-top:14px"></div>`;
+  $("ov").classList.add("on");
+  $("pclose3").onclick=closeOv;
+  const showMine=()=>{const u2=FS.ls("fs_user",null);const orders=FS.ls("fs_orders",[]).filter(o=>u2&&(o.email||"").toLowerCase()===u2.email.toLowerCase());$("a_orders").innerHTML=orders.length?`<h3 style="font-size:1rem;margin-bottom:8px">Order history</h3>`+orders.map(o=>`<div class="orderrow"><b>${o.id}</b> · ${o.date} · ${FS.money(o.total)} · ${o.status}</div>`).join(""):"";};
+  showMine();
+  $("a_save").onclick=()=>{const n=$("a_name").value.trim(),em=$("a_email").value.trim();if(!n||!em){alert("name and email, please");return;}FS.sv("fs_user",{name:n,email:em});$("sheet").innerHTML=`<h3>Saved ✓</h3><p class="note">checkout will prefill your details now.</p>`;setTimeout(closeOv,700);};
+  const so=$("a_out");if(so)so.onclick=()=>{FS.sv("fs_user",null);closeOv();};
+};
 
 let checkoutOn=false;
 function openCart(){checkoutOn=false;$("drawer").classList.add("on");renderCart();}
@@ -249,10 +339,11 @@ function renderCart(){
       <div class="note">demo checkout — real payments get wired when you go live.</div>`;
     $("tocheckout").onclick=()=>{checkoutOn=true;renderCart();};
   } else {
+    const u=FS.ls("fs_user",null);
     $("dbody").innerHTML=`
-      <input id="f_name" placeholder="Full name"><input id="f_email" placeholder="Email"><input id="f_addr" placeholder="Shipping address">
+      <input id="f_name" placeholder="Full name" value="${u?u.name:""}"><input id="f_email" placeholder="Email" value="${u?u.email:""}"><input id="f_addr" placeholder="Shipping address">
       <div class="totline big"><span>Total</span><span>${FS.money(items.reduce((s,{p,q})=>s+p.price*q,0))}</span></div>`;
-    $("dfoot").innerHTML=`<button class="btn pink" id="place" style="width:100%">Place order</button><div class="note">you'll get an order number on the next screen.</div>`;
+    $("dfoot").innerHTML=`<button class="btn pink" id="place" style="width:100%">Place order</button><div class="note">you'll get an order number on the next screen — track it with the 📦 button.</div>`;
     $("place").onclick=()=>{
       const n=$("f_name").value.trim(),em=$("f_email").value.trim(),ad=$("f_addr").value.trim();
       if(!n||!em||!ad){alert("fill in name, email and address first");return;}
@@ -265,7 +356,7 @@ function renderCart(){
       $("dtitle").textContent="Order placed ✓";
       $("dbody").innerHTML=`<div class="empty" style="font-size:1rem">🎉 order <b>${order.id}</b> is in.<br>total ${FS.money(order.total)} · status: processing<br><span class="note">the boss console now shows this sale.</span></div>`;
       $("dfoot").innerHTML=`<button class="btn" id="keep" style="width:100%">Keep shopping</button>`;
-      $("keep").onclick=()=>{$("drawer").classList.remove("on");renderGrid();renderDeals();};
+      $("keep").onclick=()=>{$("drawer").classList.remove("on");renderGrid();renderDeals();renderPicks();};
     };
   }
 }
@@ -278,7 +369,7 @@ $("cartbtn").onclick=openCart;
 $("wishbtn").onclick=()=>{state.q="";$("q").value="";const w=FS.ls("fs_wish",[]);const a=P().filter(p=>w.includes(p.id));$("grid").innerHTML=a.length?a.map(cardHTML).join(""):`<div class="empty">no wishlist yet — tap the 🤍 on anything you like.</div>`;window.scrollTo({top:0});[...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.cat==="all"));state.cat="all";};
 $("dclose").onclick=()=>$("drawer").classList.remove("on");
 
-renderChips();renderGrid();renderDeals();renderRecent();bump();
+renderChips();renderGrid();renderDeals();renderRecent();renderPicks();bump();
 </script>
 </body>
 </html>
