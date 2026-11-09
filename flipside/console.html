@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FLIPSIDE — Boss Console</title>
-<meta name="description" content="The private control center for the Flipside operation: deal scoring, profit math, inventory, agents.">
+<meta name="description" content="The private control center for the Flipside operation: deal scoring, profit math, inventory, orders, finance, agents.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧭%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,6 +24,7 @@ h1{font-size:1.5rem;margin-bottom:4px}
 .stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:14px}
 .stat .n{font-size:1.4rem;font-weight:700;font-family:'IBM Plex Mono',monospace}
 .stat .l{font-size:.72rem;color:#8b87a3;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.stat .src{font-size:.6rem;color:#5f5c78;margin-top:2px;font-family:'IBM Plex Mono',monospace}
 .tabs{display:flex;gap:8px;margin:10px 0 18px;flex-wrap:wrap}
 .tab{border:1px solid rgba(255,255,255,.14);background:none;color:#b9b6cc;border-radius:100px;padding:9px 18px;font-size:.85rem;font-family:inherit}
 .tab.on{background:#c8ff3e;color:#0b0b12;border-color:#c8ff3e;font-weight:600}
@@ -53,19 +54,25 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
 .agent h3{font-size:.95rem}.agent p{color:#8b87a3;font-size:.78rem;line-height:1.5;flex:1}
 .agent .lr{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:#5f5c78}
 .out{font-family:'IBM Plex Mono',monospace;font-size:.75rem;background:rgba(0,0,0,.35);border-radius:10px;padding:10px;white-space:pre-wrap;line-height:1.6;color:#c8ff3e;display:none;margin-top:8px}
+.fnote{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:#5f5c78;margin-top:6px}
+.logline{font-family:'IBM Plex Mono',monospace;font-size:.74rem;color:#b9b6cc;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.logline b{color:#c8ff3e;font-weight:500}
 </style>
 </head>
 <body>
 <div class="top"><div class="logo">FLIP<span>SIDE</span> CONSOLE</div><a href="index.html">← back to the store</a></div>
-<div class="demo">demo mode: inventory + orders are sample data. real selling needs real payment setup (an adult's merchant account) — the machine is ready when you are.</div>
+<div class="demo">demo mode: inventory, orders and reviews are sample data living in this browser. real selling needs real payment setup (an adult's merchant account). nothing here buys anything without your say-so.</div>
 <div class="wrap">
   <h1>Business control center</h1>
-  <div class="sub">every deal gets scored before a dollar moves. nothing buys itself.</div>
+  <div class="sub">every deal gets scored before a dollar moves. actual sales and estimates are kept apart and labeled.</div>
   <div class="cards" id="stats"></div>
   <div class="tabs">
     <button class="tab on" data-t="opps">Opportunities</button>
     <button class="tab" data-t="inv">Inventory</button>
+    <button class="tab" data-t="orders">Orders</button>
+    <button class="tab" data-t="fin">Finance</button>
     <button class="tab" data-t="agents">Agents</button>
+    <button class="tab" data-t="log">Log</button>
     <button class="tab" data-t="set">Settings</button>
   </div>
 
@@ -75,6 +82,7 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
       <p class="hint">Log anything you're thinking of buying to flip: what it costs, what it should resell for, where you'd sell it. The math and the verdict are instant.</p>
       <div class="frow">
         <div><label>item</label><input id="o_item" placeholder="what is it?"></div>
+        <div><label>source</label><input id="o_src" placeholder="thrift, clearance, marketplace…"></div>
         <div><label>buy price $</label><input id="o_buy" type="number" min="0" step="0.01"></div>
         <div><label>shipping $</label><input id="o_ship" type="number" min="0" step="0.01" value="0"></div>
         <div><label>est. resale $</label><input id="o_sell" type="number" min="0" step="0.01"></div>
@@ -103,16 +111,49 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
     <div class="card"><h2>Live inventory</h2><table id="i_table"></table></div>
   </div>
 
+  <div class="panel" id="p-orders">
+    <div class="card">
+      <h2>Orders</h2>
+      <p class="hint">Sales from the storefront land here. Move the status and the customer's order tracker updates.</p>
+      <div id="ord_list"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-fin">
+    <div class="card">
+      <h2>Actual (recorded demo sales)</h2>
+      <div class="cards" id="fin_actual"></div>
+      <p class="fnote">source: orders placed in the storefront on this device. nothing estimated.</p>
+    </div>
+    <div class="card">
+      <h2>Estimates (not money yet)</h2>
+      <div class="cards" id="fin_est"></div>
+      <p class="fnote">source: opportunity board projections and inventory valuation. models, not money.</p>
+    </div>
+    <div class="card">
+      <h2>Budget monitor</h2>
+      <div id="fin_budget"></div>
+    </div>
+  </div>
+
   <div class="panel" id="p-agents">
     <div class="agents">
       <div class="agent"><h3>🔍 Discovery</h3><p>Finds undervalued items worth flipping. Runs on you spotting listings + me researching on request — everything lands on the opportunity board for scoring.</p><div class="lr" id="lr-disc">never run</div><button class="btn ghost" data-run="disc">Open scoring</button><div class="out" id="out-disc"></div></div>
       <div class="agent"><h3>📊 Deal Analyst</h3><p>Verifies the numbers on every logged opportunity against real marketplace fee schedules and your margin floor.</p><div class="lr" id="lr-an">never run</div><button class="btn ghost" data-run="an">Run analysis</button><div class="out" id="out-an"></div></div>
       <div class="agent"><h3>🧮 Profit Calculator</h3><p>Full math on every deal: marketplace fees, shipping, net profit, margin, ROI. Never confuses revenue with profit.</p><div class="lr" id="lr-pc">never run</div><button class="btn ghost" data-run="pc">Re-score all</button><div class="out" id="out-pc"></div></div>
       <div class="agent"><h3>✍️ Listing Writer</h3><p>Turns an inventory item into a professional listing: title, description, keywords, price check.</p><div class="lr" id="lr-lw">never run</div><button class="btn ghost" data-run="lw">Write a listing</button><div class="out" id="out-lw"></div></div>
-      <div class="agent"><h3>📦 Inventory Manager</h3><p>Flags out-of-stock and low-stock items and anything priced under your margin floor.</p><div class="lr" id="lr-im">never run</div><button class="btn ghost" data-run="im">Audit inventory</button><div class="out" id="out-im"></div></div>
+      <div class="agent"><h3>📦 Inventory Agent</h3><p>Flags out-of-stock and low-stock items and anything priced under your margin floor.</p><div class="lr" id="lr-im">never run</div><button class="btn ghost" data-run="im">Audit inventory</button><div class="out" id="out-im"></div></div>
+      <div class="agent"><h3>📈 Market Research</h3><p>Reads your catalog and sales by category: what moves, what earns. Works on your data; live market feeds need paid API keys.</p><div class="lr" id="lr-mr">never run</div><button class="btn ghost" data-run="mr">Run research</button><div class="out" id="out-mr"></div></div>
+      <div class="agent"><h3>💰 Pricing Agent</h3><p>Checks every item against your margin floor and suggests price moves, both directions.</p><div class="lr" id="lr-pr">never run</div><button class="btn ghost" data-run="pr">Run pricing</button><div class="out" id="out-pr"></div></div>
       <div class="agent"><h3>⚙️ Ops Optimizer</h3><p>Reviews the whole operation and recommends the next reversible move.</p><div class="lr" id="lr-oo">never run</div><button class="btn ghost" data-run="oo">Run review</button><div class="out" id="out-oo"></div></div>
+      <div class="agent"><h3>🧾 Financial Analyst</h3><p>Separates recorded sales from projections and states the true position of the business.</p><div class="lr" id="lr-fa">never run</div><button class="btn ghost" data-run="fa">Run analysis</button><div class="out" id="out-fa"></div></div>
+      <div class="agent"><h3>💬 Customer Service</h3><p>Answers storefront questions from the policy sheet: shipping, returns, tracking. Anything unusual gets escalated to you.</p><div class="lr" id="lr-cs">never run</div><button class="btn ghost" data-run="cs">Try it</button><div class="out" id="out-cs"></div><div class="frow" style="margin-top:6px"><input id="cs_q" placeholder="type a customer question…"></div></div>
+      <div class="agent"><h3>↩️ Returns Agent</h3><p>Logs returns against orders and applies the 30-day policy.</p><div class="lr" id="lr-rt">never run</div><button class="btn ghost" data-run="rt">Open returns</button><div class="out" id="out-rt"></div></div>
+      <div class="agent"><h3>✅ Quality Assurance</h3><p>Runs self-checks on the platform's data and reports what's broken or empty.</p><div class="lr" id="lr-qa">never run</div><button class="btn ghost" data-run="qa">Run checks</button><div class="out" id="out-qa"></div></div>
     </div>
   </div>
+
+  <div class="panel" id="p-log"><div class="card"><h2>Execution log</h2><p class="hint">Every agent run, newest first. Kept in this browser.</p><div id="log_list"></div></div></div>
 
   <div class="panel" id="p-set">
     <div class="card">
@@ -131,15 +172,16 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
 <script>
 const $=id=>document.getElementById(id);
 const P=()=>FS.ls("fs_products",[]);
+function logRun(name,note){const l=FS.ls("fs_logs",[]);l.unshift({t:new Date().toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}),name,note:(note||"").slice(0,140)});FS.sv("fs_logs",l.slice(0,30));renderLog();}
 
 function stats(){
   const orders=FS.ls("fs_orders",[]),prods=P(),opps=FS.ls("fs_opps",[]);
   const revenue=orders.reduce((s,o)=>s+o.total,0);
+  const cogs=orders.reduce((s,o)=>s+o.items.reduce((a,it)=>{const p=prods.find(x=>x.id===it.id);return a+(p?p.buy*it.qty:0)},0),0);
   const invValue=prods.reduce((s,p)=>s+p.buy*p.stock,0);
-  let soldProfit=0;
-  orders.forEach(o=>o.items.forEach(it=>{const p=prods.find(x=>x.id===it.id);if(p)soldProfit+=(it.price-p.buy)*it.qty;}));
-  const cards=[["revenue",FS.money(revenue)],["orders",orders.length],["est. profit on sales",FS.money(Math.max(0,soldProfit))],["inventory value",FS.money(invValue)],["opportunities",opps.length],["agents",6]];
-  $("stats").innerHTML=cards.map(c=>`<div class="stat"><div class="n">${c[1]}</div><div class="l">${c[0]}</div></div>`).join("");
+  const goOpps=opps.map(o=>FS.score(o)).filter(s=>s.verdict==="GO");
+  const cards=[["revenue · actual",FS.money(revenue),orders.length+" orders"],["gross profit · actual",FS.money(revenue-cogs),"after cost of goods"],["inventory value · estimate",FS.money(invValue),"at cost"],["GO deals potential · estimate",goOpps.length?FS.money(goOpps.reduce((s,x)=>s+x.profit,0)):"$0.00",goOpps.length+" deals"],["opportunities",opps.length,"on the board"],["agents",12,"live logic on your data"]];
+  $("stats").innerHTML=cards.map(c=>`<div class="stat"><div class="n">${c[1]}</div><div class="l">${c[0]}</div><div class="src">${c[2]}</div></div>`).join("");
 }
 
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
@@ -150,7 +192,7 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
 Object.entries(FS.FEES).forEach(([k,v])=>{const o=document.createElement("option");o.value=k;o.textContent=v.n+" ("+Math.round(v.rate*100)+"% fee)";$("o_mkt").appendChild(o);});
 FS.CATS.forEach(c=>{const o=document.createElement("option");o.value=c[0];o.textContent=c[2]+" "+c[1];$("i_cat").appendChild(o);});
 
-function oppObj(){return{item:$("o_item").value.trim(),buy:+$("o_buy").value||0,ship:+$("o_ship").value||0,sell:+$("o_sell").value||0,mkt:$("o_mkt").value};}
+function oppObj(){return{item:$("o_item").value.trim(),src:$("o_src").value.trim(),buy:+$("o_buy").value||0,ship:+$("o_ship").value||0,sell:+$("o_sell").value||0,mkt:$("o_mkt").value};}
 function prevHTML(o){
   if(!o.item||!o.sell){return null;}
   const s=FS.score(o);
@@ -160,12 +202,12 @@ function prevHTML(o){
 $("o_save").onclick=()=>{
   const o=oppObj();if(!o.item||!o.sell){alert("name the item and the resale price first");return;}
   const opps=FS.ls("fs_opps",[]);opps.unshift({...o,id:"O"+Date.now(),ts:new Date().toLocaleString("en-US")});FS.sv("fs_opps",opps);
-  $("o_item").value="";$("o_buy").value="";$("o_sell").value="";$("o_ship").value="0";$("o_prev").style.display="none";
-  renderOpps();stats();
+  $("o_item").value="";$("o_src").value="";$("o_buy").value="";$("o_sell").value="";$("o_ship").value="0";$("o_prev").style.display="none";
+  renderOpps();stats();logRun("Discovery","opportunity saved: "+o.item);
 };
 function renderOpps(){
   const opps=FS.ls("fs_opps",[]);
-  $("o_list").innerHTML=opps.length?opps.map(o=>{const s=FS.score(o);return `<div class="opp"><div><div class="nm">${o.item}</div><div class="dt">buy ${FS.money(o.buy)} · ship ${FS.money(o.ship)} · resale ${FS.money(o.sell)} · ${FS.FEES[o.mkt].n} · profit ${FS.money(s.profit)} (${Math.round(s.margin*100)}%) · ${o.ts}</div></div><span class="badge b-${s.verdict.toLowerCase()}">${s.verdict}</span><button class="btn ghost" data-del="${o.id}">×</button></div>`}).join(""):`<p class="hint">nothing logged yet. spot a listing you think is underpriced — thrift store, clearance, marketplace — and score it here before spending anything.</p>`;
+  $("o_list").innerHTML=opps.length?opps.map(o=>{const s=FS.score(o);return `<div class="opp"><div><div class="nm">${o.item}${o.src?` <span class="dt">· via ${o.src}</span>`:""}</div><div class="dt">buy ${FS.money(o.buy)} · ship ${FS.money(o.ship)} · resale ${FS.money(o.sell)} · ${FS.FEES[o.mkt].n} · profit ${FS.money(s.profit)} (${Math.round(s.margin*100)}% · roi ${Math.round(s.roi*100)}%) · est. · ${o.ts}</div></div><span class="badge b-${s.verdict.toLowerCase()}">${s.verdict}</span><button class="btn ghost" data-del="${o.id}">×</button></div>`}).join(""):`<p class="hint">nothing logged yet. spot a listing you think is underpriced — thrift store, clearance, marketplace — and score it here before spending anything.</p>`;
 }
 $("o_list").addEventListener("click",e=>{const d=e.target.closest("[data-del]");if(!d)return;FS.sv("fs_opps",FS.ls("fs_opps",[]).filter(o=>o.id!==d.dataset.del));renderOpps();stats();});
 
@@ -174,11 +216,37 @@ $("i_add").onclick=()=>{
   const prods=P();
   prods.push({id:"u"+Date.now(),name:n,cat:$("i_cat").value,e:"📦",buy:+$("i_buy").value||0,price:+$("i_price").value||0,rating:0,rc:0,stock:+$("i_stock").value||0,cond:$("i_cond").value.trim()||"New",desc:"Fresh flip, listed by the boss console.",tags:"flip new"});
   FS.sv("fs_products",prods);$("i_name").value="";$("i_buy").value="";$("i_price").value="";$("i_stock").value="1";$("i_cond").value="";
-  renderInv();stats();
+  renderInv();stats();logRun("Inventory","listed: "+n);
 };
 function renderInv(){
   const prods=P();
   $("i_table").innerHTML=`<tr><th>item</th><th>cost</th><th>price</th><th>margin</th><th>stock</th></tr>`+prods.map(p=>{const m=p.price>0?(p.price-p.buy)/p.price:0;return `<tr><td>${p.name}</td><td>${FS.money(p.buy)}</td><td>${FS.money(p.price)}</td><td style="color:${m>=0.25?'#3cdc84':m>0?'#ffd166':'#ff5c7a'}">${Math.round(m*100)}%</td><td>${p.stock}</td></tr>`}).join("");
+}
+
+function renderOrders(){
+  const orders=FS.ls("fs_orders",[]);
+  $("ord_list").innerHTML=orders.length?orders.map(o=>`<div class="opp"><div><div class="nm">${o.id} · ${FS.money(o.total)}</div><div class="dt">${o.date} · ${o.name} · ${o.items.map(i=>i.qty+"× "+i.name).join(", ")}</div></div><select data-st="${o.id}" style="width:auto"><option value="processing"${o.status==="processing"?" selected":""}>processing</option><option value="shipped"${o.status==="shipped"?" selected":""}>shipped</option><option value="delivered"${o.status==="delivered"?" selected":""}>delivered</option></select></div>`).join(""):`<p class="hint">no orders yet. place one from the storefront and it shows up here.</p>`;
+}
+$("ord_list").addEventListener("change",e=>{
+  const s=e.target.closest("[data-st]");if(!s)return;
+  const orders=FS.ls("fs_orders",[]);const o=orders.find(x=>x.id===s.dataset.st);if(o){o.status=s.value;FS.sv("fs_orders",orders);logRun("Orders",o.id+" → "+s.value);}
+});
+
+function renderFinance(){
+  const orders=FS.ls("fs_orders",[]),prods=P(),opps=FS.ls("fs_opps",[]),set=FS.ls("fs_settings",{minMargin:0.25,budget:200});
+  const revenue=orders.reduce((s,o)=>s+o.total,0);
+  const cogs=orders.reduce((s,o)=>s+o.items.reduce((a,it)=>{const p=prods.find(x=>x.id===it.id);return a+(p?p.buy*it.qty:0)},0),0);
+  $("fin_actual").innerHTML=[["revenue",FS.money(revenue)],["cost of goods",FS.money(cogs)],["gross profit",FS.money(revenue-cogs)],["orders",orders.length]].map(c=>`<div class="stat"><div class="n">${c[1]}</div><div class="l">${c[0]}</div></div>`).join("");
+  const goOpps=opps.map(o=>({o,s:FS.score(o)})).filter(x=>x.s.verdict==="GO");
+  const invValue=prods.reduce((s,p)=>s+p.buy*p.stock,0);
+  const resaleValue=prods.reduce((s,p)=>s+p.price*p.stock,0);
+  $("fin_est").innerHTML=[["GO deal potential",FS.money(goOpps.reduce((s,x)=>s+x.s.profit,0)),goOpps.length+" deals"],["inventory at cost",FS.money(invValue)],["inventory at list",FS.money(resaleValue)],["upside if all sells",FS.money(resaleValue-invValue)]].map(c=>`<div class="stat"><div class="n">${c[1]}</div><div class="l">${c[0]}</div><div class="src">estimate</div></div>`).join("");
+  $("fin_budget").innerHTML=`<div class="cards"><div class="stat"><div class="n">${FS.money(set.budget)}</div><div class="l">monthly cap</div></div><div class="stat"><div class="n">$0.00</div><div class="l">committed spend</div><div class="src">no purchases made through the platform</div></div></div>`;
+}
+
+function renderLog(){
+  const l=FS.ls("fs_logs",[]);
+  $("log_list").innerHTML=l.length?l.map(e=>`<div class="logline"><b>${e.t}</b> — ${e.name}${e.note?": "+e.note:""}</div>`).join(""):`<p class="hint">empty. run an agent and it gets written here.</p>`;
 }
 
 const log=FS.ls("fs_agentlog",{});
@@ -187,32 +255,55 @@ Object.keys(log).forEach(k=>{if($("lr-"+k))$("lr-"+k).textContent="last run "+lo
 function out(k,txt){const e=$("out-"+k);e.style.display="block";e.textContent=txt;}
 document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{
   const k=b.dataset.run;
-  if(k==="disc"){document.querySelector('[data-t="opps"]').click();out("disc","scoring console open — log a find and it gets graded instantly.");setLR(k);return;}
+  if(k==="disc"){document.querySelector('[data-t="opps"]').click();out("disc","scoring console open — log a find and it gets graded instantly.");setLR(k);logRun("Discovery","opened scoring board");return;}
   if(k==="an"||k==="pc"){
-    const opps=FS.ls("fs_opps",[]);if(!opps.length){out(k,"no opportunities logged yet — nothing to score.");setLR(k);return;}
+    const opps=FS.ls("fs_opps",[]);if(!opps.length){out(k,"no opportunities logged yet — nothing to score.");setLR(k);logRun(k==="an"?"Deal Analyst":"Profit Calculator","no opportunities yet");return;}
     const scored=opps.map(o=>({o,s:FS.score(o)}));
     const go=scored.filter(x=>x.s.verdict==="GO"),watch=scored.filter(x=>x.s.verdict==="WATCH"),pass=scored.filter(x=>x.s.verdict==="PASS");
     let t=`${scored.length} scored · ${go.length} GO · ${watch.length} WATCH · ${pass.length} PASS\n`;
     if(go.length)t+="\nclear the bar:\n"+go.map(x=>`+ ${x.o.item}: ${FS.money(x.s.profit)} profit, ${Math.round(x.s.margin*100)}% margin`).join("\n");
     if(pass.length)t+="\n\nbelow your floor (drop or renegotiate):\n"+pass.map(x=>`- ${x.o.item}: ${FS.money(x.s.profit)} profit`).join("\n");
-    out(k,t);setLR(k);return;
+    out(k,t);setLR(k);logRun(k==="an"?"Deal Analyst":"Profit Calculator",scored.length+" scored, "+go.length+" GO");return;
   }
   if(k==="lw"){
     const prods=P().filter(p=>p.price>0);
     if(!prods.length){out(k,"no inventory to write listings for yet.");setLR(k);return;}
     const p=prods[Math.floor(Math.random()*prods.length)];
     const t=`TITLE: ${p.name} — ${p.cond} | Fast Free Shipping\n\nPRICE: ${FS.money(p.price)}${p.buy?"  (cost "+FS.money(p.buy)+", margin "+Math.round(((p.price-p.buy)/p.price)*100)+"%)":""}\n\nBODY:\n${p.desc}\n\nCondition: ${p.cond}\nShips in 1 business day · 30-day returns\n\nKEYWORDS: ${p.tags.split(" ").join(", ")}`;
-    out(k,t);setLR(k);return;
+    out(k,t);setLR(k);logRun("Listing Writer",p.name);return;
   }
   if(k==="im"){
     const prods=P();if(!prods.length){out(k,"inventory is empty.");setLR(k);return;}
     const low=prods.filter(p=>p.stock<=1),zero=prods.filter(p=>p.stock===0),under=prods.filter(p=>p.price>0&&(p.price-p.buy)/p.price<0.2);
     let t=`${prods.length} items checked\n`;
-    t+=zero.length?`\nout of stock: ${zero.map(p=>p.name).join(", ")}\n`:`\nnothing out of stock\n`;
+    t+=zero.length?`out of stock: ${zero.map(p=>p.name).join(", ")}\n`:`nothing out of stock\n`;
     const lowpos=low.filter(p=>p.stock>0);
     if(lowpos.length)t+=`low (restock soon): ${lowpos.map(p=>p.name).join(", ")}\n`;
     if(under.length)t+=`\nunder 20% margin — consider repricing:\n`+under.map(p=>`- ${p.name}: at ${FS.money(p.price)}, suggest ${FS.money(Math.ceil(p.buy/0.75*100)/100)}+`).join("\n");
-    out(k,t);setLR(k);return;
+    out(k,t);setLR(k);logRun("Inventory Agent",prods.length+" items audited");return;
+  }
+  if(k==="mr"){
+    const prods=P(),orders=FS.ls("fs_orders",[]);
+    if(!prods.length){out(k,"no catalog to research yet.");setLR(k);return;}
+    let t="category read (your catalog + demo sales):\n";
+    FS.CATS.forEach(([id,label])=>{
+      const items=prods.filter(p=>p.cat===id);if(!items.length)return;
+      const avgm=Math.round(items.reduce((s,p)=>s+(p.price>0?(p.price-p.buy)/p.price:0),0)/items.length*100);
+      const sold=orders.reduce((s,o)=>s+o.items.filter(i=>((prods.find(p=>p.id===i.id)||{}).cat)===id).reduce((a,i)=>a+i.qty,0),0);
+      t+=`· ${label}: ${items.length} items, avg margin ${avgm}%, ${sold} sold\n`;
+    });
+    t+="\nlive market feeds need paid marketplace API keys — labeled estimate, not live data.";
+    out(k,t);setLR(k);logRun("Market Research","category read");return;
+  }
+  if(k==="pr"){
+    const prods=P().filter(p=>p.price>0);if(!prods.length){out(k,"nothing priced yet.");setLR(k);return;}
+    let t="price moves:\n";let n=0;
+    prods.forEach(p=>{const m=(p.price-p.buy)/p.price;
+      if(m<0.2){t+=`↑ ${p.name}: ${Math.round(m*100)}% margin → suggest ${FS.money(Math.ceil(p.buy/0.75*100)/100)}+\n`;n++;}
+      else if(m>0.6&&p.stock>=8){t+=`↓ ${p.name}: ${Math.round(m*100)}% margin, ${p.stock} in stock → a small promo could move volume\n`;n++;}
+    });
+    if(!n)t+="everything sits inside a healthy band — no moves needed.";
+    out(k,t);setLR(k);logRun("Pricing Agent",n+" suggestions");return;
   }
   if(k==="oo"){
     const opps=FS.ls("fs_opps",[]),orders=FS.ls("fs_orders",[]),prods=P();
@@ -223,15 +314,54 @@ document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{
     const cap=FS.ls("fs_settings",{budget:200}).budget;
     t+=`· budget cap on file: ${FS.money(cap)} — nothing buys past it without you\n`;
     t+=`· next reversible move: restock anything sold out, then keep logging finds\n`;
-    out(k,t);setLR(k);return;
+    out(k,t);setLR(k);logRun("Ops Optimizer","review complete");return;
+  }
+  if(k==="fa"){
+    const orders=FS.ls("fs_orders",[]),prods=P(),opps=FS.ls("fs_opps",[]);
+    const revenue=orders.reduce((s,o)=>s+o.total,0);
+    const cogs=orders.reduce((s,o)=>s+o.items.reduce((a,it)=>{const p=prods.find(x=>x.id===it.id);return a+(p?p.buy*it.qty:0)},0),0);
+    const est=opps.map(o=>FS.score(o)).filter(s=>s.verdict==="GO").reduce((s,x)=>s+x.profit,0);
+    let t=`recorded (demo sales): revenue ${FS.money(revenue)}, cost ${FS.money(cogs)}, gross profit ${FS.money(revenue-cogs)}\n`;
+    t+=`projected (opportunity board): ${FS.money(est)} — models, not money\n`;
+    t+=revenue>0?`\nsales exist on the board, so the recorded math above is live.\n`:`\nno recorded sales yet — every number above is either demo or projection.\n`;
+    out(k,t);setLR(k);logRun("Financial Analyst","statement issued");return;
+  }
+  if(k==="cs"){
+    const q=($("cs_q").value||"").trim();
+    let a;
+    const s=q.toLowerCase();
+    if(!q)a="type a customer question above first.";
+    else if(/ship|deliver|arrive|long/.test(s))a="REPLY: orders ship in 1 business day. free shipping over $35, otherwise $4.99. delivery is 2-5 days after that.";
+    else if(/return|refund|exchange/.test(s))a="REPLY: 30-day returns, item in the condition it arrived. refunds go back to the original payment method.";
+    else if(/track|where.*order|status/.test(s))a="REPLY: you can track with your order number (FS-####) from the 📦 button on the storefront.";
+    else if(/cancel/.test(s))a="ESCALATE to you: cancellations touch money — that one is yours to approve.";
+    else if(/price|discount|coupon|cheaper/.test(s))a="REPLY: prices update with the deals on the homepage — today's deals are the best ones going.";
+    else a="ESCALATE to you: outside the policy sheet, so it goes to a human (you).";
+    out(k,a);setLR(k);logRun("Customer Service",q?"answered a question":"opened");return;
+  }
+  if(k==="rt"){
+    const orders=FS.ls("fs_orders",[]);if(!orders.length){out(k,"no orders yet — nothing to return.");setLR(k);return;}
+    const returns=FS.ls("fs_returns",[]);
+    let t=returns.length?`returns on file:\n`+returns.map(r=>`· ${r.oid}: ${r.why} (${r.ts})`).join("\n")+`\n\n`:"no returns logged.\n\n";
+    t+=`policy: 30 days, original condition. to log one, tell me the order number and reason and i'll record it.`;
+    out(k,t);setLR(k);logRun("Returns Agent","policy view");return;
+  }
+  if(k==="qa"){
+    const prods=P(),orders=FS.ls("fs_orders",[]);let t="self-checks:\n";let bad=0;
+    const badProd=prods.filter(p=>!p.name||typeof p.price!=="number");if(badProd.length){t+=`✗ ${badProd.length} malformed products\n`;bad++;}else t+="✓ product data well-formed\n";
+    const badOrd=orders.filter(o=>!o.id||!Array.isArray(o.items));if(badOrd.length){t+=`✗ ${badOrd.length} malformed orders\n`;bad++;}else t+="✓ order records well-formed\n";
+    const neg=prods.filter(p=>p.price>0&&p.price<p.buy);if(neg.length){t+=`✗ ${neg.length} items priced below cost: ${neg.map(p=>p.name).join(", ")}\n`;bad++;}else t+="✓ nothing priced below cost\n";
+    const dup=prods.filter(p=>p.stock==null);if(dup.length){t+=`✗ ${dup.length} items missing stock counts\n`;bad++;}else t+="✓ stock counts present\n";
+    t+=bad?`\n${bad} issue(s) found — fix before anything real runs on this data.`:`\nclean. platform data passes.`;
+    out(k,t);setLR(k);logRun("Quality Assurance",bad?bad+" issues":"all checks pass");return;
   }
 });
 
 const set0=FS.ls("fs_settings",{minMargin:25,budget:200});
 $("s_margin").value=Math.round(set0.minMargin*100);$("s_budget").value=set0.budget;
-$("s_save").onclick=()=>{FS.sv("fs_settings",{minMargin:(+$("s_margin").value||25)/100,budget:+$("s_budget").value||0});stats();$("s_save").textContent="Saved ✓";setTimeout(()=>$("s_save").textContent="Save rules",1200);};
+$("s_save").onclick=()=>{FS.sv("fs_settings",{minMargin:(+$("s_margin").value||25)/100,budget:+$("s_budget").value||0});stats();logRun("Settings","rules updated: "+$("s_margin").value+"% floor, "+$("s_budget").value+" cap");$("s_save").textContent="Saved ✓";setTimeout(()=>$("s_save").textContent="Save rules",1200);};
 
-stats();renderOpps();renderInv();
+stats();renderOpps();renderInv();renderOrders();renderFinance();renderLog();
 </script>
 </body>
 </html>
