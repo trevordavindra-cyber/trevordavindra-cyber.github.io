@@ -1,0 +1,30 @@
+name: Synapse autonomous agent
+
+on:
+  schedule:
+    - cron: '*/20 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: synapse-agent
+  cancel-in-progress: false
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run one autonomous cycle
+        run: node synapse/headless-agent.mjs
+      - name: Commit agent state
+        run: |
+          git config user.name "synapse-agent"
+          git config user.email "synapse-agent@users.noreply.github.com"
+          git add synapse/data/agent-state.json
+          git diff --cached --quiet || (git commit -m "agent: autonomous cycle $(date -u +%FT%TZ)" && git push)
