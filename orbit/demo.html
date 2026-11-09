@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06070c">
+<meta name="description" content="ORBIT demo — a scripted preview of the AI assistant flow.">
+<title>ORBIT — Demo (scripted preview)</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306070c'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%232fd4b8' stroke-width='5'/%3E%3Ccircle cx='49' cy='17' r='6' fill='%232fd4b8'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#06070c;--panel:#0c0f16;--line:rgba(255,255,255,.08);--ink:#eef1f7;--fog:#9aa3b6;--dim:#5d677c;--teal:#2fd4b8;--violet:#8f7bff;--gold:#ffb454;--mono:'DM Mono',ui-monospace,monospace;--disp:'Space Grotesk',system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--disp);-webkit-font-smoothing:antialiased}
+.ambient{position:fixed;inset:0;z-index:-1;background:radial-gradient(900px 600px at 85% -10%,#2fd4b814,transparent 60%),radial-gradient(800px 600px at -10% 100%,#8f7bff10,transparent 60%)}
+header.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line);background:#06070ccc;backdrop-filter:blur(12px);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;letter-spacing:.18em;font-size:13px;text-decoration:none}
+.brand .dot{width:24px;height:24px;border-radius:8px;background:linear-gradient(140deg,var(--teal),var(--violet));display:grid;place-items:center;color:#06070c;font-size:14px}
+.demo-badge{font:9px var(--mono);letter-spacing:.18em;color:var(--gold);border:1px solid #ffb45455;border-radius:30px;padding:7px 12px;white-space:nowrap}
+.wrap{width:min(760px,100%);margin:0 auto;padding:28px 20px 60px}
+.intro{padding:18px 0 22px}
+.kicker{font:10px var(--mono);letter-spacing:.24em;color:var(--teal);margin-bottom:10px}
+h1{font-size:clamp(26px,5vw,38px);letter-spacing:-.03em;margin:0 0 10px;font-weight:600}
+.intro p{color:var(--fog);font-size:13.5px;line-height:1.7;margin:0}
+.chat{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.log{padding:18px;display:flex;flex-direction:column;gap:12px;min-height:320px;max-height:520px;overflow:auto}
+.bubble{max-width:88%;padding:12px 14px;border:1px solid var(--line);border-radius:13px;background:#ffffff07;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.bubble.user{align-self:flex-end;background:#2fd4b814;border-color:#2fd4b83a}
+.bubble.assistant{align-self:flex-start}
+.bubble .tag{display:block;font:9px var(--mono);letter-spacing:.16em;color:var(--teal);margin-bottom:6px}
+.bubble.user .tag{color:var(--teal);text-align:right}
+.bubble .step{display:block;color:var(--fog);font-size:12.5px;margin:3px 0}
+.bubble .proof{display:inline-block;margin-top:8px;font:9px var(--mono);letter-spacing:.1em;color:var(--gold);border:1px solid #ffb45444;border-radius:20px;padding:4px 9px}
+.composer{border-top:1px solid var(--line);padding:14px;display:flex;flex-wrap:wrap;gap:8px;background:#0a0c12}
+.chip{cursor:pointer;border:1px solid #2fd4b844;color:var(--teal);background:#2fd4b80d;border-radius:30px;padding:9px 13px;font-size:12px;transition:.15s}
+.chip:hover{background:#2fd4b822}
+.chip:disabled{opacity:.45;cursor:default}
+.notice{margin-top:18px;border:1px solid #ffb45444;background:#ffb4540b;color:#ffc77e;border-radius:14px;padding:14px 16px;font-size:12px;line-height:1.7}
+.back{display:inline-block;margin-top:16px;font:11px var(--mono);letter-spacing:.14em;color:var(--fog)}
+footer{border-top:1px solid var(--line);padding:20px;color:var(--dim);font:9px var(--mono);letter-spacing:.14em;text-align:center}
+@media(max-width:600px){.bubble{max-width:96%}}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+<header class="nav">
+  <a class="brand" href="./"><span class="dot">◎</span>ORBIT</a>
+  <span class="demo-badge">⚠ SCRIPTED PREVIEW — NOT A LIVE AI</span>
+</header>
+<div class="wrap">
+  <div class="intro">
+    <div class="kicker">TRY THE FLOW</div>
+    <h1>What an ORBIT conversation feels like</h1>
+    <p>Pick an ask below and watch how a real ORBIT session would unfold: it plans, acts, and comes back with proof. This demo is scripted on purpose — an honest preview, not a pretend AI.</p>
+  </div>
+  <div class="chat">
+    <div class="log" id="log">
+      <div class="bubble assistant"><span class="tag">ORBIT</span>System ready. Pick one of the sample asks below to see how a real session would run.</div>
+    </div>
+    <div class="composer" id="composer"></div>
+  </div>
+  <div class="notice"><b>About this demo:</b> every reply here is a fixed script that shows the intended flow. No AI is answering, nothing is really booked, bought or built, and nothing is stored. The live assistant needs a real backend and model access, which ORBIT doesn't have yet.</div>
+  <a class="back" href="./">← back to the site</a>
+</div>
+<footer>ORBIT © 2026 · DEMO · SCRIPTED, NO LIVE AI</footer>
+<script>
+const SCENARIOS=[
+ {ask:"Book me a dentist appointment this week",beats:[
+  "Planning… found 3 dental offices within 2 miles. Calling the one with the best reviews first.",
+  "Reached Front Street Dental. They have Tuesday 2:30 PM or Thursday 10:15 AM.",
+  "Tuesday 2:30 PM booked under your name. Requested the reminder text."],proof:"CONFIRM #DD-4471 · TUE 2:30 PM · FRONT STREET DENTAL"},
+ {ask:"Find out who installs EV chargers near me",beats:[
+  "Searching licensed EV charger installers nearby, pulling prices and reviews.",
+  "Found 3: Amped Electric (4.8★, 210 reviews, from $650 installed), VoltPro (4.6★, from $580), BrightGrid (4.7★, 2-week wait).",
+  "My pick: Amped Electric — best reviews, no wait. Want me to request their quote?"],proof:"3 OPTIONS VERIFIED · RECOMMENDATION READY"},
+ {ask:"Chase the quote I'm still waiting on",beats:[
+  "Found the request from 6 days ago. No reply yet.",
+  "Sent a polite follow-up on the same thread: still interested, need it by Friday.",
+  "I'll check back in 2 days — if there's still nothing, I'll tell you and suggest plan B."],proof:"FOLLOW-UP SENT · CHECK-IN SCHEDULED"},
+ {ask:"Build and host a simple website for me",beats:[
+  "Drafting the page: hero, services, contact. Writing the code now.",
+  "Built and published. Verifying it loads and renders styled.",
+  "Live and confirmed: every section renders. Here's the link, and I'll keep an eye on it."],proof:"LIVE · LINK DELIVERED · CHECK SCHEDULED"}
+];
+const log=document.getElementById('log'),composer=document.getElementById('composer');
+let busy=false;
+function add(cls,tag,text,proof){const el=document.createElement('div');el.className='bubble '+cls;el.innerHTML=(tag?'<span class="tag">'+tag+'</span>':'')+text.replace(/\n/g,'<br>')+(proof?'<span class="proof">'+proof+'</span>':'');log.appendChild(el);log.scrollTop=log.scrollHeight}
+SCENARIOS.forEach((s,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=s.ask;b.onclick=()=>run(i,b);composer.appendChild(b)});
+function run(i,btn){if(busy)return;busy=true;composer.querySelectorAll('.chip').forEach(x=>x.disabled=true);const s=SCENARIOS[i];add('user','you',s.ask);let d=0;s.beats.forEach((t,j)=>{setTimeout(()=>{add('assistant','ORBIT',t);if(j===s.beats.length-1)setTimeout(()=>{add('assistant','ORBIT','That's what a real run looks like — ask, action, proof. Pick another, or <a href="./">head back</a>.');busy=false;composer.querySelectorAll('.chip').forEach(x=>x.disabled=false)},700)},900*(++d))})}
+</script>
+</body>
+</html>
