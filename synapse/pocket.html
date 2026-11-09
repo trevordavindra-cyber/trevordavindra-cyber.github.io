@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYNAPSE — Pocket core</title>
+<meta name="description" content="Run a Synapse brain entirely in your phone's browser. Downloads once, works offline, costs nothing.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#07070c;color:#f2f0ff;font-family:'Space Grotesk',sans-serif;min-height:100vh}
+nav{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:rgba(7,7,12,.8);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
+.logo{font-weight:700;letter-spacing:.08em;font-size:1.2rem}.logo span{color:#c8ff3e}
+nav a{color:#b9b6cc;text-decoration:none;font-size:.9rem}
+nav a:hover{color:#c8ff3e}
+main{max-width:760px;margin:0 auto;padding:48px 20px 80px}
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:#b9b6cc;border:1px solid rgba(255,255,255,.14);border-radius:100px;padding:7px 16px;background:rgba(255,255,255,.04)}
+.pulse{width:7px;height:7px;border-radius:50%;background:#c8ff3e;box-shadow:0 0 10px #c8ff3e}
+h1{font-size:clamp(2.4rem,7vw,4rem);line-height:1.05;margin:18px 0 14px}
+h1 em{font-style:normal;background:linear-gradient(90deg,#7c5cff,#ff4ecd 45%,#c8ff3e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#b9b6cc;font-size:1rem;line-height:1.6;max-width:560px}
+.card{margin-top:28px;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:20px;background:rgba(255,255,255,.03)}
+.card h2{font-size:1rem;margin-bottom:10px}.card p{color:#b9b6cc;font-size:.85rem;line-height:1.6}
+label{display:block;font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:#8b87a3;margin:14px 0 6px}
+select,button.chatbtn{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#f2f0ff;border-radius:12px;padding:12px 14px;font-size:.95rem;font-family:'Space Grotesk',sans-serif;outline:none}
+select:focus{border-color:#7c5cff}
+#load{margin-top:14px;width:100%;background:linear-gradient(135deg,#7c5cff,#ff4ecd);border:none;color:#fff;font-weight:600;font-size:1rem;border-radius:12px;padding:14px;cursor:pointer}
+#load:disabled{opacity:.5;cursor:default}
+#prog{margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:#8b87a3;white-space:pre-wrap}
+.bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7c5cff,#c8ff3e);transition:width .4s}
+#chat{display:none;margin-top:24px}
+#msgs{height:min(46vh,420px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px}
+.m{max-width:88%;padding:10px 14px;border-radius:14px;font-size:.92rem;line-height:1.55}
+.m.bot{background:rgba(124,92,255,.15);border:1px solid rgba(124,92,255,.3);align-self:flex-start}
+.m.user{background:rgba(200,255,62,.12);border:1px solid rgba(200,255,62,.3);align-self:flex-end}
+#cf{display:flex;gap:8px;margin-top:12px}
+#ci{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#f2f0ff;border-radius:100px;padding:12px 16px;font-size:.95rem;outline:none}
+#ci:focus{border-color:#7c5cff}
+#cs{width:46px;height:46px;border-radius:50%;border:none;background:linear-gradient(135deg,#7c5cff,#ff4ecd);color:#fff;font-size:1.1rem;cursor:pointer}
+.note{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#8b87a3;line-height:1.7;margin-top:22px}
+footer{border-top:1px solid rgba(255,255,255,.08);padding:20px;text-align:center;color:#6f6c85;font-size:.75rem}
+a{color:#c8ff3e}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">SYN<span>APSE</span></div>
+  <a href="local.html">← local core</a>
+</nav>
+<main>
+  <div class="badge"><span class="pulse"></span> pocket core · downloads into your browser · free forever</div>
+  <h1>No computer<br><em>needed.</em></h1>
+  <p class="sub">The pocket core is a small Synapse brain that downloads itself straight into this browser, once, and then runs on your phone — offline, no accounts, no keys, nothing to install.</p>
+
+  <div class="card">
+    <h2>Step 1 — pick a brain</h2>
+    <p>The 0.5B loads fast (~500 MB). The 1.5B and 3B are noticeably smarter but bigger and slower. Your first choice downloads once and stays cached for next time.</p>
+    <label for="model">model</label>
+    <select id="model"></select>
+    <button id="load">Download &amp; power up</button>
+    <div id="prog"></div>
+    <div class="bar"><i id="fill"></i></div>
+  </div>
+
+  <div class="card" id="chat">
+    <h2>Step 2 — talk to it</h2>
+    <div id="msgs"></div>
+    <form id="cf"><input id="ci" placeholder="ask your pocket synapse…" autocomplete="off"><button id="cs" aria-label="send">↑</button></form>
+  </div>
+
+  <p class="note">how it works: the model weights download from a public mirror into your browser's storage and run on your phone's GPU (webgpu). first load takes a few minutes on mobile data; after that it opens instantly and works offline. it's a small brain — sharp for its size, not 27B sharp. the full uncensored stack still wants a computer.</p>
+</main>
+<footer>synapse labs, 2026 · pocket division</footer>
+
+<script type="module">
+import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+
+const sel = document.getElementById('model'),
+      loadBtn = document.getElementById('load'),
+      prog = document.getElementById('prog'),
+      fill = document.getElementById('fill'),
+      chat = document.getElementById('chat'),
+      msgs = document.getElementById('msgs'),
+      form = document.getElementById('cf'),
+      input = document.getElementById('ci');
+
+let engine = null, history = [];
+
+if (!navigator.gpu) {
+  prog.textContent = 'this browser can\'t run webgpu yet — recent chrome on android works, and safari on ios 18+. try updating or a different browser.';
+  loadBtn.disabled = true;
+}
+
+const wanted = webllm.prebuiltAppConfig.model_list
+  .filter(m => /(0\.5B|1B|1\.5B|3B)/.test(m.model_id) && /q4f16_1|q4f32_1/.test(m.model_id))
+  .map(m => m.model_id);
+
+if (!wanted.length) { prog.textContent = 'no pocket models listed — try reloading.'; loadBtn.disabled = true; }
+for (const id of wanted) {
+  const o = document.createElement('option');
+  o.value = id; o.textContent = id.replace(/-MLC$|_1-MLC|-Instruct/g, ' ').trim();
+  sel.appendChild(o);
+}
+const pref = wanted.find(id => id.includes('1.5B')) || wanted[0];
+if (pref) sel.value = pref;
+
+loadBtn.addEventListener('click', async () => {
+  if (engine) return;
+  loadBtn.disabled = true;
+  const model = sel.value;
+  prog.textContent = 'fetching ' + model + ' … first download takes a few minutes on a phone.';
+  try {
+    engine = await webllm.CreateMLCEngine(model, {
+      initProgressCallback: p => {
+        prog.textContent = p.text || 'loading…';
+        if (typeof p.progress === 'number') fill.style.width = Math.round(p.progress * 100) + '%';
+      }
+    });
+    fill.style.width = '100%';
+    prog.textContent = 'pocket core online. cached for next time — it works offline now.';
+    chat.style.display = 'block';
+    say('Pocket synapse awake. Small brain, big attitude. What do you need?');
+    input.focus();
+  } catch (e) {
+    prog.textContent = 'download failed: ' + (e && e.message ? e.message : e) + ' — check your connection and try again.';
+    engine = null; loadBtn.disabled = false;
+  }
+});
+
+function say(text, who) {
+  const d = document.createElement('div');
+  d.className = 'm ' + (who || 'bot');
+  d.textContent = text;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+  return d;
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const t = input.value.trim(); if (!t || !engine) return;
+  input.value = ''; say(t, 'user');
+  const wait = say('thinking…');
+  try {
+    history = history.concat([{ role: 'user', content: t }]).slice(-10);
+    const stream = await engine.chat.completions.create({
+      stream: true,
+      messages: [{ role: 'system', content: 'You are SYNAPSE, a small AI that lives entirely in the user\'s phone browser. Confident, warm, quick, lightly cheeky. Keep replies short. If something needs a bigger brain, say so plainly and still give your best shot.' }].concat(history)
+    });
+    let out = '';
+    wait.textContent = '';
+    for await (const chunk of stream) {
+      const delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta && chunk.choices[0].delta.content;
+      if (delta) { out += delta; wait.textContent = out; msgs.scrollTop = msgs.scrollHeight; }
+    }
+    if (!out) wait.textContent = '…empty. ask again?';
+    history = history.concat([{ role: 'assistant', content: out }]).slice(-10);
+  } catch (err) {
+    wait.textContent = 'hiccup: ' + (err && err.message ? err.message : err);
+  }
+});
+</script>
+</body>
+</html>
