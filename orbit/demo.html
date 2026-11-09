@@ -28,7 +28,6 @@ h1{font-size:clamp(26px,5vw,38px);letter-spacing:-.03em;margin:0 0 10px;font-wei
 .bubble .tag{display:block;font:9px var(--mono);letter-spacing:.16em;color:var(--teal);margin-bottom:6px}
 .bubble.user .tag{color:var(--teal);text-align:right}
 .bubble .proof{display:inline-block;margin-top:8px;font:9px var(--mono);letter-spacing:.1em;color:var(--gold);border:1px solid #ffb45444;border-radius:20px;padding:4px 9px}
-.bubble .walls{display:block;margin-top:8px;color:var(--gold);font-size:12px}
 .typing{align-self:flex-start;color:var(--dim);font:10px var(--mono);letter-spacing:.18em;padding:6px 2px}
 .composer{border-top:1px solid var(--line);padding:14px;display:flex;flex-wrap:wrap;gap:8px;background:#0a0c12}
 .chip{cursor:pointer;border:1px solid #2fd4b844;color:var(--teal);background:#2fd4b80d;border-radius:30px;padding:9px 13px;font-size:12px;transition:.15s}
@@ -67,42 +66,42 @@ const SCENARIOS=[
  {ask:"Book me a dentist appointment this week",beats:[
   "on it — pulling dental offices near you and calling the best-reviewed one first.",
   "reached front street dental (4.8★, 310 reviews). tuesday 2:30pm or thursday 10:15am are open.",
-  "took tuesday 2:30pm under your name and asked for their reminder text. one thing you'd decide yourself: new-patient paperwork — i'd flag it for you, not fill it in."],proof:"EXAMPLE · CONF #DD-4471 · TUE 2:30PM"},
+  "took tuesday 2:30pm under your name and asked for their reminder text. one thing you would decide yourself: new-patient paperwork — i would flag it for you, not fill it in."],proof:"EXAMPLE · CONF #DD-4471 · TUE 2:30PM"},
  {ask:"Find who installs EV chargers near me, best price",beats:[
   "searching licensed ev charger installers nearby, checking prices and real reviews.",
   "found 3: amped electric (4.8★, 210 reviews, from $650 installed), voltpro (4.6★, from $580), brightgrid (4.7★, 2-week wait).",
-  "my pick: amped electric — best reviews, no wait. want their quote? i'd ask before contacting anyone new."],proof:"EXAMPLE · 3 OPTIONS VERIFIED · PICK NAMED"},
+  "my pick: amped electric — best reviews, no wait. want their quote? i would ask before contacting anyone new."],proof:"EXAMPLE · 3 OPTIONS VERIFIED · PICK NAMED"},
  {ask:"Chase the quote i'm still waiting on",beats:[
-  "checking the thread… last word was their "we'll send it this week" 6 days ago.",
+  "checking the thread… last word from them was \"we will send it this week\" six days ago.",
   "sent one polite follow-up on the same thread: still interested, need it by friday.",
-  "if they're quiet in 2 days i won't spam them — i'd come back to you with plan b options instead."],proof:"EXAMPLE · FOLLOW-UP SENT · CHECK-IN SET"},
+  "if they are quiet for 2 days i will not spam them — i would come back to you with plan b options instead."],proof:"EXAMPLE · FOLLOW-UP SENT · CHECK-IN SET"},
  {ask:"Build and host a website for me",beats:[
   "drafting now: hero, features, contact. writing the code, then publishing.",
   "published and verified: every section renders styled, checked it myself before saying so.",
-  "here's the link — and i'd keep watching it so it doesn't silently break."],proof:"EXAMPLE · LIVE · LINK DELIVERED"},
+  "here is the link — and i would keep watching it so it does not silently break."],proof:"EXAMPLE · LIVE · LINK DELIVERED"},
  {ask:"Order my groceries for friday",beats:[
-  "building the cart from your usual list — that's the easy part.",
-  "checkout's ready with your items, address and total. here's where it stops: money is a one-way door, so the pay click is always yours.",
+  "building the cart from your usual list — that is the easy part.",
+  "checkout is ready with your items, address and total. here is where it stops: money is a one-way door, so the pay click is always yours.",
   "you tap pay, i take it from there and watch for the receipt."],proof:"EXAMPLE · CART READY · PAYMENT = YOURS"},
  {ask:"Set up dinner with my group chat",beats:[
-  "reading the thread, checking who's in and who's dodging the question (there's always one).",
+  "reading the thread, checking who is in and who is dodging the question (there is always one).",
   "polling the group: friday or saturday, 3 restaurants within everyone's budget.",
-  "once the group picks, i book the table, add it to everyone's calendar invite, and tell the stragglers."],proof:"EXAMPLE · GROUP COORDINATED"},
+  "once the group picks, i book the table, add the invite to every calendar, and tell the stragglers."],proof:"EXAMPLE · GROUP COORDINATED"},
  {ask:"What can't you do?",beats:[
-  "straight list: nothing needing your identity — logins, signatures, your money. no fake reviews, no buying where i can't verify the seller.",
-  "and no pretending: if a call didn't connect or a site blocked me, you hear exactly that, not a smooth story.",
+  "straight list: nothing needing your identity — logins, signatures, your money. no fake reviews, no buying where the seller cannot be verified.",
+  "and no pretending: if a call did not connect or a site blocked me, you hear exactly that, not a smooth story.",
   "everything else — research, calls, scheduling, builds, follow-ups — is fair game."],proof:"EXAMPLE · HONEST LIMITS"},
  {ask:"Remind me and follow up without me asking",beats:[
-  "that's the quiet part: i keep a task list and check back on my own clock.",
+  "that is the quiet part: i keep a task list and check back on my own clock.",
   "deadline friday? i nudge you thursday. waiting on a reply? i watch the thread and only surface when something actually changed.",
-  "no notification spam — you'd hear from me when it matters, not on a timer."],proof:"EXAMPLE · PROACTIVE FOLLOW-UPS"}
+  "no notification spam — you hear from me when it matters, not on a timer."],proof:"EXAMPLE · PROACTIVE FOLLOW-UPS"}
 ];
 const log=document.getElementById('log'),composer=document.getElementById('composer');
 let busy=false;
 function add(cls,tag,text,proof){const el=document.createElement('div');el.className='bubble '+cls;el.innerHTML=(tag?'<span class="tag">'+tag+'</span>':'')+text+(proof?'<span class="proof">'+proof+'</span>':'');log.appendChild(el);log.scrollTop=log.scrollHeight}
 function typing(on){let t=document.getElementById('typing');if(on&&!t){t=document.createElement('div');t.className='typing';t.id='typing';t.textContent='ORBIT IS WORKING…';log.appendChild(t);log.scrollTop=log.scrollHeight}else if(!on&&t){t.remove()}}
 SCENARIOS.forEach((s,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=s.ask;b.onclick=()=>run(i);composer.appendChild(b)});
-function run(i){if(busy)return;busy=true;composer.querySelectorAll('.chip').forEach(x=>x.disabled=true);const s=SCENARIOS[i];add('user','you',s.ask);let d=0;s.beats.forEach((t,j)=>{setTimeout(()=>{typing(false);add('assistant','ORBIT',t);if(j<s.beats.length-1)setTimeout(()=>typing(true),350)},1000*(++d))});setTimeout(()=>{typing(false);add('assistant','ORBIT','that's a real run, start to finish — ask, action, proof. <a href="./">back to the site</a>, or pick another ask.');busy=false;composer.querySelectorAll('.chip').forEach(x=>x.disabled=false)},1000*(s.beats.length+1)+400)}
+function run(i){if(busy)return;busy=true;composer.querySelectorAll('.chip').forEach(x=>x.disabled=true);const s=SCENARIOS[i];add('user','you',s.ask);let d=0;s.beats.forEach((t,j)=>{setTimeout(()=>{typing(false);add('assistant','ORBIT',t);if(j<s.beats.length-1)setTimeout(()=>typing(true),350)},1000*(++d))});setTimeout(()=>{typing(false);add('assistant','ORBIT',"that's a real run, start to finish — ask, action, proof. <a href='./'>back to the site</a>, or pick another ask.");busy=false;composer.querySelectorAll('.chip').forEach(x=>x.disabled=false)},1000*(s.beats.length+1)+400)}
 </script>
 </body>
 </html>
