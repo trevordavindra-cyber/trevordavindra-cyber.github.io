@@ -1,6 +1,7 @@
-/* SYNAPSE MISSION CONTROL v0.6 — a live dashboard wired to the real runtime.
+/* SYNAPSE MISSION CONTROL v0.7 — a live dashboard wired to the real runtime.
    Every number and event here is read straight out of the agent's state.
-   No fake activity, no simulated logs. */
+   No fake activity, no simulated logs. Cloud-marked lines are events from the
+   server-side runtime (GitHub Actions); everything else ran in your browser. */
 (function () {
   const A = window.SYNAPSE_AGENT;
   const host = document.getElementById('dash');
@@ -61,7 +62,7 @@
     <div class="mc-grid">
       <div class="mc-box"><h4>Current objective</h4><div id="mc-obj" class="mc-dim">idle — nothing queued</div></div>
       <div class="mc-box"><h4>Metrics</h4><div id="mc-metrics" class="mc-num"></div></div>
-      <div class="mc-box mc-wide"><h4>Live activity feed</h4><div id="mc-feed" class="mc-feed"></div></div>
+      <div class="mc-box mc-wide"><h4>Live activity feed (☁ = server runtime)</h4><div id="mc-feed" class="mc-feed"></div></div>
       <div class="mc-box mc-wide"><h4>Pending decisions (need your approval)</h4><div id="mc-dec" class="mc-dim">none</div></div>
       <div class="mc-box"><h4>Tool registry</h4><div id="mc-tools" class="mc-list"></div></div>
       <div class="mc-box"><h4>Memory (inspect · correct · forget)</h4><div id="mc-mem" class="mc-list"></div></div>
@@ -71,6 +72,16 @@
   const $ = id => document.getElementById(id);
   const ts = t => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  let remote = null;
+  function pullRemote() {
+    fetch('data/agent-state.json', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => { if (j && (!remote || j.cycle !== remote.cycle)) { remote = j; refresh(); } })
+      .catch(() => {});
+  }
+  pullRemote();
+  setInterval(pullRemote, 60000);
+
   function refresh() {
     const s = A.state;
     const runBtn = $('mc-run');
@@ -79,16 +90,20 @@
     runBtn.textContent = s.running ? 'Halt' : 'Ignite autonomy';
     $('mc-evo').classList.toggle('on', s.evolution);
     $('mc-evo').textContent = s.evolution ? 'Evolution mode: ON' : 'Evolution mode';
-    $('mc-obj').textContent = s.objective ? s.objective.role + ' — ' + s.objective.text : 'idle — nothing queued';
+    $('mc-obj').textContent = s.objective ? s.objective.role + ' — ' + s.objective.text : (remote ? 'server runtime is on duty — latest cycle #' + remote.cycle : 'idle — nothing queued');
     const up = s.startedAt && s.running ? Math.round((Date.now() - s.startedAt) / 60000) : 0;
     $('mc-metrics').innerHTML =
-      '<div><b>' + s.cycle + '</b><span>cycles</span></div>' +
+      '<div><b>' + s.cycle + '</b><span>browser cycles</span></div>' +
+      '<div><b>' + (remote ? remote.cycle : 0) + '</b><span>server cycles</span></div>' +
       '<div><b>' + s.metrics.done + '</b><span>done</span></div>' +
       '<div><b>' + s.metrics.failed + '</b><span>failed</span></div>' +
       '<div><b>' + (s.memory.long.length + s.memory.short.length) + '</b><span>memories</span></div>' +
       '<div><b>' + up + '</b><span>min uptime</span></div>';
-    $('mc-feed').innerHTML = s.events.slice(0, 30).map(e =>
-      '<div><span class="tt">' + ts(e.t) + '</span><span class="' + e.type + '">' + e.type.toUpperCase() + '</span> ' +
+    const localEvents = s.events.map(e => Object.assign({}, e, { src: 'browser' }));
+    const all = (remote && remote.events) ? localEvents.concat(remote.events) : localEvents;
+    all.sort((a, b) => b.t - a.t);
+    $('mc-feed').innerHTML = all.slice(0, 30).map(e =>
+      '<div><span class="tt">' + ts(e.t) + (e.src === 'server' ? ' ☁' : '') + '</span><span class="' + e.type + '">' + e.type.toUpperCase() + '</span> ' +
       e.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>').join('') || '<div class="mc-dim">no events yet — hit “Run one cycle” or ignite</div>';
     const dec = $('mc-dec');
     dec.innerHTML = '';
