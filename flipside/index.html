@@ -53,6 +53,8 @@ body.dark .card{background:#161622;border-color:#22222f}
 .tile{aspect-ratio:1.25;display:flex;align-items:center;justify-content:center;font-size:3rem;background:linear-gradient(135deg,var(--g1),var(--g2))}
 .deal-tag{position:absolute;top:10px;left:10px;background:#ff4ecd;color:#fff;font-size:.62rem;font-weight:700;letter-spacing:.06em;border-radius:100px;padding:4px 9px}
 .wish{position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.9);border-radius:50%;width:32px;height:32px;font-size:1rem;line-height:1}
+.cmp{position:absolute;top:44px;right:8px;border:none;background:rgba(255,255,255,.9);border-radius:50%;width:32px;height:32px;font-size:.8rem}
+.cmp.on{background:#c8ff3e}
 .cbody{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}
 .cname{font-size:.9rem;font-weight:600;line-height:1.3}
 .cmeta{font-size:.72rem;color:#6f6f80}
@@ -115,6 +117,15 @@ body.dark .tag{background:#24203a;color:#b9a8ff}
 .orderrow{border:1px solid #ececf2;border-radius:12px;padding:12px;margin-bottom:8px;font-size:.88rem}
 body.dark .orderrow{border-color:#22222f}
 .orderrow b{font-size:.92rem}
+.cmpbar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:30;display:none;align-items:center;gap:10px;background:#14141c;color:#fff;border-radius:100px;padding:10px 18px;font-size:.85rem;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+body.dark .cmpbar{background:#7c5cff}
+.cmpbar.on{display:flex}
+.cmpbar button{border:none;background:#c8ff3e;color:#14141c;border-radius:100px;padding:8px 14px;font-weight:600}
+.cmpbar .cx{background:none;color:#fff;font-weight:400}
+.ctable{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:10px}
+.ctable th,.ctable td{padding:8px 6px;border-bottom:1px solid #ececf2;text-align:left}
+body.dark .ctable th,body.dark .ctable td{border-color:#22222f}
+.ctable th{font-size:.72rem;color:#6f6f80;font-weight:500}
 </style>
 </head>
 <body>
@@ -146,6 +157,7 @@ body.dark .orderrow{border-color:#22222f}
 </div>
 
 <div class="overlay" id="ov"><div class="sheet" id="sheet"></div></div>
+<div class="cmpbar" id="cmpbar"></div>
 
 <div class="drawer" id="drawer">
   <div class="dhead"><b id="dtitle">Your cart</b><button class="close" id="dclose">×</button></div>
@@ -188,6 +200,7 @@ function cardHTML(p){
   return `<div class="card">
     ${p.compare?`<span class="deal-tag">DEAL</span>`:""}
     <button class="wish" data-wish="${p.id}">${wish?"❤️":"🤍"}</button>
+    <button class="cmp${cmp.has(p.id)?" on":""}" data-cmp="${p.id}" title="compare">⇄</button>
     ${tile(p)}
     <div class="cbody">
       <div class="cname">${p.name}</div>
@@ -220,8 +233,46 @@ function bump(){
   $("wishn").textContent=w.length;
 }
 
+// compare
+const cmp=new Set();
+function toggleCmp(id,btn){
+  if(cmp.has(id)){cmp.delete(id);btn.classList.remove("on");}
+  else if(cmp.size>=3){alert("three at a time max — drop one first");return;}
+  else{cmp.add(id);btn.classList.add("on");}
+  renderCmpBar();
+}
+function renderCmpBar(){
+  const bar=$("cmpbar");
+  if(!cmp.size){bar.classList.remove("on");return;}
+  bar.classList.add("on");
+  bar.innerHTML=`${cmp.size} picked <button id="cmpgo">Compare</button><button class="cx" id="cmpclear">✕</button>`;
+  $("cmpgo").onclick=openCompare;
+  $("cmpclear").onclick=()=>{cmp.clear();renderCmpBar();renderGrid();renderDeals();};
+}
+function openCompare(){
+  const ps=[...cmp].map(id=>P().find(p=>p.id===id)).filter(Boolean);
+  if(!ps.length)return;
+  const catName=c=>FS.CATS.find(x=>x[0]===c)[1];
+  const rows=[["Price",p=>FS.money(p.price)],"Rating","Reviews","Condition","In stock","Category"]].map(r=>{
+    if(Array.isArray(r))return r;
+    const key=r.toLowerCase();
+    return [r,p=>key==="rating"?stars(p.rating):key==="reviews"?p.rc:key==="condition"?p.cond:key==="in stock"?p.stock:catName(p.cat)];
+  });
+  $("sheet").innerHTML=`
+    <button class="close" id="pcloseC">×</button>
+    <h3>Compare</h3>
+    <div style="overflow-x:auto"><table class="ctable">
+      <tr><th></th>${ps.map(p=>`<th>${p.name}</th>`).join("")}</tr>
+      ${rows.map(([label,fn])=>`<tr><th>${label}</th>${ps.map(p=>`<td>${fn(p)}</td>`).join("")}</tr>`).join("")}
+    </table></div>
+    <div class="buyrow" style="margin-top:14px">${ps.map(p=>`<button class="btn" data-open="${p.id}">View ${p.name.split(" ")[0]}</button>`).join("")}</div>`;
+  $("ov").classList.add("on");
+  $("pcloseC").onclick=closeOv;
+}
+
 document.body.addEventListener("click",e=>{
-  const o=e.target.closest("[data-open]"),w=e.target.closest("[data-wish]"),a=e.target.closest("[data-add]");
+  const o=e.target.closest("[data-open]"),w=e.target.closest("[data-wish]"),a=e.target.closest("[data-add]"),c=e.target.closest("[data-cmp]");
+  if(c) toggleCmp(c.dataset.cmp,c);
   if(o) openProduct(o.dataset.open);
   if(w){
     const id=w.dataset.wish;let x=FS.ls("fs_wish",[]);
@@ -231,7 +282,7 @@ document.body.addEventListener("click",e=>{
   }
   if(a){
     const id=a.dataset.add,q=parseInt(document.querySelector(`[data-qty="${id}"]`)?.textContent||"1");
-    const c=FS.ls("fs_cart",{});c[id]=(c[id]||0)+q;FS.sv("fs_cart",c);bump();openCart();
+    const c2=FS.ls("fs_cart",{});c2[id]=(c2[id]||0)+q;FS.sv("fs_cart",c2);bump();openCart();
   }
 });
 $("q").addEventListener("input",()=>{state.q=$("q").value.trim().toLowerCase();renderGrid();});
@@ -289,7 +340,7 @@ $("ordersbtn").onclick=()=>{
     <input id="t_id" placeholder="order number, like FS-1001">
     <div class="buyrow"><button class="btn" id="t_go">Track</button></div>
     <div id="t_out"></div>
-    ${mine.length?`<h3 style="font-size:1rem;margin:18px 0 8px">Your orders</h3>`+mine.map(o=>`<div class="orderrow"><b>${o.id}</b> · ${FS.money(o.total)} · <span class="note">${o.status}</span></div>`).join(""):(u?`<p class="note" style="margin-top:12px">no orders on your account yet.</p>:`")}`;
+    ${mine.length?`<h3 style="font-size:1rem;margin:18px 0 8px">Your orders</h3>`+mine.map(o=>`<div class="orderrow"><b>${o.id}</b> · ${FS.money(o.total)} · <span class="note">${o.status}</span></div>`).join(""):(u?`<p class="note" style="margin-top:12px">no orders on your account yet.</p>`:"")}`;
   $("ov").classList.add("on");
   $("pclose2").onclick=closeOv;
   $("t_go").onclick=()=>{
@@ -318,8 +369,13 @@ $("acctbtn").onclick=()=>{
   const so=$("a_out");if(so)so.onclick=()=>{FS.sv("fs_user",null);closeOv();};
 };
 
+// promo codes
+const CODES={FLIP10:{type:"pct",val:0.10},SAVE5:{type:"amt",val:5,min:30}};
+let promo=null;
+function promoDisc(sub){if(!promo)return 0;return promo.type==="pct"?sub*promo.val:(sub>=promo.min?promo.val:0);}
+
 let checkoutOn=false;
-function openCart(){checkoutOn=false;$("drawer").classList.add("on");renderCart();}
+function openCart(){checkoutOn=false;promo=null;$("drawer").classList.add("on");renderCart();}
 function renderCart(){
   const c=FS.ls("fs_cart",{}),items=Object.entries(c).map(([id,q])=>({p:P().find(x=>x.id===id),q})).filter(x=>x.p);
   $("dtitle").textContent=checkoutOn?"Checkout":"Your cart";
@@ -340,19 +396,32 @@ function renderCart(){
     $("tocheckout").onclick=()=>{checkoutOn=true;renderCart();};
   } else {
     const u=FS.ls("fs_user",null);
+    const sub=items.reduce((s,{p,q})=>s+p.price*q,0),disc=promoDisc(sub),ship=(sub-disc)>=35?0:4.99,tot=sub-disc+ship;
     $("dbody").innerHTML=`
       <input id="f_name" placeholder="Full name" value="${u?u.name:""}"><input id="f_email" placeholder="Email" value="${u?u.email:""}"><input id="f_addr" placeholder="Shipping address">
-      <div class="totline big"><span>Total</span><span>${FS.money(items.reduce((s,{p,q})=>s+p.price*q,0))}</span></div>`;
-    $("dfoot").innerHTML=`<button class="btn pink" id="place" style="width:100%">Place order</button><div class="note">you'll get an order number on the next screen — track it with the 📦 button.</div>`;
+      <div style="display:flex;gap:8px"><input id="f_promo" placeholder="Promo code" style="margin-bottom:0"><button class="btn" id="f_ap" style="white-space:nowrap">Apply</button></div>
+      <div id="f_msg" class="note">${promo?"code applied ✓":"try FLIP10 (10% off) or SAVE5 ($5 off $30+)"}</div>
+      <div class="totline"><span>Subtotal</span><span>${FS.money(sub)}</span></div>
+      ${disc?`<div class="totline"><span>Discount</span><span>−${FS.money(disc)}</span></div>`:""}
+      <div class="totline"><span>Shipping</span><span>${ship?FS.money(ship):"FREE"}</span></div>
+      <div class="totline big"><span>Total</span><span>${FS.money(tot)}</span></div>`;
+    $("dfoot").innerHTML=`<button class="btn pink" id="place" style="width:100%">Place order · ${FS.money(tot)}</button><div class="note">you'll get an order number on the next screen — track it with the 📦 button.</div>`;
+    $("f_ap").onclick=()=>{
+      const code=$("f_promo").value.trim().toUpperCase();
+      const co=CODES[code];
+      if(!co){$("f_msg").textContent="that code's not valid — try FLIP10 or SAVE5";return;}
+      if(co.type==="amt"&&sub<co.min){$("f_msg").textContent="SAVE5 kicks in at a $30 cart";return;}
+      promo=co;renderCart();
+    };
     $("place").onclick=()=>{
       const n=$("f_name").value.trim(),em=$("f_email").value.trim(),ad=$("f_addr").value.trim();
       if(!n||!em||!ad){alert("fill in name, email and address first");return;}
       const orders=FS.ls("fs_orders",[]);
-      const sub=items.reduce((s,{p,q})=>s+p.price*q,0),ship=sub>=35?0:4.99;
-      const order={id:"FS-"+(1001+orders.length),date:new Date().toLocaleDateString("en-US"),items:items.map(({p,q})=>({id:p.id,name:p.name,qty:q,price:p.price})),total:sub+ship,name:n,email:em,address:ad,status:"processing"};
+      const d2=promoDisc(sub),ship2=(sub-d2)>=35?0:4.99;
+      const order={id:"FS-"+(1001+orders.length),date:new Date().toLocaleDateString("en-US"),items:items.map(({p,q})=>({id:p.id,name:p.name,qty:q,price:p.price})),total:sub-d2+ship2,promo:promo?Object.keys(CODES).find(k=>CODES[k]===promo):null,name:n,email:em,address:ad,status:"processing"};
       orders.push(order);FS.sv("fs_orders",orders);
       const prods=P();items.forEach(({p,q})=>{const pr=prods.find(x=>x.id===p.id);if(pr)pr.stock=Math.max(0,pr.stock-q)});FS.sv("fs_products",prods);
-      FS.sv("fs_cart",{});bump();checkoutOn=false;
+      FS.sv("fs_cart",{});bump();checkoutOn=false;promo=null;
       $("dtitle").textContent="Order placed ✓";
       $("dbody").innerHTML=`<div class="empty" style="font-size:1rem">🎉 order <b>${order.id}</b> is in.<br>total ${FS.money(order.total)} · status: processing<br><span class="note">the boss console now shows this sale.</span></div>`;
       $("dfoot").innerHTML=`<button class="btn" id="keep" style="width:100%">Keep shopping</button>`;
