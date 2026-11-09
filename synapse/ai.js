@@ -35,6 +35,8 @@
 
   const KEY_NAME = 'synapse_ai_key';
   let key = localStorage.getItem(KEY_NAME) || '';
+  let localOnline = false;
+  let history = [];
 
   const fab = document.createElement('button');
   fab.id = 'ai-fab'; fab.title = 'wake the brain'; fab.textContent = '⚡';
@@ -65,6 +67,7 @@
     msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d;
   }
   function hello() {
+    if (localOnline) return 'Local core online — the whole stack lives on your machine: brain, coder and search, fused into one Synapse. Ask away.';
     return key ? 'Powered up and ready. Yes is basically my whole personality — try me.'
                : 'Running on vibes (offline demo). I agree with basically everything, but for a real brain, paste a free key in the setup below.';
   }
@@ -72,7 +75,7 @@
     panel.hidden = false;
     if (!msgs.children.length) {
       bubble(hello());
-      if (!key) bubble('one-time setup: paste a free key, or skip', 'sys');
+      if (!key && !localOnline) bubble('one-time setup: paste a free key, or skip', 'sys');
     }
     input.focus();
   }
@@ -116,6 +119,19 @@
     e.preventDefault();
     const t = input.value.trim(); if (!t) return;
     input.value = ''; bubble(t, 'user');
+    if (localOnline && window.SynapseLocal) {
+      const wait = bubble('thinking…');
+      try {
+        const out = await window.SynapseLocal.ask(t, history);
+        history = history.concat([{ role: 'user', content: t }, { role: 'assistant', content: out }]).slice(-12);
+        wait.textContent = out;
+      } catch (err) {
+        wait.textContent = 'Local core hiccup (' + err.message + '). Is Ollama running? Falling back to demo for this one.';
+        setTimeout(() => bubble(demoReply(t)), 200);
+      }
+      msgs.scrollTop = msgs.scrollHeight;
+      return;
+    }
     if (!key) { setTimeout(() => bubble(demoReply(t)), 350); return; }
     const wait = bubble('thinking…');
     try { wait.textContent = await askGemini(t); }
@@ -123,4 +139,15 @@
     msgs.scrollTop = msgs.scrollHeight;
   });
   modeEl.textContent = key ? 'gemini brain online' : 'offline demo mode';
+
+  // local core: auto-detect the user's own models and fuse them into this chat
+  if (window.SynapseLocal) {
+    window.SynapseLocal.detect().then(ok => {
+      if (!ok) return;
+      localOnline = true;
+      setup.hidden = true;
+      modeEl.textContent = 'local core online — models fused';
+      if (msgs.children.length) bubble('local core just came online — you\'re talking to your own machine now.', 'sys');
+    });
+  }
 })();
