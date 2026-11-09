@@ -1,26 +1,43 @@
 {
   "v": "0.6-server",
-  "cycle": 1,
+  "cycle": 2,
   "startedAt": 1794228560595,
   "events": [
+    {
+      "t": 1794264884682,
+      "type": "act",
+      "src": "server",
+      "text": "SCOUT → Transformer (machine learning model): In deep learning, the transformer is a family of artificial neural network architectures based on the multi-head attention mechanism, in which input data such as text, im"
+    },
+    {
+      "t": 1794264884562,
+      "type": "think",
+      "src": "server",
+      "text": "SCOUT (server) — verify one new research topic and file it"
+    },
     {
       "t": 1794228560725,
       "type": "act",
       "src": "server",
-      "text": "SCOUT \u2192 Artificial general intelligence: Artificial general intelligence (AGI) is a hypothetical type of artificial intelligence that matches or surpasses human capabilities across most or all cognitive tasks. U"
+      "text": "SCOUT → Artificial general intelligence: Artificial general intelligence (AGI) is a hypothetical type of artificial intelligence that matches or surpasses human capabilities across most or all cognitive tasks. U"
     },
     {
       "t": 1794228560595,
       "type": "think",
       "src": "server",
-      "text": "SCOUT (server) \u2014 verify one new research topic and file it"
+      "text": "SCOUT (server) — verify one new research topic and file it"
     }
   ],
   "memory": {
     "long": [
       {
+        "t": 1794264884682,
+        "text": "research: Transformer (machine learning model) — In deep learning, the transformer is a family of artificial neural network architectures based on the multi-head attention mechanism, in which input data such as text, images, or audio is converted to a sequence of numerical representations called tok",
+        "kind": "fact"
+      },
+      {
         "t": 1794228560725,
-        "text": "research: Artificial general intelligence \u2014 Artificial general intelligence (AGI) is a hypothetical type of artificial intelligence that matches or surpasses human capabilities across most or all cognitive tasks. Unlike artificial narrow intelligence (ANI), whose competence is confined to well\u2011defined tasks, an AGI system can generalise knowledge, transfer skills between domains, and solve novel problems without task\u2011specific reprogramming.",
+        "text": "research: Artificial general intelligence — Artificial general intelligence (AGI) is a hypothetical type of artificial intelligence that matches or surpasses human capabilities across most or all cognitive tasks. Unlike artificial narrow intelligence (ANI), whose competence is confined to well‑defined tasks, an AGI system can generalise knowledge, transfer skills between domains, and solve novel problems without task‑specific reprogramming.",
         "kind": "fact"
       }
     ],
@@ -31,10 +48,11 @@
   "cards": [],
   "theme": "synapse",
   "researched": [
-    "Artificial general intelligence"
+    "Artificial general intelligence",
+    "Transformer (machine learning model)"
   ],
   "metrics": {
-    "done": 1,
+    "done": 2,
     "failed": 0,
     "toolStats": {}
   },
