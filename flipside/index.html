@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLIPSIDE — flip smarter</title>
+<meta name="description" content="FLIPSIDE is an online marketplace for smart flips: sneakers, retro games, vintage tech and more, priced right.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔄%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Space Grotesk',sans-serif;background:#f6f6f8;color:#14141c}
+button{font-family:inherit;cursor:pointer}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:12px 20px;background:#fff;border-bottom:1px solid #e8e8ee}
+.logo{font-weight:700;font-size:1.15rem;letter-spacing:.04em;background:linear-gradient(90deg,#7c5cff,#ff4ecd);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.search{flex:1;display:flex;max-width:560px}
+.search input{flex:1;border:1px solid #d9d9e3;border-radius:100px 0 0 100px;padding:10px 16px;font-size:.95rem;outline:none;font-family:inherit}
+.search input:focus{border-color:#7c5cff}
+.search button{border:none;background:#14141c;color:#fff;border-radius:0 100px 100px 0;padding:0 18px}
+.icon-btn{position:relative;border:1px solid #e4e4ec;background:#fff;border-radius:12px;width:42px;height:42px;font-size:1.1rem}
+.icon-btn b{position:absolute;top:-6px;right:-6px;background:#ff4ecd;color:#fff;font-size:.65rem;border-radius:100px;padding:2px 6px;font-family:inherit}
+.console-link{border:1px solid #14141c;background:#14141c;color:#fff;border-radius:12px;padding:10px 14px;font-size:.85rem;text-decoration:none;white-space:nowrap}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 20px;background:#fff;border-bottom:1px solid #f0f0f4}
+.chip{border:1px solid #e4e4ec;background:#fff;border-radius:100px;padding:8px 16px;font-size:.85rem;white-space:nowrap}
+.chip.on{background:#14141c;color:#fff;border-color:#14141c}
+.hero{margin:18px 20px;border-radius:22px;padding:34px 26px;background:linear-gradient(120deg,#14141c,#3a2a6e 55%,#7c5cff);color:#fff}
+.hero h1{font-size:clamp(1.6rem,5vw,2.6rem);line-height:1.1}
+.hero h1 span{color:#c8ff3e}
+.hero p{color:#d6d4e6;margin:10px 0 18px;max-width:520px;font-size:.95rem}
+.hero a{display:inline-block;background:#c8ff3e;color:#14141c;font-weight:600;border-radius:100px;padding:12px 22px;text-decoration:none}
+.wrap{padding:0 20px 60px;max-width:1200px;margin:0 auto}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 12px;gap:10px}
+.sec h2{font-size:1.15rem}
+.sec select{border:1px solid #d9d9e3;border-radius:10px;padding:8px 10px;font-size:.85rem;font-family:inherit;background:#fff}
+.row{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.card{background:#fff;border:1px solid #ececf2;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;position:relative;transition:transform .15s, box-shadow .15s}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(20,20,28,.08)}
+.tile{aspect-ratio:1.25;display:flex;align-items:center;justify-content:center;font-size:3rem;background:linear-gradient(135deg,var(--g1),var(--g2))}
+.deal-tag{position:absolute;top:10px;left:10px;background:#ff4ecd;color:#fff;font-size:.62rem;font-weight:700;letter-spacing:.06em;border-radius:100px;padding:4px 9px}
+.wish{position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.9);border-radius:50%;width:32px;height:32px;font-size:1rem;line-height:1}
+.cbody{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.cname{font-size:.9rem;font-weight:600;line-height:1.3}
+.cmeta{font-size:.72rem;color:#6f6f80}
+.cprice{font-weight:700;font-size:1rem}
+.cprice s{color:#9a9aa8;font-weight:400;font-size:.8rem;margin-left:6px}
+.cbtn{margin-top:auto;border:1px solid #14141c;background:#14141c;color:#fff;border-radius:10px;padding:9px;font-size:.82rem}
+.cbtn.alt{background:#fff;color:#14141c}
+.empty{color:#8a8a99;font-size:.9rem;padding:30px 0;text-align:center}
+.overlay{position:fixed;inset:0;background:rgba(12,12,20,.55);z-index:40;display:none;align-items:center;justify-content:center;padding:16px}
+.overlay.on{display:flex}
+.sheet{background:#fff;border-radius:20px;max-width:760px;width:100%;max-height:92vh;overflow-y:auto;padding:22px}
+.sheet h3{font-size:1.3rem;margin-bottom:4px}
+.close{float:right;border:1px solid #e4e4ec;background:#fff;border-radius:10px;width:34px;height:34px}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.pgrid{grid-template-columns:1fr}.console-link{display:none}}
+.pimg{border-radius:16px;aspect-ratio:1.1;display:flex;align-items:center;justify-content:center;font-size:5rem;background:linear-gradient(135deg,var(--g1),var(--g2))}
+.stars{color:#f5a623;font-size:.9rem}
+.rev{border-top:1px solid #f0f0f4;padding:10px 0;font-size:.85rem}
+.rev b{font-size:.8rem}
+.rev span{color:#6f6f80;font-size:.72rem;display:block}
+.qty{display:inline-flex;align-items:center;gap:10px;border:1px solid #d9d9e3;border-radius:10px;padding:6px 10px}
+.qty button{border:none;background:none;font-size:1rem}
+.btn{display:inline-block;background:#14141c;color:#fff;border:none;border-radius:100px;padding:12px 20px;font-size:.9rem}
+.btn.pink{background:linear-gradient(90deg,#7c5cff,#ff4ecd)}
+.buyrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(400px,100%);background:#fff;z-index:50;box-shadow:-20px 0 60px rgba(0,0,0,.2);transform:translateX(105%);transition:transform .25s;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dhead{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid #ececf2}
+.dbody{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.citem{display:flex;gap:12px;align-items:center;border:1px solid #ececf2;border-radius:14px;padding:10px}
+.ctile{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+.cinfo{flex:1;font-size:.85rem}
+.cinfo .cprice{font-size:.9rem}
+.dfoot{border-top:1px solid #ececf2;padding:16px;display:flex;flex-direction:column;gap:10px}
+.totline{display:flex;justify-content:space-between;font-size:.9rem}
+.totline.big{font-weight:700;font-size:1.05rem}
+.dfoot input{border:1px solid #d9d9e3;border-radius:10px;padding:10px 12px;font-size:.9rem;font-family:inherit;outline:none;width:100%}
+.dfoot input:focus{border-color:#7c5cff}
+.note{font-size:.72rem;color:#8a8a99}
+footer{border-top:1px solid #e8e8ee;padding:22px;text-align:center;color:#8a8a99;font-size:.8rem}
+.tagrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tag{background:#f1efff;color:#5b45c9;border-radius:100px;font-size:.7rem;padding:3px 9px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="logo">FLIPSIDE</div>
+  <div class="search"><input id="q" placeholder="Search flipside…"><button id="qbtn">🔍</button></div>
+  <button class="icon-btn" id="wishbtn" title="wishlist">♥<b id="wishn">0</b></button>
+  <button class="icon-btn" id="cartbtn" title="cart">🛒<b id="cartn">0</b></button>
+  <a class="console-link" href="console.html">Boss console</a>
+</div>
+<div class="chips" id="chips"></div>
+
+<div class="hero">
+  <h1>Good stuff, <span>right price.</span></h1>
+  <p>Sneakers, retro consoles, vintage tech and more — sourced sharp, priced fair, shipped fast.</p>
+  <a href="#deals">Shop today's deals</a>
+</div>
+
+<div class="wrap">
+  <div class="sec"><h2 id="deals">🔥 Today's deals</h2></div>
+  <div class="row" id="dealrow"></div>
+  <div class="sec"><h2>Everything</h2><select id="sort"><option value="feat">Featured</option><option value="lo">Price: low to high</option><option value="hi">Price: high to low</option><option value="rate">Top rated</option></select></div>
+  <div class="grid" id="grid"></div>
+  <div id="recentwrap" style="display:none"><div class="sec"><h2>Recently viewed</h2></div><div class="row" id="recentrow"></div></div>
+</div>
+
+<div class="overlay" id="ov"><div class="sheet" id="sheet"></div></div>
+
+<div class="drawer" id="drawer">
+  <div class="dhead"><b id="dtitle">Your cart</b><button class="close" id="dclose">×</button></div>
+  <div class="dbody" id="dbody"></div>
+  <div class="dfoot" id="dfoot"></div>
+</div>
+
+<footer>FLIPSIDE · flip smarter, not harder · demo store v1</footer>
+
+<script src="data.js"></script>
+<script>
+const P=()=>FS.ls("fs_products",[]);
+let state={q:"",cat:"all",sort:"feat"};
+const $=id=>document.getElementById(id);
+
+function tile(p){
+  const i=P().indexOf(p), g=FS.G[(i<0?0:i)%FS.G.length];
+  return `<div class="tile" style="--g1:${g[0]};--g2:${g[1]}">${p.e}</div>`;
+}
+function stars(r){return "★"+r.toFixed(1)}
+
+function renderChips(){
+  const el=$("chips");
+  el.innerHTML=`<button class="chip on" data-cat="all">All</button>`+FS.CATS.map(c=>`<button class="chip" data-cat="${c[0]}">${c[2]} ${c[1]}</button>`).join("");
+  el.onclick=e=>{const b=e.target.closest(".chip");if(!b)return;state.cat=b.dataset.cat;[...el.children].forEach(x=>x.classList.toggle("on",x===b));renderGrid();};
+}
+function filtered(){
+  let a=P().filter(p=>(state.cat==="all"||p.cat===state.cat)&&(state.q===""||(p.name+" "+p.tags+" "+p.cond).toLowerCase().includes(state.q)));
+  if(state.sort==="lo")a.sort((x,y)=>x.price-y.price);
+  if(state.sort==="hi")a.sort((x,y)=>y.price-x.price);
+  if(state.sort==="rate")a.sort((x,y)=>y.rating-x.rating);
+  return a;
+}
+function cardHTML(p){
+  const wish=FS.ls("fs_wish",[]).includes(p.id);
+  return `<div class="card">
+    ${p.compare?`<span class="deal-tag">DEAL</span>`:""}
+    <button class="wish" data-wish="${p.id}">${wish?"❤️":"🤍"}</button>
+    ${tile(p)}
+    <div class="cbody">
+      <div class="cname">${p.name}</div>
+      <div class="cmeta">${stars(p.rating)} · ${p.rc} reviews</div>
+      <div class="cprice">${FS.money(p.price)}${p.compare?`<s>${FS.money(p.compare)}</s>`:""}</div>
+      <button class="cbtn" data-open="${p.id}">View</button>
+    </div>
+  </div>`;
+}
+function renderGrid(){
+  const a=filtered();
+  $("grid").innerHTML=a.length?a.map(cardHTML).join(""):`<div class="empty">nothing matches that — try another search.</div>`;
+}
+function renderDeals(){
+  const a=P().filter(p=>p.compare);
+  $("dealrow").innerHTML=a.length?a.map(cardHTML).join(""):"";
+}
+function renderRecent(){
+  const r=FS.ls("fs_recent",[]).map(id=>P().find(p=>p.id===id)).filter(Boolean).slice(0,6);
+  $("recentwrap").style.display=r.length?"block":"none";
+  $("recentrow").innerHTML=r.map(cardHTML).join("");
+}
+function bump(){
+  const c=FS.ls("fs_cart",{}),w=FS.ls("fs_wish",[]);
+  $("cartn").textContent=Object.values(c).reduce((s,n)=>s+n,0);
+  $("wishn").textContent=w.length;
+}
+
+document.body.addEventListener("click",e=>{
+  const o=e.target.closest("[data-open]"),w=e.target.closest("[data-wish]"),a=e.target.closest("[data-add]");
+  if(o) openProduct(o.dataset.open);
+  if(w){
+    const id=w.dataset.wish;let x=FS.ls("fs_wish",[]);
+    x=x.includes(id)?x.filter(i=>i!==id):x.concat(id);
+    FS.sv("fs_wish",x);bump();
+    w.textContent=x.includes(id)?"❤️":"🤍";
+  }
+  if(a){
+    const id=a.dataset.add,q=parseInt(document.querySelector(`[data-qty="${id}"]`)?.textContent||"1");
+    const c=FS.ls("fs_cart",{});c[id]=(c[id]||0)+q;FS.sv("fs_cart",c);bump();openCart();
+  }
+});
+$("q").addEventListener("input",()=>{state.q=$("q").value.trim().toLowerCase();renderGrid();});
+$("sort").addEventListener("change",()=>{state.sort=$("sort").value;renderGrid();});
+
+function openProduct(id){
+  const p=P().find(x=>x.id===id);if(!p)return;
+  const g=FS.G[(P().indexOf(p))%FS.G.length];
+  let r=FS.ls("fs_recent",[]).filter(i=>i!==id);r.unshift(id);FS.sv("fs_recent",r.slice(0,8));
+  const names=["Dana R.","Marcus T.","Priya K.","Leo M.","Sam W."],texts=["Exactly as described, shipped fast. Would buy again.","Solid quality for the price, zero regrets.","Second one I've bought from this shop.","Arrived in two days, packaging was clean.","Great deal — checked around and this was the best price."],days=["Nov 2","Nov 4","Nov 5","Nov 7","Nov 8"];
+  const h=[...p.id].reduce((s,c)=>s+c.charCodeAt(0),0);
+  const revs=[0,1,2].map(i=>{const j=(h+i*3)%names.length;return `<div class="rev"><b>${names[j]} ★★★★★</b><span>${days[j]} · Verified purchase</span>${texts[(j+i)%texts.length]}</div>`}).join("");
+  const rel=P().filter(x=>x.cat===p.cat&&x.id!==p.id).slice(0,3);
+  $("sheet").innerHTML=`
+    <button class="close" id="pclose">×</button>
+    <div class="pgrid">
+      <div class="pimg" style="--g1:${g[0]};--g2:${g[1]}">${p.e}</div>
+      <div>
+        <h3>${p.name}</h3>
+        <div class="cmeta">${stars(p.rating)} · ${p.rc} reviews · ${FS.CATS.find(c=>c[0]===p.cat)[1]}</div>
+        <div class="cprice" style="font-size:1.4rem;margin:8px 0">${FS.money(p.price)}${p.compare?`<s>${FS.money(p.compare)}</s>`:""}</div>
+        <div class="cmeta">${p.cond} · ${p.stock>0?p.stock+" in stock":"out of stock"}</div>
+        <p style="font-size:.9rem;color:#3c3c48;margin:10px 0">${p.desc}</p>
+        <div class="buyrow">
+          <span class="qty"><button id="qm">−</button><b id="pqty" data-qty="${p.id}">1</b><button id="qp">+</button></span>
+          <button class="btn pink" data-add="${p.id}" ${p.stock<1?"disabled style=opacity:.5":""}>Add to cart</button>
+        </div>
+        <div class="tagrow">${p.tags.split(" ").map(t=>`<span class="tag">#${t}</span>`).join("")}</div>
+      </div>
+    </div>
+    <h3 style="font-size:1rem;margin:18px 0 4px">Reviews</h3>${revs}
+    <p class="note">Free shipping over $35 · 30-day returns · ships in 1 business day</p>
+    ${rel.length?`<h3 style="font-size:1rem;margin:18px 0 8px">Related</h3><div class="row">${rel.map(cardHTML).join("")}</div>`:""}`;
+  $("ov").classList.add("on");
+  $("pclose").onclick=closeOv;
+  $("qm").onclick=()=>{const e=$("pqty");e.textContent=Math.max(1,+e.textContent-1)};
+  $("qp").onclick=()=>{const e=$("pqty");e.textContent=+e.textContent+1};
+  renderRecent();bump();
+}
+function closeOv(){$("ov").classList.remove("on")}
+$("ov").addEventListener("click",e=>{if(e.target===$("ov"))closeOv()});
+
+let checkoutOn=false;
+function openCart(){checkoutOn=false;$("drawer").classList.add("on");renderCart();}
+function renderCart(){
+  const c=FS.ls("fs_cart",{}),items=Object.entries(c).map(([id,q])=>({p:P().find(x=>x.id===id),q})).filter(x=>x.p);
+  $("dtitle").textContent=checkoutOn?"Checkout":"Your cart";
+  if(!items.length&&!checkoutOn){$("dbody").innerHTML=`<div class="empty">cart's empty — go find something good.</div>`;$("dfoot").innerHTML="";return;}
+  if(!checkoutOn){
+    $("dbody").innerHTML=items.map(({p,q})=>`<div class="citem">
+      <div class="ctile" style="background:linear-gradient(135deg,${FS.G[(P().indexOf(p))%FS.G.length].join(",")})">${p.e}</div>
+      <div class="cinfo"><b>${p.name}</b><div class="cmeta">${FS.money(p.price)} each</div></div>
+      <span class="qty"><button data-dec="${p.id}">−</button><b>${q}</b><button data-inc="${p.id}">+</button></span>
+    </div>`).join("");
+    const sub=items.reduce((s,{p,q})=>s+p.price*q,0),ship=sub>=35||sub===0?0:4.99,tot=sub+ship;
+    $("dfoot").innerHTML=`
+      <div class="totline"><span>Subtotal</span><span>${FS.money(sub)}</span></div>
+      <div class="totline"><span>Shipping</span><span>${ship?FS.money(ship):"FREE"}</span></div>
+      <div class="totline big"><span>Total</span><span>${FS.money(tot)}</span></div>
+      <button class="btn pink" id="tocheckout" style="width:100%">Checkout</button>
+      <div class="note">demo checkout — real payments get wired when you go live.</div>`;
+    $("tocheckout").onclick=()=>{checkoutOn=true;renderCart();};
+  } else {
+    $("dbody").innerHTML=`
+      <input id="f_name" placeholder="Full name"><input id="f_email" placeholder="Email"><input id="f_addr" placeholder="Shipping address">
+      <div class="totline big"><span>Total</span><span>${FS.money(items.reduce((s,{p,q})=>s+p.price*q,0))}</span></div>`;
+    $("dfoot").innerHTML=`<button class="btn pink" id="place" style="width:100%">Place order</button><div class="note">you'll get an order number on the next screen.</div>`;
+    $("place").onclick=()=>{
+      const n=$("f_name").value.trim(),em=$("f_email").value.trim(),ad=$("f_addr").value.trim();
+      if(!n||!em||!ad){alert("fill in name, email and address first");return;}
+      const orders=FS.ls("fs_orders",[]);
+      const sub=items.reduce((s,{p,q})=>s+p.price*q,0),ship=sub>=35?0:4.99;
+      const order={id:"FS-"+(1001+orders.length),date:new Date().toLocaleDateString("en-US"),items:items.map(({p,q})=>({id:p.id,name:p.name,qty:q,price:p.price})),total:sub+ship,name:n,email:em,address:ad,status:"processing"};
+      orders.push(order);FS.sv("fs_orders",orders);
+      // decrement stock
+      const prods=P();items.forEach(({p,q})=>{const pr=prods.find(x=>x.id===p.id);if(pr)pr.stock=Math.max(0,pr.stock-q)});FS.sv("fs_products",prods);
+      FS.sv("fs_cart",{});bump();checkoutOn=false;
+      $("dtitle").textContent="Order placed ✓";
+      $("dbody").innerHTML=`<div class="empty" style="font-size:1rem">🎉 order <b>${order.id}</b> is in.<br>total ${FS.money(order.total)} · status: processing<br><span class="note">the boss console now shows this sale.</span></div>`;
+      $("dfoot").innerHTML=`<button class="btn" id="keep" style="width:100%">Keep shopping</button>`;
+      $("keep").onclick=()=>{$("drawer").classList.remove("on");renderGrid();renderDeals();};
+    };
+  }
+}
+$("dbody").addEventListener("click",e=>{
+  const inc=e.target.closest("[data-inc]"),dec=e.target.closest("[data-dec]");
+  if(inc||dec){const id=(inc||dec).dataset.inc||dec.dataset.dec;const c=FS.ls("fs_cart",{});
+    c[id]=Math.max(0,(c[id]||0)+(inc?1:-1));if(!c[id])delete c[id];FS.sv("fs_cart",c);bump();renderCart();}
+});
+$("cartbtn").onclick=openCart;
+$("wishbtn").onclick=()=>{state.cat="all";state.q="";$("q").value="";const w=FS.ls("fs_wish",[]);const a=P().filter(p=>w.includes(p.id));$("grid").innerHTML=a.length?a.map(cardHTML).join(""):`<div class="empty">no wishlist yet — tap the 🤍 on anything you like.</div>`;window.scrollTo({top:0});[...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.cat==="all"));};
+$("dclose").onclick=()=>$("drawer").classList.remove("on");
+
+renderChips();renderGrid();renderDeals();renderRecent();bump();
+</script>
+</body>
+</html>
