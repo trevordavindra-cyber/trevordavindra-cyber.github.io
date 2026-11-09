@@ -67,7 +67,8 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
   <div class="sub">every deal gets scored before a dollar moves. actual sales and estimates are kept apart and labeled.</div>
   <div class="cards" id="stats"></div>
   <div class="tabs">
-    <button class="tab on" data-t="opps">Opportunities</button>
+    <button class="tab on" data-t="hq">HQ</button>
+    <button class="tab" data-t="opps">Opportunities</button>
     <button class="tab" data-t="inv">Inventory</button>
     <button class="tab" data-t="orders">Orders</button>
     <button class="tab" data-t="fin">Finance</button>
@@ -76,7 +77,18 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
     <button class="tab" data-t="set">Settings</button>
   </div>
 
-  <div class="panel on" id="p-opps">
+  <div class="panel on" id="p-hq">
+    <div class="card">
+      <h2>Executive Agent</h2>
+      <p class="hint">One desk for the whole business: type a command, it delegates to the right specialist and combines the result. Anything that would touch money or post publicly goes to the approval queue instead of executing.</p>
+      <input id="hq_q" placeholder='try "analyze the business", "review our inventory", "strongest opportunities", "weekly report"'>
+      <div style="margin-top:10px"><button class="btn" id="hq_go">Run command</button></div>
+      <div class="out" id="out-hq"></div>
+    </div>
+    <div class="card"><h2>Approval queue</h2><p class="hint">Spending or publishing waits here for your say-so. Approving records the authorization — actual buying still needs a real payment rail, so nothing executes for you.</p><div id="hq_queue"></div></div>
+  </div>
+
+  <div class="panel" id="p-opps">
     <div class="card">
       <h2>Score a find</h2>
       <p class="hint">Log anything you're thinking of buying to flip: what it costs, what it should resell for, where you'd sell it. The math and the verdict are instant.</p>
@@ -138,6 +150,7 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
 
   <div class="panel" id="p-agents">
     <div class="agents">
+      <div class="agent"><h3>🧠 Executive</h3><p>Your chief of staff: takes natural-language commands on the HQ tab, delegates to the right specialist, combines the results. Money-touching orders are queued, never executed.</p><div class="lr" id="lr-hq">never run</div><button class="btn ghost" data-run="hqgo">Open HQ</button><div class="out" id="out-hqgo"></div></div>
       <div class="agent"><h3>🔍 Discovery</h3><p>Finds undervalued items worth flipping. Runs on you spotting listings + me researching on request — everything lands on the opportunity board for scoring.</p><div class="lr" id="lr-disc">never run</div><button class="btn ghost" data-run="disc">Open scoring</button><div class="out" id="out-disc"></div></div>
       <div class="agent"><h3>📊 Deal Analyst</h3><p>Verifies the numbers on every logged opportunity against real marketplace fee schedules and your margin floor.</p><div class="lr" id="lr-an">never run</div><button class="btn ghost" data-run="an">Run analysis</button><div class="out" id="out-an"></div></div>
       <div class="agent"><h3>🧮 Profit Calculator</h3><p>Full math on every deal: marketplace fees, shipping, net profit, margin, ROI. Never confuses revenue with profit.</p><div class="lr" id="lr-pc">never run</div><button class="btn ghost" data-run="pc">Re-score all</button><div class="out" id="out-pc"></div></div>
@@ -180,7 +193,7 @@ function stats(){
   const cogs=orders.reduce((s,o)=>s+o.items.reduce((a,it)=>{const p=prods.find(x=>x.id===it.id);return a+(p?p.buy*it.qty:0)},0),0);
   const invValue=prods.reduce((s,p)=>s+p.buy*p.stock,0);
   const goOpps=opps.map(o=>FS.score(o)).filter(s=>s.verdict==="GO");
-  const cards=[["revenue · actual",FS.money(revenue),orders.length+" orders"],["gross profit · actual",FS.money(revenue-cogs),"after cost of goods"],["inventory value · estimate",FS.money(invValue),"at cost"],["GO deals potential · estimate",goOpps.length?FS.money(goOpps.reduce((s,x)=>s+x.profit,0)):"$0.00",goOpps.length+" deals"],["opportunities",opps.length,"on the board"],["agents",12,"live logic on your data"]];
+  const cards=[["revenue · actual",FS.money(revenue),orders.length+" orders"],["gross profit · actual",FS.money(revenue-cogs),"after cost of goods"],["inventory value · estimate",FS.money(invValue),"at cost"],["GO deals potential · estimate",goOpps.length?FS.money(goOpps.reduce((s,x)=>s+x.profit,0)):"$0.00",goOpps.length+" deals"],["opportunities",opps.length,"on the board"],["agents",13,"1 HQ + 12 specialists"]];
   $("stats").innerHTML=cards.map(c=>`<div class="stat"><div class="n">${c[1]}</div><div class="l">${c[0]}</div><div class="src">${c[2]}</div></div>`).join("");
 }
 
@@ -249,21 +262,129 @@ function renderLog(){
   $("log_list").innerHTML=l.length?l.map(e=>`<div class="logline"><b>${e.t}</b> — ${e.name}${e.note?": "+e.note:""}</div>`).join(""):`<p class="hint">empty. run an agent and it gets written here.</p>`;
 }
 
+// ---- agent brains (shared by buttons and the HQ router) ----
+function topOpps(){
+  const opps=FS.ls("fs_opps",[]).map(o=>({o,s:FS.score(o)})).sort((a,b)=>b.s.profit-a.s.profit);
+  if(!opps.length)return "no opportunities logged yet — hunt first, then score what you find.";
+  let t="ranked by net profit (estimates, verified against fee schedules):\n";
+  opps.slice(0,3).forEach((x,i)=>{t+=`${i+1}. ${x.o.item}: ${FS.money(x.s.profit)} profit · ${Math.round(x.s.margin*100)}% margin · ${x.s.verdict}\n`});
+  t+=opps.length>3?`\n${opps.length-3} more on the board.`:"";
+  return t;
+}
+function invAudit(){
+  const prods=P();if(!prods.length)return "inventory is empty — list real finds under Inventory.";
+  const zero=prods.filter(p=>p.stock===0),low=prods.filter(p=>p.stock>0&&p.stock<=1),under=prods.filter(p=>p.price>0&&(p.price-p.buy)/p.price<0.2);
+  let t=`${prods.length} items checked\n`;
+  t+=zero.length?`out of stock: ${zero.map(p=>p.name).join(", ")}\n`:`nothing out of stock\n`;
+  if(low.length)t+=`low (restock soon): ${low.map(p=>p.name).join(", ")}\n`;
+  if(under.length)t+=`\nunder 20% margin — consider repricing:\n`+under.map(p=>`- ${p.name}: at ${FS.money(p.price)}, suggest ${FS.money(Math.ceil(p.buy/0.75*100)/100)}+`).join("\n");
+  return t;
+}
+function opsReview(){
+  const opps=FS.ls("fs_opps",[]),orders=FS.ls("fs_orders",[]),prods=P();
+  let t="operation review:\n";
+  t+=`· ${prods.length} items live, ${orders.length} orders processed, ${opps.length} opportunities on the board\n`;
+  const best=opps.map(o=>({o,s:FS.score(o)})).sort((a,b)=>b.s.profit-a.s.profit)[0];
+  t+=best&&best.s.profit>0?`· best pending deal: ${best.o.item} at ${FS.money(best.s.profit)} net — fund that one first\n`:`· no strong deal on the board yet — hunt first, spend later\n`;
+  const cap=FS.ls("fs_settings",{budget:200}).budget;
+  t+=`· budget cap on file: ${FS.money(cap)} — nothing buys past it without you\n`;
+  t+=`· next reversible move: restock anything sold out, then keep logging finds\n`;
+  return t;
+}
+function weaknesses(){
+  const prods=P(),orders=FS.ls("fs_orders",[]),opps=FS.ls("fs_opps",[]);
+  let t="weak spots, ranked:\n";let n=0;
+  if(!orders.length){t+="1. no recorded sales yet — the storefront has zero real revenue. fix: list a real item and price it to move.\n";n++;}
+  const under=prods.filter(p=>p.price>0&&(p.price-p.buy)/p.price<0.2);
+  if(under.length){t+=`${n+1}. ${under.length} items under 20% margin (${under.map(p=>p.name).join(", ")}) — reprice or clear.\n`;n++;}
+  const zero=prods.filter(p=>p.stock===0);
+  if(zero.length){t+=`${n+1}. ${zero.length} sold-out items are turning buyers away — restock or delist.\n`;n++;}
+  if(!opps.length){t+=`${n+1}. opportunity board is empty — nothing is being hunted.\n`;n++;}
+  if(!n)t+="nothing stands out. board is healthy.";
+  return t;
+}
+function weeklyReport(){
+  const orders=FS.ls("fs_orders",[]),prods=P(),opps=FS.ls("fs_opps",[]);
+  const revenue=orders.reduce((s,o)=>s+o.total,0);
+  const cogs=orders.reduce((s,o)=>s+o.items.reduce((a,it)=>{const p=prods.find(x=>x.id===it.id);return a+(p?p.buy*it.qty:0)},0),0);
+  const est=opps.map(o=>FS.score(o)).filter(s=>s.verdict==="GO").reduce((s,x)=>s+x.profit,0);
+  let t=`WEEKLY REPORT\nrecorded: revenue ${FS.money(revenue)}, cost ${FS.money(cogs)}, gross profit ${FS.money(revenue-cogs)} across ${orders.length} orders\n`;
+  t+=`projected: ${FS.money(est)} GO-deal potential (models, not money)\n`;
+  t+=`inventory: ${prods.length} items live\n`;
+  t+=revenue>0?"the recorded numbers are real sales.":"no recorded sales yet — this report is structure waiting for data.";
+  return t;
+}
+function marketRead(){
+  const prods=P(),orders=FS.ls("fs_orders",[]);
+  if(!prods.length)return "no catalog to read yet.";
+  let t="category read (your catalog + recorded sales):\n";
+  FS.CATS.forEach(([id,label])=>{
+    const items=prods.filter(p=>p.cat===id);if(!items.length)return;
+    const avgm=Math.round(items.reduce((s,p)=>s+(p.price>0?(p.price-p.buy)/p.price:0),0)/items.length*100);
+    const sold=orders.reduce((s,o)=>s+o.items.filter(i=>((prods.find(p=>p.id===i.id)||{}).cat)===id).reduce((a,i)=>a+i.qty,0),0);
+    t+=`· ${label}: ${items.length} items, avg margin ${avgm}%, ${sold} sold\n`;
+  });
+  t+="\nlive market feeds need paid marketplace API keys — labeled estimate, not live data.";
+  return t;
+}
+function storeImprovements(){
+  return "storefront upgrade queue (all buildable now):\n· photo listings — real item photos instead of emoji tiles\n· more agent coverage on your actual data\nneeds a server (paid hosting): real accounts with passwords, shared inventory across devices, real payment checkout.";
+}
+function hqRoute(q){
+  const s=q.toLowerCase();
+  if(/buy |purchase|place.*order|spend/.test(s))return {who:"Approval Queue",txt:"money-touching order captured, not executed. it's in the approval queue below for your call."};
+  if(/analy(s|z)e|how.*business|overview/.test(s))return {who:"Ops Optimizer",txt:opsReview()};
+  if(/strongest|best (opportunit|deal)|top deal|find.*opportunit/.test(s))return {who:"Deal Analyst",txt:topOpps()};
+  if(/inventor/.test(s))return {who:"Inventory Agent",txt:invAudit()};
+  if(/weak|problem|wrong|improve/.test(s))return {who:"Business Optimization",txt:weaknesses()+"\n\n"+storeImprovements()};
+  if(/report|weekly/.test(s))return {who:"Financial Analyst",txt:weeklyReport()};
+  if(/research|categor|emerging|trend/.test(s))return {who:"Market Research",txt:marketRead()};
+  return {who:"Executive",txt:"didn't catch that one. try: analyze the business · review our inventory · strongest opportunities · weekly report · identify our biggest weaknesses"};
+}
+function runHQ(){
+  const q=($("hq_q").value||"").trim();
+  if(!q){$("out-hq").style.display="block";$("out-hq").textContent="type a command first.";return;}
+  const r=hqRoute(q);
+  $("out-hq").style.display="block";
+  $("out-hq").textContent=`→ delegated to ${r.who}\n\n${r.txt}`;
+  if(r.who==="Approval Queue"){
+    const q2=FS.ls("fs_approvals",[]);q2.unshift({id:"A"+Date.now(),text:q,ts:new Date().toLocaleString("en-US"),status:"pending"});FS.sv("fs_approvals",q2);hqQueueRender();
+  }
+  const setLRk={"Ops Optimizer":"oo","Deal Analyst":"an","Inventory Agent":"im","Business Optimization":"oo","Financial Analyst":"fa","Market Research":"mr","Executive":"hq"}[r.who];
+  if(setLRk&&$("lr-"+setLRk))setLR(setLRk);
+  logRun("Executive Agent",q.slice(0,60)+" → "+r.who);
+}
+$("hq_go").onclick=runHQ;
+$("hq_q").addEventListener("keydown",e=>{if(e.key==="Enter")runHQ();});
+function hqQueueRender(){
+  const q=FS.ls("fs_approvals",[]);
+  $("hq_queue").innerHTML=q.length?q.map(x=>`<div class="opp"><div><div class="nm">${x.text}</div><div class="dt">${x.ts} · ${x.status}</div></div>${x.status==="pending"?`<span><button class="btn ghost" data-aok="${x.id}">approve</button> <button class="btn ghost" data-ano="${x.id}">deny</button></span>`:""}</div>`).join(""):`<p class="hint">empty. anything that would spend money or post publicly lands here first.</p>`;
+}
+$("hq_queue").addEventListener("click",e=>{
+  const ok=e.target.closest("[data-aok]"),no=e.target.closest("[data-ano]");
+  if(!ok&&!no)return;
+  const q=FS.ls("fs_approvals",[]);const x=q.find(i=>i.id===(ok||no).dataset[(ok?"aok":"ano")]);
+  if(x){x.status=ok?"approved — recorded; real buying still needs a payment rail":"denied";FS.sv("fs_approvals",q);hqQueueRender();logRun("Approval",x.text.slice(0,50)+" → "+(ok?"approved":"denied"));}
+});
+hqQueueRender();
+
 const log=FS.ls("fs_agentlog",{});
 function setLR(k){log[k]=new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});FS.sv("fs_agentlog",log);$("lr-"+k).textContent="last run "+log[k];}
 Object.keys(log).forEach(k=>{if($("lr-"+k))$("lr-"+k).textContent="last run "+log[k];});
 function out(k,txt){const e=$("out-"+k);e.style.display="block";e.textContent=txt;}
 document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{
   const k=b.dataset.run;
+  if(k==="hqgo"){document.querySelector('[data-t="hq"]').click();out("hqgo","HQ open — type a command in the Executive Agent box.");setLR("hq");return;}
   if(k==="disc"){document.querySelector('[data-t="opps"]').click();out("disc","scoring console open — log a find and it gets graded instantly.");setLR(k);logRun("Discovery","opened scoring board");return;}
-  if(k==="an"||k==="pc"){
-    const opps=FS.ls("fs_opps",[]);if(!opps.length){out(k,"no opportunities logged yet — nothing to score.");setLR(k);logRun(k==="an"?"Deal Analyst":"Profit Calculator","no opportunities yet");return;}
+  if(k==="an"){out("an",topOpps());setLR(k);logRun("Deal Analyst","analysis run");return;}
+  if(k==="pc"){
+    const opps=FS.ls("fs_opps",[]);if(!opps.length){out(k,"no opportunities logged yet — nothing to score.");setLR(k);logRun("Profit Calculator","no opportunities yet");return;}
     const scored=opps.map(o=>({o,s:FS.score(o)}));
-    const go=scored.filter(x=>x.s.verdict==="GO"),watch=scored.filter(x=>x.s.verdict==="WATCH"),pass=scored.filter(x=>x.s.verdict==="PASS");
-    let t=`${scored.length} scored · ${go.length} GO · ${watch.length} WATCH · ${pass.length} PASS\n`;
+    const go=scored.filter(x=>x.s.verdict==="GO"),pass=scored.filter(x=>x.s.verdict==="PASS");
+    let t=`${scored.length} scored · ${go.length} GO · ${scored.filter(x=>x.s.verdict==="WATCH").length} WATCH · ${pass.length} PASS\n`;
     if(go.length)t+="\nclear the bar:\n"+go.map(x=>`+ ${x.o.item}: ${FS.money(x.s.profit)} profit, ${Math.round(x.s.margin*100)}% margin`).join("\n");
     if(pass.length)t+="\n\nbelow your floor (drop or renegotiate):\n"+pass.map(x=>`- ${x.o.item}: ${FS.money(x.s.profit)} profit`).join("\n");
-    out(k,t);setLR(k);logRun(k==="an"?"Deal Analyst":"Profit Calculator",scored.length+" scored, "+go.length+" GO");return;
+    out(k,t);setLR(k);logRun("Profit Calculator",scored.length+" scored, "+go.length+" GO");return;
   }
   if(k==="lw"){
     const prods=P().filter(p=>p.price>0);
@@ -272,29 +393,8 @@ document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{
     const t=`TITLE: ${p.name} — ${p.cond} | Fast Free Shipping\n\nPRICE: ${FS.money(p.price)}${p.buy?"  (cost "+FS.money(p.buy)+", margin "+Math.round(((p.price-p.buy)/p.price)*100)+"%)":""}\n\nBODY:\n${p.desc}\n\nCondition: ${p.cond}\nShips in 1 business day · 30-day returns\n\nKEYWORDS: ${p.tags.split(" ").join(", ")}`;
     out(k,t);setLR(k);logRun("Listing Writer",p.name);return;
   }
-  if(k==="im"){
-    const prods=P();if(!prods.length){out(k,"inventory is empty.");setLR(k);return;}
-    const low=prods.filter(p=>p.stock<=1),zero=prods.filter(p=>p.stock===0),under=prods.filter(p=>p.price>0&&(p.price-p.buy)/p.price<0.2);
-    let t=`${prods.length} items checked\n`;
-    t+=zero.length?`out of stock: ${zero.map(p=>p.name).join(", ")}\n`:`nothing out of stock\n`;
-    const lowpos=low.filter(p=>p.stock>0);
-    if(lowpos.length)t+=`low (restock soon): ${lowpos.map(p=>p.name).join(", ")}\n`;
-    if(under.length)t+=`\nunder 20% margin — consider repricing:\n`+under.map(p=>`- ${p.name}: at ${FS.money(p.price)}, suggest ${FS.money(Math.ceil(p.buy/0.75*100)/100)}+`).join("\n");
-    out(k,t);setLR(k);logRun("Inventory Agent",prods.length+" items audited");return;
-  }
-  if(k==="mr"){
-    const prods=P(),orders=FS.ls("fs_orders",[]);
-    if(!prods.length){out(k,"no catalog to research yet.");setLR(k);return;}
-    let t="category read (your catalog + recorded sales):\n";
-    FS.CATS.forEach(([id,label])=>{
-      const items=prods.filter(p=>p.cat===id);if(!items.length)return;
-      const avgm=Math.round(items.reduce((s,p)=>s+(p.price>0?(p.price-p.buy)/p.price:0),0)/items.length*100);
-      const sold=orders.reduce((s,o)=>s+o.items.filter(i=>((prods.find(p=>p.id===i.id)||{}).cat)===id).reduce((a,i)=>a+i.qty,0),0);
-      t+=`· ${label}: ${items.length} items, avg margin ${avgm}%, ${sold} sold\n`;
-    });
-    t+="\nlive market feeds need paid marketplace API keys — labeled estimate, not live data.";
-    out(k,t);setLR(k);logRun("Market Research","category read");return;
-  }
+  if(k==="im"){out(k,invAudit()||"inventory is empty.");setLR(k);logRun("Inventory Agent","audit run");return;}
+  if(k==="mr"){out(k,marketRead());setLR(k);logRun("Market Research","category read");return;}
   if(k==="pr"){
     const prods=P().filter(p=>p.price>0);if(!prods.length){out(k,"nothing priced yet.");setLR(k);return;}
     let t="price moves:\n";let n=0;
@@ -305,27 +405,8 @@ document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{
     if(!n)t+="everything sits inside a healthy band — no moves needed.";
     out(k,t);setLR(k);logRun("Pricing Agent",n+" suggestions");return;
   }
-  if(k==="oo"){
-    const opps=FS.ls("fs_opps",[]),orders=FS.ls("fs_orders",[]),prods=P();
-    let t="operation review:\n";
-    t+=`· ${prods.length} items live, ${orders.length} orders processed\n`;
-    const best=opps.map(o=>({o,s:FS.score(o)})).sort((a,b)=>b.s.profit-a.s.profit)[0];
-    t+=best&&best.s.profit>0?`· best pending deal: ${best.o.item} at ${FS.money(best.s.profit)} net — fund that one first\n`:`· no strong deal on the board yet — hunt first, spend later\n`;
-    const cap=FS.ls("fs_settings",{budget:200}).budget;
-    t+=`· budget cap on file: ${FS.money(cap)} — nothing buys past it without you\n`;
-    t+=`· next reversible move: restock anything sold out, then keep logging finds\n`;
-    out(k,t);setLR(k);logRun("Ops Optimizer","review complete");return;
-  }
-  if(k==="fa"){
-    const orders=FS.ls("fs_orders",[]),prods=P(),opps=FS.ls("fs_opps",[]);
-    const revenue=orders.reduce((s,o)=>s+o.total,0);
-    const cogs=orders.reduce((s,o)=>s+o.items.reduce((a,it)=>{const p=prods.find(x=>x.id===it.id);return a+(p?p.buy*it.qty:0)},0),0);
-    const est=opps.map(o=>FS.score(o)).filter(s=>s.verdict==="GO").reduce((s,x)=>s+x.profit,0);
-    let t=`recorded sales: revenue ${FS.money(revenue)}, cost ${FS.money(cogs)}, gross profit ${FS.money(revenue-cogs)}\n`;
-    t+=`projected (opportunity board): ${FS.money(est)} — models, not money\n`;
-    t+=revenue>0?`\nsales exist on the board, so the recorded math above is live.\n`:`\nno recorded sales yet — every number above is either empty or projection.\n`;
-    out(k,t);setLR(k);logRun("Financial Analyst","statement issued");return;
-  }
+  if(k==="oo"){out(k,opsReview());setLR(k);logRun("Ops Optimizer","review complete");return;}
+  if(k==="fa"){out(k,weeklyReport());setLR(k);logRun("Financial Analyst","statement issued");return;}
   if(k==="cs"){
     const q=($("cs_q").value||"").trim();
     let a;
