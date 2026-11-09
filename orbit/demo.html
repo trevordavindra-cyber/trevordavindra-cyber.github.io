@@ -21,14 +21,15 @@ header.nav{display:flex;align-items:center;justify-content:space-between;padding
 h1{font-size:clamp(26px,5vw,38px);letter-spacing:-.03em;margin:0 0 10px;font-weight:600}
 .intro p{color:var(--fog);font-size:13.5px;line-height:1.7;margin:0}
 .chat{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
-.log{padding:18px;display:flex;flex-direction:column;gap:12px;min-height:320px;max-height:520px;overflow:auto}
+.log{padding:18px;display:flex;flex-direction:column;gap:12px;min-height:340px;max-height:560px;overflow:auto}
 .bubble{max-width:88%;padding:12px 14px;border:1px solid var(--line);border-radius:13px;background:#ffffff07;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .bubble.user{align-self:flex-end;background:#2fd4b814;border-color:#2fd4b83a}
 .bubble.assistant{align-self:flex-start}
 .bubble .tag{display:block;font:9px var(--mono);letter-spacing:.16em;color:var(--teal);margin-bottom:6px}
 .bubble.user .tag{color:var(--teal);text-align:right}
-.bubble .step{display:block;color:var(--fog);font-size:12.5px;margin:3px 0}
 .bubble .proof{display:inline-block;margin-top:8px;font:9px var(--mono);letter-spacing:.1em;color:var(--gold);border:1px solid #ffb45444;border-radius:20px;padding:4px 9px}
+.bubble .walls{display:block;margin-top:8px;color:var(--gold);font-size:12px}
+.typing{align-self:flex-start;color:var(--dim);font:10px var(--mono);letter-spacing:.18em;padding:6px 2px}
 .composer{border-top:1px solid var(--line);padding:14px;display:flex;flex-wrap:wrap;gap:8px;background:#0a0c12}
 .chip{cursor:pointer;border:1px solid #2fd4b844;color:var(--teal);background:#2fd4b80d;border-radius:30px;padding:9px 13px;font-size:12px;transition:.15s}
 .chip:hover{background:#2fd4b822}
@@ -49,42 +50,59 @@ footer{border-top:1px solid var(--line);padding:20px;color:var(--dim);font:9px v
   <div class="intro">
     <div class="kicker">TRY THE FLOW</div>
     <h1>What an ORBIT conversation feels like</h1>
-    <p>Pick an ask below and watch how a real ORBIT session would unfold: it plans, acts, and comes back with proof. This demo is scripted on purpose — an honest preview, not a pretend AI.</p>
+    <p>Pick an ask and watch how a real session would unfold: it plans, acts, and comes back with proof — including the honest walls. Scripted on purpose: a preview of the real thing, not a pretend AI.</p>
   </div>
   <div class="chat">
     <div class="log" id="log">
-      <div class="bubble assistant"><span class="tag">ORBIT</span>System ready. Pick one of the sample asks below to see how a real session would run.</div>
+      <div class="bubble assistant"><span class="tag">ORBIT</span>hey — pick any ask below and i'll walk you through exactly how that one would go. where i'd hit a wall, i'll show the wall too. that's the deal: no fake confirmations.</div>
     </div>
     <div class="composer" id="composer"></div>
   </div>
-  <div class="notice"><b>About this demo:</b> every reply here is a fixed script that shows the intended flow. No AI is answering, nothing is really booked, bought or built, and nothing is stored. The live assistant needs a real backend and model access, which ORBIT doesn't have yet.</div>
+  <div class="notice"><b>About this demo:</b> every reply is a fixed script showing the intended flow. No AI is answering, nothing is really booked, bought, or built, nothing is stored, and all names, numbers and confirmations are illustrative examples. The live assistant needs a real backend and model access, which ORBIT doesn't have yet.</div>
   <a class="back" href="./">← back to the site</a>
 </div>
 <footer>ORBIT © 2026 · DEMO · SCRIPTED, NO LIVE AI</footer>
 <script>
 const SCENARIOS=[
  {ask:"Book me a dentist appointment this week",beats:[
-  "Planning… found 3 dental offices within 2 miles. Calling the one with the best reviews first.",
-  "Reached Front Street Dental. They have Tuesday 2:30 PM or Thursday 10:15 AM.",
-  "Tuesday 2:30 PM booked under your name. Requested the reminder text."],proof:"CONFIRM #DD-4471 · TUE 2:30 PM · FRONT STREET DENTAL"},
- {ask:"Find out who installs EV chargers near me",beats:[
-  "Searching licensed EV charger installers nearby, pulling prices and reviews.",
-  "Found 3: Amped Electric (4.8★, 210 reviews, from $650 installed), VoltPro (4.6★, from $580), BrightGrid (4.7★, 2-week wait).",
-  "My pick: Amped Electric — best reviews, no wait. Want me to request their quote?"],proof:"3 OPTIONS VERIFIED · RECOMMENDATION READY"},
- {ask:"Chase the quote I'm still waiting on",beats:[
-  "Found the request from 6 days ago. No reply yet.",
-  "Sent a polite follow-up on the same thread: still interested, need it by Friday.",
-  "I'll check back in 2 days — if there's still nothing, I'll tell you and suggest plan B."],proof:"FOLLOW-UP SENT · CHECK-IN SCHEDULED"},
- {ask:"Build and host a simple website for me",beats:[
-  "Drafting the page: hero, services, contact. Writing the code now.",
-  "Built and published. Verifying it loads and renders styled.",
-  "Live and confirmed: every section renders. Here's the link, and I'll keep an eye on it."],proof:"LIVE · LINK DELIVERED · CHECK SCHEDULED"}
+  "on it — pulling dental offices near you and calling the best-reviewed one first.",
+  "reached front street dental (4.8★, 310 reviews). tuesday 2:30pm or thursday 10:15am are open.",
+  "took tuesday 2:30pm under your name and asked for their reminder text. one thing you'd decide yourself: new-patient paperwork — i'd flag it for you, not fill it in."],proof:"EXAMPLE · CONF #DD-4471 · TUE 2:30PM"},
+ {ask:"Find who installs EV chargers near me, best price",beats:[
+  "searching licensed ev charger installers nearby, checking prices and real reviews.",
+  "found 3: amped electric (4.8★, 210 reviews, from $650 installed), voltpro (4.6★, from $580), brightgrid (4.7★, 2-week wait).",
+  "my pick: amped electric — best reviews, no wait. want their quote? i'd ask before contacting anyone new."],proof:"EXAMPLE · 3 OPTIONS VERIFIED · PICK NAMED"},
+ {ask:"Chase the quote i'm still waiting on",beats:[
+  "checking the thread… last word was their "we'll send it this week" 6 days ago.",
+  "sent one polite follow-up on the same thread: still interested, need it by friday.",
+  "if they're quiet in 2 days i won't spam them — i'd come back to you with plan b options instead."],proof:"EXAMPLE · FOLLOW-UP SENT · CHECK-IN SET"},
+ {ask:"Build and host a website for me",beats:[
+  "drafting now: hero, features, contact. writing the code, then publishing.",
+  "published and verified: every section renders styled, checked it myself before saying so.",
+  "here's the link — and i'd keep watching it so it doesn't silently break."],proof:"EXAMPLE · LIVE · LINK DELIVERED"},
+ {ask:"Order my groceries for friday",beats:[
+  "building the cart from your usual list — that's the easy part.",
+  "checkout's ready with your items, address and total. here's where it stops: money is a one-way door, so the pay click is always yours.",
+  "you tap pay, i take it from there and watch for the receipt."],proof:"EXAMPLE · CART READY · PAYMENT = YOURS"},
+ {ask:"Set up dinner with my group chat",beats:[
+  "reading the thread, checking who's in and who's dodging the question (there's always one).",
+  "polling the group: friday or saturday, 3 restaurants within everyone's budget.",
+  "once the group picks, i book the table, add it to everyone's calendar invite, and tell the stragglers."],proof:"EXAMPLE · GROUP COORDINATED"},
+ {ask:"What can't you do?",beats:[
+  "straight list: nothing needing your identity — logins, signatures, your money. no fake reviews, no buying where i can't verify the seller.",
+  "and no pretending: if a call didn't connect or a site blocked me, you hear exactly that, not a smooth story.",
+  "everything else — research, calls, scheduling, builds, follow-ups — is fair game."],proof:"EXAMPLE · HONEST LIMITS"},
+ {ask:"Remind me and follow up without me asking",beats:[
+  "that's the quiet part: i keep a task list and check back on my own clock.",
+  "deadline friday? i nudge you thursday. waiting on a reply? i watch the thread and only surface when something actually changed.",
+  "no notification spam — you'd hear from me when it matters, not on a timer."],proof:"EXAMPLE · PROACTIVE FOLLOW-UPS"}
 ];
 const log=document.getElementById('log'),composer=document.getElementById('composer');
 let busy=false;
-function add(cls,tag,text,proof){const el=document.createElement('div');el.className='bubble '+cls;el.innerHTML=(tag?'<span class="tag">'+tag+'</span>':'')+text.replace(/\n/g,'<br>')+(proof?'<span class="proof">'+proof+'</span>':'');log.appendChild(el);log.scrollTop=log.scrollHeight}
-SCENARIOS.forEach((s,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=s.ask;b.onclick=()=>run(i,b);composer.appendChild(b)});
-function run(i,btn){if(busy)return;busy=true;composer.querySelectorAll('.chip').forEach(x=>x.disabled=true);const s=SCENARIOS[i];add('user','you',s.ask);let d=0;s.beats.forEach((t,j)=>{setTimeout(()=>{add('assistant','ORBIT',t);if(j===s.beats.length-1)setTimeout(()=>{add('assistant','ORBIT','That's what a real run looks like — ask, action, proof. Pick another, or <a href="./">head back</a>.');busy=false;composer.querySelectorAll('.chip').forEach(x=>x.disabled=false)},700)},900*(++d))})}
+function add(cls,tag,text,proof){const el=document.createElement('div');el.className='bubble '+cls;el.innerHTML=(tag?'<span class="tag">'+tag+'</span>':'')+text+(proof?'<span class="proof">'+proof+'</span>':'');log.appendChild(el);log.scrollTop=log.scrollHeight}
+function typing(on){let t=document.getElementById('typing');if(on&&!t){t=document.createElement('div');t.className='typing';t.id='typing';t.textContent='ORBIT IS WORKING…';log.appendChild(t);log.scrollTop=log.scrollHeight}else if(!on&&t){t.remove()}}
+SCENARIOS.forEach((s,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=s.ask;b.onclick=()=>run(i);composer.appendChild(b)});
+function run(i){if(busy)return;busy=true;composer.querySelectorAll('.chip').forEach(x=>x.disabled=true);const s=SCENARIOS[i];add('user','you',s.ask);let d=0;s.beats.forEach((t,j)=>{setTimeout(()=>{typing(false);add('assistant','ORBIT',t);if(j<s.beats.length-1)setTimeout(()=>typing(true),350)},1000*(++d))});setTimeout(()=>{typing(false);add('assistant','ORBIT','that's a real run, start to finish — ask, action, proof. <a href="./">back to the site</a>, or pick another ask.');busy=false;composer.querySelectorAll('.chip').forEach(x=>x.disabled=false)},1000*(s.beats.length+1)+400)}
 </script>
 </body>
 </html>
