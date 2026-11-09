@@ -16,7 +16,7 @@ a{color:#c8ff3e}
 .top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(11,11,18,.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.09)}
 .logo{font-weight:700;letter-spacing:.05em}.logo span{color:#c8ff3e}
 .top a{font-size:.85rem;text-decoration:none;color:#b9b6cc;margin-left:auto}.top a:hover{color:#c8ff3e}
-.demo{background:rgba(255,210,102,.08);border-bottom:1px solid rgba(255,210,102,.2);color:#ffd166;font-size:.75rem;padding:8px 20px;text-align:center}
+.demo{background:rgba(96,220,132,.08);border-bottom:1px solid rgba(96,220,132,.25);color:#7fe3a2;font-size:.75rem;padding:8px 20px;text-align:center}
 .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
 h1{font-size:1.5rem;margin-bottom:4px}
 .sub{color:#8b87a3;font-size:.85rem}
@@ -61,7 +61,7 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
 </head>
 <body>
 <div class="top"><div class="logo">FLIP<span>SIDE</span> CONSOLE</div><a href="index.html">← back to the store</a></div>
-<div class="demo">demo mode: inventory, orders and reviews are sample data living in this browser. real selling needs real payment setup (an adult's merchant account). nothing here buys anything without your say-so.</div>
+<div class="demo">real mode: the store starts empty — every item on it is one you list under Inventory. payments still need an adult's merchant account before a real sale completes.</div>
 <div class="wrap">
   <h1>Business control center</h1>
   <div class="sub">every deal gets scored before a dollar moves. actual sales and estimates are kept apart and labeled.</div>
@@ -96,8 +96,8 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
 
   <div class="panel" id="p-inv">
     <div class="card">
-      <h2>List a new find on the store</h2>
-      <p class="hint">Anything added here goes live on the storefront immediately.</p>
+      <h2>List a real find on the store</h2>
+      <p class="hint">Anything added here goes live on the storefront immediately. List what you actually own — that's the real inventory.</p>
       <div class="frow">
         <div><label>name</label><input id="i_name" placeholder="product name"></div>
         <div><label>category</label><select id="i_cat"></select></div>
@@ -121,7 +121,7 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
 
   <div class="panel" id="p-fin">
     <div class="card">
-      <h2>Actual (recorded demo sales)</h2>
+      <h2>Actual (recorded sales)</h2>
       <div class="cards" id="fin_actual"></div>
       <p class="fnote">source: orders placed in the storefront on this device. nothing estimated.</p>
     </div>
@@ -214,7 +214,7 @@ $("o_list").addEventListener("click",e=>{const d=e.target.closest("[data-del]");
 $("i_add").onclick=()=>{
   const n=$("i_name").value.trim();if(!n){alert("give it a name");return;}
   const prods=P();
-  prods.push({id:"u"+Date.now(),name:n,cat:$("i_cat").value,e:"📦",buy:+$("i_buy").value||0,price:+$("i_price").value||0,rating:0,rc:0,stock:+$("i_stock").value||0,cond:$("i_cond").value.trim()||"New",desc:"Fresh flip, listed by the boss console.",tags:"flip new"});
+  prods.push({id:"u"+Date.now(),name:n,cat:$("i_cat").value,e:"📦",buy:+$("i_buy").value||0,price:+$("i_price").value||0,rating:0,rc:0,stock:+$("i_stock").value||0,cond:$("i_cond").value.trim()||"New",desc:"Real find, listed by the boss.",tags:"real flip"});
   FS.sv("fs_products",prods);$("i_name").value="";$("i_buy").value="";$("i_price").value="";$("i_stock").value="1";$("i_cond").value="";
   renderInv();stats();logRun("Inventory","listed: "+n);
 };
@@ -285,7 +285,7 @@ document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{
   if(k==="mr"){
     const prods=P(),orders=FS.ls("fs_orders",[]);
     if(!prods.length){out(k,"no catalog to research yet.");setLR(k);return;}
-    let t="category read (your catalog + demo sales):\n";
+    let t="category read (your catalog + recorded sales):\n";
     FS.CATS.forEach(([id,label])=>{
       const items=prods.filter(p=>p.cat===id);if(!items.length)return;
       const avgm=Math.round(items.reduce((s,p)=>s+(p.price>0?(p.price-p.buy)/p.price:0),0)/items.length*100);
@@ -321,9 +321,9 @@ document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{
     const revenue=orders.reduce((s,o)=>s+o.total,0);
     const cogs=orders.reduce((s,o)=>s+o.items.reduce((a,it)=>{const p=prods.find(x=>x.id===it.id);return a+(p?p.buy*it.qty:0)},0),0);
     const est=opps.map(o=>FS.score(o)).filter(s=>s.verdict==="GO").reduce((s,x)=>s+x.profit,0);
-    let t=`recorded (demo sales): revenue ${FS.money(revenue)}, cost ${FS.money(cogs)}, gross profit ${FS.money(revenue-cogs)}\n`;
+    let t=`recorded sales: revenue ${FS.money(revenue)}, cost ${FS.money(cogs)}, gross profit ${FS.money(revenue-cogs)}\n`;
     t+=`projected (opportunity board): ${FS.money(est)} — models, not money\n`;
-    t+=revenue>0?`\nsales exist on the board, so the recorded math above is live.\n`:`\nno recorded sales yet — every number above is either demo or projection.\n`;
+    t+=revenue>0?`\nsales exist on the board, so the recorded math above is live.\n`:`\nno recorded sales yet — every number above is either empty or projection.\n`;
     out(k,t);setLR(k);logRun("Financial Analyst","statement issued");return;
   }
   if(k==="cs"){
