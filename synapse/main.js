@@ -81,6 +81,35 @@
     addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
   }
 
+  // easter egg: the old code
+  const KONAMI=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let kIdx=0;
+  addEventListener('keydown',e=>{
+    const k=e.key.length===1?e.key.toLowerCase():e.key;
+    kIdx=(k===KONAMI[kIdx])?kIdx+1:(k===KONAMI[0]?1:0);
+    if(kIdx===KONAMI.length){kIdx=0;neuralStorm()}
+  });
+  function neuralStorm(){
+    const emojis=['🧠','⚡','✦','✨','🚀'];
+    for(let i=0;i<44;i++){
+      const p=document.createElement('span');
+      p.textContent=emojis[i%emojis.length];
+      p.style.cssText='position:fixed;z-index:150;pointer-events:none;left:'+(Math.random()*96)+'vw;bottom:-50px;font-size:'+(16+Math.random()*24)+'px;opacity:1;transition:transform '+(2.6+Math.random()*2.2)+'s cubic-bezier(.2,.7,.3,1),opacity 4.2s ease';
+      document.body.appendChild(p);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        p.style.transform='translateY(-'+(innerHeight+140)+'px) rotate('+Math.round(Math.random()*720-360)+'deg)';
+        p.style.opacity='0';
+      }));
+      setTimeout(()=>p.remove(),5600);
+    }
+    const t=document.createElement('div');
+    t.textContent='⚡ GOD MODE UNLOCKED ⚡';
+    t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:151;background:linear-gradient(90deg,#7c5cff,#ff4ecd);color:#fff;font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:.95rem;padding:12px 28px;border-radius:100px;letter-spacing:.05em;box-shadow:0 10px 40px rgba(255,78,205,.5);transition:opacity .5s';
+    document.body.appendChild(t);
+    setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),600)},2600);
+  }
+
   // for the curious
   console.log('%cSYNAPSE','font-size:28px;font-weight:bold;background:linear-gradient(90deg,#7c5cff,#ff4ecd);color:#fff;padding:6px 18px;border-radius:8px');
   console.log('%cyou found the basement. we keep the good weights down here. ⚡','color:#c8ff3e;font-size:13px');
+  console.log('%cpsst… ↑↑↓↓←→←→BA','color:#ff4ecd;font-size:13px');
