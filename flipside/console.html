@@ -105,7 +105,7 @@ td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:#d6d4e6}
 
   <div class="panel" id="p-agents">
     <div class="agents">
-      <div class="agent"><h3>🔍 Discovery</h3><p>Finds undervalued items worth flipping. Runs on you spotting listings + me researching on request — then everything lands on the opportunity board for scoring.</p><div class="lr" id="lr-disc">never run</div><button class="btn ghost" data-run="disc">Open scoring</button><div class="out" id="out-disc"></div></div>
+      <div class="agent"><h3>🔍 Discovery</h3><p>Finds undervalued items worth flipping. Runs on you spotting listings + me researching on request — everything lands on the opportunity board for scoring.</p><div class="lr" id="lr-disc">never run</div><button class="btn ghost" data-run="disc">Open scoring</button><div class="out" id="out-disc"></div></div>
       <div class="agent"><h3>📊 Deal Analyst</h3><p>Verifies the numbers on every logged opportunity against real marketplace fee schedules and your margin floor.</p><div class="lr" id="lr-an">never run</div><button class="btn ghost" data-run="an">Run analysis</button><div class="out" id="out-an"></div></div>
       <div class="agent"><h3>🧮 Profit Calculator</h3><p>Full math on every deal: marketplace fees, shipping, net profit, margin, ROI. Never confuses revenue with profit.</p><div class="lr" id="lr-pc">never run</div><button class="btn ghost" data-run="pc">Re-score all</button><div class="out" id="out-pc"></div></div>
       <div class="agent"><h3>✍️ Listing Writer</h3><p>Turns an inventory item into a professional listing: title, description, keywords, price check.</p><div class="lr" id="lr-lw">never run</div><button class="btn ghost" data-run="lw">Write a listing</button><div class="out" id="out-lw"></div></div>
@@ -142,13 +142,11 @@ function stats(){
   $("stats").innerHTML=cards.map(c=>`<div class="stat"><div class="n">${c[1]}</div><div class="l">${c[0]}</div></div>`).join("");
 }
 
-// tabs
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));
   document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+t.dataset.t));
 });
 
-// marketplace select
 Object.entries(FS.FEES).forEach(([k,v])=>{const o=document.createElement("option");o.value=k;o.textContent=v.n+" ("+Math.round(v.rate*100)+"% fee)";$("o_mkt").appendChild(o);});
 FS.CATS.forEach(c=>{const o=document.createElement("option");o.value=c[0];o.textContent=c[2]+" "+c[1];$("i_cat").appendChild(o);});
 
@@ -183,7 +181,6 @@ function renderInv(){
   $("i_table").innerHTML=`<tr><th>item</th><th>cost</th><th>price</th><th>margin</th><th>stock</th></tr>`+prods.map(p=>{const m=p.price>0?(p.price-p.buy)/p.price:0;return `<tr><td>${p.name}</td><td>${FS.money(p.buy)}</td><td>${FS.money(p.price)}</td><td style="color:${m>=0.25?'#3cdc84':m>0?'#ffd166':'#ff5c7a'}">${Math.round(m*100)}%</td><td>${p.stock}</td></tr>`}).join("");
 }
 
-// agents
 const log=FS.ls("fs_agentlog",{});
 function setLR(k){log[k]=new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});FS.sv("fs_agentlog",log);$("lr-"+k).textContent="last run "+log[k];}
 Object.keys(log).forEach(k=>{if($("lr-"+k))$("lr-"+k).textContent="last run "+log[k];});
@@ -211,9 +208,10 @@ document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{
     const prods=P();if(!prods.length){out(k,"inventory is empty.");setLR(k);return;}
     const low=prods.filter(p=>p.stock<=1),zero=prods.filter(p=>p.stock===0),under=prods.filter(p=>p.price>0&&(p.price-p.buy)/p.price<0.2);
     let t=`${prods.length} items checked\n`;
-    t+=zero.length?`\nout of stock: "+zero.map(p=>p.name).join(", ")+"\n`:`\nnothing out of stock\n`;
-    if(low.length&&low.length>zero.length)t+="low (restock soon): "+low.filter(p=>p.stock>0).map(p=>p.name).join(", ")+"\n";
-    if(under.length)t+="\nunder 20% margin — consider repricing:\n"+under.map(p=>`- ${p.name}: at ${FS.money(p.price)}, suggest ${FS.money(Math.ceil(p.buy/0.75*100)/100)}+`).join("\n");
+    t+=zero.length?`\nout of stock: ${zero.map(p=>p.name).join(", ")}\n`:`\nnothing out of stock\n`;
+    const lowpos=low.filter(p=>p.stock>0);
+    if(lowpos.length)t+=`low (restock soon): ${lowpos.map(p=>p.name).join(", ")}\n`;
+    if(under.length)t+=`\nunder 20% margin — consider repricing:\n`+under.map(p=>`- ${p.name}: at ${FS.money(p.price)}, suggest ${FS.money(Math.ceil(p.buy/0.75*100)/100)}+`).join("\n");
     out(k,t);setLR(k);return;
   }
   if(k==="oo"){
@@ -229,7 +227,6 @@ document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{
   }
 });
 
-// settings
 const set0=FS.ls("fs_settings",{minMargin:25,budget:200});
 $("s_margin").value=Math.round(set0.minMargin*100);$("s_budget").value=set0.budget;
 $("s_save").onclick=()=>{FS.sv("fs_settings",{minMargin:(+$("s_margin").value||25)/100,budget:+$("s_budget").value||0});stats();$("s_save").textContent="Saved ✓";setTimeout(()=>$("s_save").textContent="Save rules",1200);};
