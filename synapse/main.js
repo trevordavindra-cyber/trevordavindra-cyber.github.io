@@ -68,6 +68,19 @@
   }),{threshold:.5});
   document.querySelectorAll('.num').forEach(el=>cio.observe(el));
 
+  // mobile menu
+  const burger=document.getElementById('burger'),mmenu=document.getElementById('mmenu'),scrim=document.getElementById('scrim');
+  function closeMenu(){burger.classList.remove('open');mmenu.classList.remove('open');scrim.classList.remove('open')}
+  if(burger){
+    burger.addEventListener('click',()=>{
+      const open=!mmenu.classList.contains('open');
+      burger.classList.toggle('open',open);mmenu.classList.toggle('open',open);scrim.classList.toggle('open',open);
+    });
+    mmenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+    scrim.addEventListener('click',closeMenu);
+    addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+  }
+
   // for the curious
   console.log('%cSYNAPSE','font-size:28px;font-weight:bold;background:linear-gradient(90deg,#7c5cff,#ff4ecd);color:#fff;padding:6px 18px;border-radius:8px');
   console.log('%cyou found the basement. we keep the good weights down here. ⚡','color:#c8ff3e;font-size:13px');
