@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYNAPSE LOCAL CORE — the whole brain on your machine</title>
+<meta name="description" content="Run the full Synapse stack locally: an uncensored brain, the best local coding model, and open web search. All free, all on your machine.">
+<meta property="og:title" content="SYNAPSE LOCAL CORE">
+<meta property="og:description" content="The whole brain. On your machine.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .dl-row{display:flex;gap:16px;justify-content:center;margin-top:44px;flex-wrap:wrap}
+  .setup-note{font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:var(--dim);text-align:center;margin-top:18px;letter-spacing:.06em}
+  .setup-note b{color:var(--lime);font-weight:500}
+  .card a{color:var(--cyan);text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:.82rem;display:inline-block;margin-top:12px;border-bottom:1px solid rgba(62,240,255,.3);padding-bottom:2px;transition:color .2s,border-color .2s}
+  .card a:hover{color:var(--lime);border-color:var(--lime)}
+  .limit-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+</style>
+</head>
+<body>
+<div id="boot">
+  <div class="boot-logo">SYN<span>APSE</span></div>
+  <div class="boot-bar"><i></i></div>
+  <div class="boot-msg" id="boot-msg">pre-loading the stack…</div>
+</div>
+<div id="progress"></div>
+<div class="cursor-glow" id="glow"></div>
+<div class="cursor-dot" id="dot"></div>
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+<div class="noise"></div>
+
+<nav>
+  <a class="logo" href="index.html" style="text-decoration:none;color:inherit">SYN<span>APSE</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="#stack">The stack</a>
+    <a href="#install">Install</a>
+    <a href="#limits">Honest limits</a>
+  </div>
+  <a href="index.html" class="nav-cta">Back to the site</a>
+  <button class="burger" id="burger" aria-label="Open menu"><i></i><i></i><i></i></button>
+</nav>
+<div class="mobile-menu" id="mmenu">
+  <a href="index.html">Home</a>
+  <a href="#stack">The stack</a>
+  <a href="#install">Install</a>
+  <a href="#limits">Honest limits</a>
+  <a href="index.html" class="nav-cta">Back to the site</a>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<main>
+  <header class="hero">
+    <div class="badge"><span class="pulse"></span> local core · 100% free · runs on your hardware</div>
+    <h1>The whole brain.<br><span class="grad">On your machine.</span></h1>
+    <div class="type-wrap">&gt; downloading weights at <span class="typed" id="typed"></span><span class="caret"></span></div>
+    <p class="hero-sub">Synapse Local Core is the same autonomy, pointed at models you own. One installer pre-loads everything: the brain, the coder, the search. No keys, no bills, no server.</p>
+    <div class="hero-btns">
+      <a href="#install" class="btn btn-primary magnetic">One-click setup</a>
+      <a href="#stack" class="btn btn-ghost magnetic">See the stack</a>
+    </div>
+  </header>
+
+  <section id="stack">
+    <div class="sec-head reveal">
+      <div class="kicker">// the stack</div>
+      <h2>Four pieces, all free</h2>
+      <p>Every piece is open and downloadable. The installer picks the right sizes for your machine automatically.</p>
+    </div>
+    <div class="grid">
+      <div class="card c1 reveal"><span class="tag">01</span><div class="icon">🧠</div><h3>The brain — Qwen3.8-27B Uncensored</h3><p>The newest refusal-removed build of a frontier-class open model. Reasoning, tool-calling and vision kept intact. Your machine needs around 24 GB of memory; the installer falls back automatically if you have less.</p><a href="https://huggingface.co/orcarouter/Qwen3.8-27B-Uncensored-GGUF" target="_blank" rel="noopener">huggingface.co/orcarouter/…</a></div>
+      <div class="card c2 reveal"><span class="tag">02</span><div class="icon">🐬</div><h3>The classic — Dolphin 3.0 24B</h3><p>The longest-running uncensored project, retrained rather than ablated. Strong instruction following and function calling. The alternate brain, swappable with one command.</p><a href="https://huggingface.co/dphn/Dolphin3.0-Mistral-24B" target="_blank" rel="noopener">huggingface.co/dphn/…</a></div>
+      <div class="card c3 reveal"><span class="tag">03</span><div class="icon">⌨️</div><h3>The coder — Qwen3-Coder 30B</h3><p>The top local coder in the Oct 2026 rankings: 256K context, trained on real software-engineering tasks. Writes and fixes Synapse's own code.</p><a href="https://www.morphllm.com/best-ollama-models" target="_blank" rel="noopener">the rankings behind the pick</a></div>
+      <div class="card c4 reveal"><span class="tag">04</span><div class="icon">🪶</div><h3>The light pick — Gemma 9B Abliterated</h3><p>No big GPU? This 9B uncensored build keeps nearly all its reasoning and runs on an 8-12 GB machine. The installer grabs this one when memory is tight.</p><a href="https://huggingface.co/bartowski/gemma-2-9b-it-abliterated-GGUF" target="_blank" rel="noopener">huggingface.co/bartowski/…</a></div>
+      <div class="card c5 reveal"><span class="tag">05</span><div class="icon">🌐</div><h3>The eyes — SearXNG</h3><p>Free open-source metasearch over 250+ engines, tracking nobody. Runs beside the models so the agent can browse the real web with no API key.</p><a href="https://github.com/searxng/searxng" target="_blank" rel="noopener">github.com/searxng/searxng</a></div>
+      <div class="card c6 reveal"><span class="tag">06</span><div class="icon">⚙️</div><h3>The engine — Ollama</h3><p>The runtime that holds it all together: every model above runs through one local API at localhost:11434, and Synapse talks to it directly.</p><a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="sec-head reveal">
+      <div class="kicker">// one click</div>
+      <h2>Pre-load it all<br>with one file</h2>
+      <p>Grab the installer for your system and run it. It installs the engine, checks your memory, pulls the right brain and the coder, starts search, and writes synapse-local.json so the site can find everything.</p>
+    </div>
+    <div class="terminal reveal">
+      <div class="term-bar"><i></i><i></i><i></i><span class="term-title">synapse-local — installer</span></div>
+      <div class="term-body">
+        <div><span class="u">mac / linux:</span> bash install.sh</div>
+        <div><span class="u">windows:</span> double-click install.bat</div>
+        <div class="dim">▸ detected 32 GB … brain: qwen3.8-27b-uncensored</div>
+        <div class="dim">▸ pulling qwen3-coder:30b … done</div>
+        <div class="dim">▸ search engine up on :8888</div>
+        <div><span class="ok">▸ synapse-local.json written. local core online.</span></div>
+      </div>
+    </div>
+    <div class="dl-row reveal">
+      <a class="btn btn-primary magnetic" href="install.sh" download>⬇ install.sh — mac &amp; linux</a>
+      <a class="btn btn-ghost magnetic" href="install.bat" download>⬇ install.bat — windows</a>
+    </div>
+    <p class="setup-note reveal">the downloads are big (<b>~15-20 GB</b> for the full brain, ~5 GB light) — the installer streams them, nothing to click through</p>
+  </section>
+
+  <section id="limits" class="manifesto reveal">
+    <p>An uncensored model is also an <span class="hl">unvetted one</span> — it can be confidently wrong more often. And it only thinks while your machine is awake.</p>
+    <div class="sig">— synapse local core, fine print</div>
+    <div class="limit-row reveal" style="margin-top:70px;text-align:left">
+      <div class="card c4"><div class="icon">🔌</div><h3>It sleeps when you do</h3><p>The models answer only while your computer is on with Ollama running. The GitHub-side agent loop keeps working regardless; this stack swaps the demo brain for the real one.</p></div>
+      <div class="card c2"><div class="icon">💾</div><h3>Disk is the real cost</h3><p>Plan for 20 GB+ free for the full stack, 6 GB for the light one. Everything else is free forever.</p></div>
+      <div class="card c6"><div class="icon">🔗</div><h3>Wiring</h3><p>Point the site's local mode at http://localhost:11434 (models) and http://localhost:8888 (search). synapse-local.json holds both, written by the installer.</p></div>
+    </div>
+  </section>
+
+  <section id="cta" class="cta">
+    <div class="orbit reveal"><div class="ring"></div><div class="core"></div></div>
+    <h2 class="reveal">Own the weights.<br><span class="grad">Run the future.</span></h2>
+    <div class="hero-btns reveal">
+      <a href="#install" class="btn btn-primary magnetic">Start the setup</a>
+      <a href="index.html" class="btn btn-ghost magnetic">Back to the site</a>
+    </div>
+  </section>
+</main>
+
+<footer>made with silicon &amp; <span class="heart">attitude</span> — synapse local core, 2026 · your weights, your machine</footer>
+
+<script>
+  const bootMsgs=['pre-loading the stack…','weighing the weights…','aligning values…','done. hi.'];
+  let bmi=0;
+  const bootTimer=setInterval(()=>{const el=document.getElementById('boot-msg');if(el)el.textContent=bootMsgs[bmi++];if(bmi>=bootMsgs.length)clearInterval(bootTimer)},420);
+  addEventListener('load',()=>setTimeout(()=>{const b=document.getElementById('boot');if(b)b.classList.add('done')},900));
+  const prog=document.getElementById('progress');
+  addEventListener('scroll',()=>{const h=document.documentElement;prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'},{passive:true});
+  const phrases=['16 gigabytes of brain','the refusal layer','qwen3-coder:30b','the whole stack','your weights, locally'];
+  const typedEl=document.getElementById('typed');let pi=0,ci=0,deleting=false;
+  function type(){const cur=phrases[pi];typedEl.textContent=deleting?cur.slice(0,ci--):cur.slice(0,ci++);let wait=deleting?38:72;if(!deleting&&ci>cur.length){deleting=true;wait=1600}else if(deleting&&ci<0){deleting=false;pi=(pi+1)%phrases.length;wait=350}setTimeout(type,wait)}
+  if(typedEl)type();
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  const burger=document.getElementById('burger'),mmenu=document.getElementById('mmenu'),scrim=document.getElementById('scrim');
+  function closeMenu(){burger.classList.remove('open');mmenu.classList.remove('open');scrim.classList.remove('open')}
+  burger.addEventListener('click',()=>{const open=!mmenu.classList.contains('open');burger.classList.toggle('open',open);mmenu.classList.toggle('open',open);scrim.classList.toggle('open',open)});
+  mmenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+  scrim.addEventListener('click',closeMenu);
+  addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+  document.querySelectorAll('.magnetic').forEach(b=>{b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect();b.style.transform='translate('+((e.clientX-r.left-r.width/2)*.18)+'px,'+((e.clientY-r.top-r.height/2)*.28)+'px)'});b.addEventListener('mouseleave',()=>{b.style.transform=''})});
+  console.log('%cSYNAPSE LOCAL CORE','font-size:28px;font-weight:bold;background:linear-gradient(90deg,#7c5cff,#ff4ecd);color:#fff;padding:6px 18px;border-radius:8px');
+  console.log('%cthe weights you own are one installer away. ⚡','color:#c8ff3e;font-size:13px');
+</script>
+</body>
+</html>
