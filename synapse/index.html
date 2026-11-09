@@ -34,6 +34,7 @@
     <a href="#numbers">Numbers</a>
     <a href="#manifesto">Manifesto</a>
     <a href="#demo">Demo</a>
+    <a href="#deck">Mission Control</a>
     <a href="#" onclick="document.getElementById('ai-fab').click();return false">Chat</a>
   </div>
   <a href="#cta" class="nav-cta">Get early access</a>
@@ -44,6 +45,7 @@
   <a href="#numbers">Numbers</a>
   <a href="#manifesto">Manifesto</a>
   <a href="#demo">Demo</a>
+  <a href="#deck">Mission Control</a>
   <a href="#" onclick="document.getElementById('ai-fab').click();return false">Chat</a>
   <a href="#cta" class="nav-cta">Get early access</a>
 </div>
@@ -51,12 +53,12 @@
 
 <main>
   <header class="hero">
-    <div class="badge"><span class="pulse"></span> v0.4 — trained on vibes, vector math & a live brain</div>
+    <div class="badge"><span class="pulse"></span> v0.6 — autonomous core online · mission control below</div>
     <h1>The future<br>doesn't wait.<br><span class="grad">Neither do we.</span></h1>
     <div class="type-wrap">&gt; teaching silicon to <span class="typed" id="typed"></span><span class="caret"></span></div>
     <p class="hero-sub">Synapse is an AI studio for people who'd rather build the sci-fi than wait for it. Models, agents, and a little bit of mischief.</p>
     <div class="hero-btns">
-      <a href="#cta" class="btn btn-primary magnetic">Join the waitlist</a>
+      <a href="#deck" class="btn btn-primary magnetic">See it work live</a>
       <a href="#demo" class="btn btn-ghost magnetic">Watch it think</a>
     </div>
   </header>
@@ -126,6 +128,15 @@
     </div>
   </section>
 
+  <section id="deck">
+    <div class="sec-head reveal">
+      <div class="kicker">// mission control</div>
+      <h2>The agent at work</h2>
+      <p>A live window into the Synapse runtime: its planner, persistent memory, tool registry and every action it takes. Real state, real events, nothing simulated. Ignite it and watch it plan, research, test and redesign — every move logged and reversible.</p>
+    </div>
+    <div id="dash" class="reveal"></div>
+  </section>
+
   <section id="cta" class="cta">
     <div class="orbit reveal"><div class="ring"></div><div class="core"></div></div>
     <h2 class="reveal">Build the future<br><span class="grad">on purpose.</span></h2>
@@ -136,9 +147,11 @@
   </section>
 </main>
 
-<footer>made with silicon & <span class="heart">attitude</span> — synapse labs, 2026 · no GPUs were harmed · psst: open the console</footer>
+<footer>made with silicon &amp; <span class="heart">attitude</span> — synapse labs, 2026 · no GPUs were harmed · psst: open the console</footer>
 
 <script src="main.js" defer></script>
+<script src="agent.js" defer></script>
+<script src="dash.js" defer></script>
 <script src="ai.js" defer></script>
 </body>
 </html>
