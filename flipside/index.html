@@ -165,7 +165,7 @@ body.dark .ctable th,body.dark .ctable td{border-color:#22222f}
   <div class="dfoot" id="dfoot"></div>
 </div>
 
-<footer>FLIPSIDE · flip smarter, not harder · demo store v2 · <a href="#" id="foottheme" style="color:inherit">dark mode</a></footer>
+<footer>FLIPSIDE · flip smarter, not harder · v2.1 · <a href="#" id="foottheme" style="color:inherit">dark mode</a></footer>
 
 <script src="data.js"></script>
 <script>
@@ -346,7 +346,7 @@ $("ordersbtn").onclick=()=>{
   $("t_go").onclick=()=>{
     const id=$("t_id").value.trim().toUpperCase();
     const o=orders.find(x=>x.id.toUpperCase()===id);
-    $("t_out").innerHTML=o?`<div class="orderrow" style="margin-top:12px"><b>${o.id}</b> · ${o.date} · ${FS.money(o.total)}<br><span class="note">${o.items.map(i=>i.qty+"× "+i.name).join(", ")}</span></div>${timeline(o.status)}`:`<p class="note" style="margin-top:12px">no order with that number on this device — demo orders live in this browser's storage.</p>`;
+    $("t_out").innerHTML=o?`<div class="orderrow" style="margin-top:12px"><b>${o.id}</b> · ${o.date} · ${FS.money(o.total)}<br><span class="note">${o.items.map(i=>i.qty+"× "+i.name).join(", ")}</span></div>${timeline(o.status)}`:`<p class="note" style="margin-top:12px">no order with that number on this device — orders placed here live in this browser's storage.</p>`;
   };
 };
 
@@ -356,7 +356,7 @@ $("acctbtn").onclick=()=>{
   $("sheet").innerHTML=`
     <button class="close" id="pclose3">×</button>
     <h3>${u?"Your account":"Create account"}</h3>
-    <p class="note" style="margin:6px 0 12px">demo accounts live in this browser only — no passwords, no servers.</p>
+    <p class="note" style="margin:6px 0 12px">accounts live in this browser only — no passwords, no servers yet.</p>
     <input id="a_name" placeholder="Full name" value="${u?u.name:""}">
     <input id="a_email" placeholder="Email" value="${u?u.email:""}">
     <div class="buyrow"><button class="btn pink" id="a_save">Save</button>${u?`<button class="btn" id="a_out" style="background:#e4e4ec;color:#14141c">Sign out</button>`:""}</div>
@@ -392,7 +392,7 @@ function renderCart(){
       <div class="totline"><span>Shipping</span><span>${ship?FS.money(ship):"FREE"}</span></div>
       <div class="totline big"><span>Total</span><span>${FS.money(tot)}</span></div>
       <button class="btn pink" id="tocheckout" style="width:100%">Checkout</button>
-      <div class="note">demo checkout — real payments get wired when you go live.</div>`;
+      <div class="note">checkout runs on this device — real payments need a merchant account before go-live.</div>`;
     $("tocheckout").onclick=()=>{checkoutOn=true;renderCart();};
   } else {
     const u=FS.ls("fs_user",null);
