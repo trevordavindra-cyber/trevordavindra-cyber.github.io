@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06070c">
+<meta name="description" content="ORBIT Live AI — a real AI assistant that runs entirely in your browser.">
+<title>ORBIT — Live AI (runs in your browser)</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306070c'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%232fd4b8' stroke-width='5'/%3E%3Ccircle cx='49' cy='17' r='6' fill='%232fd4b8'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#06070c;--panel:#0c0f16;--line:rgba(255,255,255,.08);--ink:#eef1f7;--fog:#9aa3b6;--dim:#5d677c;--teal:#2fd4b8;--violet:#8f7bff;--gold:#ffb454;--mono:'DM Mono',ui-monospace,monospace;--disp:'Space Grotesk',system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--disp);-webkit-font-smoothing:antialiased}
+.ambient{position:fixed;inset:0;z-index:-1;background:radial-gradient(900px 600px at 85% -10%,#2fd4b814,transparent 60%),radial-gradient(800px 600px at -10% 100%,#8f7bff10,transparent 60%)}
+header.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line);background:#06070ccc;backdrop-filter:blur(12px);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;letter-spacing:.18em;font-size:13px;text-decoration:none}
+.brand .dot{width:24px;height:24px;border-radius:8px;background:linear-gradient(140deg,var(--teal),var(--violet));display:grid;place-items:center;color:#06070c;font-size:14px}
+.live-badge{font:9px var(--mono);letter-spacing:.18em;color:var(--teal);border:1px solid #2fd4b855;border-radius:30px;padding:7px 12px;white-space:nowrap}
+.wrap{width:min(760px,100%);margin:0 auto;padding:24px 20px 60px}
+.intro{padding:14px 0 20px}
+.kicker{font:10px var(--mono);letter-spacing:.24em;color:var(--teal);margin-bottom:10px}
+h1{font-size:clamp(24px,5vw,36px);letter-spacing:-.03em;margin:0 0 10px;font-weight:600}
+.intro p{color:var(--fog);font-size:13.5px;line-height:1.7;margin:0}
+.boot{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+.boot h2{margin:0 0 8px;font-size:19px;letter-spacing:-.01em}
+.boot p{color:var(--fog);font-size:13px;line-height:1.7;margin:0 0 16px}
+.modelrow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.mbtn{cursor:pointer;border:1px solid #2fd4b844;color:var(--teal);background:#2fd4b80d;border-radius:30px;padding:10px 14px;font-size:12.5px}
+.mbtn.on{background:#2fd4b822;border-color:#2fd4b8}
+.mbtn:disabled{opacity:.45;cursor:default}
+.barwrap{height:8px;border-radius:6px;background:#ffffff10;overflow:hidden;margin-bottom:8px}
+.bar{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s}
+.bootlog{font:10.5px var(--mono);color:var(--dim);letter-spacing:.06em;min-height:15px}
+.err{color:var(--gold);font-size:12px;line-height:1.6;margin-top:10px}
+.chatwrap{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:18px;display:none}
+.log{padding:18px;display:flex;flex-direction:column;gap:12px;min-height:320px;max-height:60vh;overflow:auto}
+.bubble{max-width:88%;padding:12px 14px;border:1px solid var(--line);border-radius:13px;background:#ffffff07;font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.bubble.user{align-self:flex-end;background:#2fd4b814;border-color:#2fd4b83a}
+.bubble.assistant{align-self:flex-start}
+.bubble .tag{display:block;font:9px var(--mono);letter-spacing:.16em;color:var(--teal);margin-bottom:6px}
+.bubble.user .tag{color:var(--teal);text-align:right}
+.composer{display:flex;gap:8px;border-top:1px solid var(--line);padding:12px;background:#0a0c12}
+.composer textarea{flex:1;background:#ffffff08;border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 13px;font:13px/1.5 var(--disp);resize:none;min-height:44px;max-height:120px;outline:none}
+.composer textarea:focus{border-color:#2fd4b866}
+.send{border:none;background:var(--teal);color:#04231d;font-weight:700;border-radius:12px;padding:0 18px;font-size:13px;cursor:pointer}
+.send:disabled{opacity:.4;cursor:default}
+.notice{margin-top:16px;border:1px solid var(--line);background:#ffffff06;color:var(--fog);border-radius:14px;padding:13px 16px;font-size:11.5px;line-height:1.7}
+.back{display:inline-block;margin-top:14px;font:11px var(--mono);letter-spacing:.14em;color:var(--fog)}
+footer{border-top:1px solid var(--line);padding:18px;color:var(--dim);font:9px var(--mono);letter-spacing:.14em;text-align:center}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+<header class="nav">
+  <a class="brand" href="./"><span class="dot">◎</span>ORBIT</a>
+  <span class="live-badge" id="badge">LIVE AI · RUNS IN YOUR BROWSER</span>
+</header>
+<div class="wrap">
+  <div class="intro">
+    <div class="kicker">REAL MODEL · ZERO SERVERS · ZERO KEYS</div>
+    <h1>ORBIT Live AI</h1>
+    <p>This one is a real AI, and it answers live. It runs a small open model fully inside your browser — nothing is sent to a server, no keys, no accounts, free. First load downloads the model to your device (a few hundred MB to ~1 GB), after that it works offline.</p>
+  </div>
+  <div class="boot" id="boot">
+    <h2>Pick a model size</h2>
+    <p>Smaller = faster download, quicker answers. Bigger = smarter, heavier. On a phone, start small.</p>
+    <div class="modelrow">
+      <button class="mbtn on" data-model="Qwen2.5-0.5B-Instruct-q4f16_1-MLC" data-label="~500 MB">Tiny · ~500 MB</button>
+      <button class="mbtn" data-model="Llama-3.2-1B-Instruct-q4f16_1-MLC" data-label="~880 MB">Small · ~880 MB</button>
+      <button class="mbtn" data-model="Llama-3.2-3B-Instruct-q4f16_1-MLC" data-label="~1.9 GB">Medium · ~1.9 GB</button>
+    </div>
+    <div class="barwrap"><div class="bar" id="bar"></div></div>
+    <div class="bootlog" id="bootlog">idle</div>
+    <div class="err" id="err"></div>
+  </div>
+  <div class="chatwrap" id="chatwrap">
+    <div class="log" id="log">
+      <div class="bubble assistant"><span class="tag">ORBIT</span>i'm live — a real model running inside your browser. honest about what i am: i can think and chat, but i can't make calls, book things, or act. that's the full assistant's job, and it needs a backend this page doesn't have.</div>
+    </div>
+    <div class="composer">
+      <textarea id="box" rows="1" placeholder="say something…"></textarea>
+      <button class="send" id="send">send</button>
+    </div>
+  </div>
+  <div class="notice"><b>What this is:</b> a genuine small AI (Llama / Qwen, open weights) running on your device via WebGPU. It is NOT the full ORBIT assistant: no calls, no bookings, no tools, no memory between visits. Nothing you type leaves your device.</div>
+  <a class="back" href="./">← back to the site</a>
+</div>
+<footer>ORBIT © 2026 · LIVE IN-BROWSER AI · NOTHING SENT TO SERVERS</footer>
+<script type="module">
+let engine=null, chosen="Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
+const bar=document.getElementById('bar'),bootlog=document.getElementById('bootlog'),err=document.getElementById('err'),chatwrap=document.getElementById('chatwrap'),log=document.getElementById('log'),box=document.getElementById('box'),send=document.getElementById('send'),badge=document.getElementById('badge');
+document.querySelectorAll('.mbtn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');chosen=b.dataset.model});
+function add(cls,tag,text){const el=document.createElement('div');el.className='bubble '+cls;el.innerHTML='<span class="tag">'+tag+'</span>';const s=document.createElement('span');s.textContent=text;el.appendChild(s);log.appendChild(el);log.scrollTop=log.scrollHeight;return s}
+async function boot(){
+ err.textContent='';
+ if(!('gpu' in navigator)){err.textContent='your browser does not support WebGPU yet, so the model can\'t run here. try the latest chrome on android or a desktop chrome/edge — safari support is partial.';return}
+ document.querySelectorAll('.mbtn').forEach(x=>x.disabled=true);
+ try{
+  bootlog.textContent='loading the engine…';bar.style.width='5%';
+  const webllm=await import('https://esm.run/@mlc-ai/web-llm');
+  engine=await webllm.CreateMLCEngine(chosen,{initProgressCallback:p=>{
+   if(p.progress!==undefined){bar.style.width=Math.round(p.progress*100)+'%'}
+   const t=(p.text||'').split('\n').pop();if(t)bootlog.textContent=t.slice(0,90);
+  }});
+  bar.style.width='100%';bootlog.textContent='ready — model is on your device';badge.textContent='LIVE · '+chosen.split('-Instruct')[0].toUpperCase();
+  document.getElementById('boot').style.display='none';chatwrap.style.display='block';
+ }catch(e){err.textContent='load failed: '+(e&&e.message?e.message:e)+' — check your connection (the download is real) and try again.';document.querySelectorAll('.mbtn').forEach(x=>x.disabled=false);bootlog.textContent='idle';bar.style.width='0%'}
+}
+const SYS="You are ORBIT, a direct, warm AI assistant. You talk like a person: short sentences, plain words, no corporate filler. You are honest about what you are: a small model running in the user's browser. You cannot make calls, book things, browse the web, or take actions — say so plainly when asked, and never pretend otherwise. Never invent confirmations, links, or facts; if you are unsure, say you are unsure.";
+let hist=[{role:'system',content:SYS}];
+async function ask(){
+ const t=box.value.trim();if(!t||!engine)return;box.value='';send.disabled=true;
+ add('user','you',t);
+ const slot=add('assistant','ORBIT','…');
+ try{const chunks=await engine.chat.completions.createStream({messages:[...hist,{role:'user',content:t}],max_tokens:600,temperature:0.7});let out='';for await(const c of chunks){const d=c.choices[0]?.delta?.content||'';if(d){out+=d;slot.textContent=out;log.scrollTop=log.scrollHeight}}hist.push({role:'user',content:t});hist.push({role:'assistant',content:out});if(hist.length>24)hist=[hist[0],...hist.slice(-20)]}catch(e){slot.textContent='hmm, that answer failed — try again.'}
+ send.disabled=false;
+}
+send.onclick=ask;box.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask()}});
+</script>
+</body>
+</html>
