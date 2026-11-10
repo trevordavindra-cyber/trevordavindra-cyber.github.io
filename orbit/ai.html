@@ -39,11 +39,17 @@ h1{font-size:clamp(24px,5vw,36px);letter-spacing:-.03em;margin:0 0 10px;font-wei
 .bubble.assistant{align-self:flex-start}
 .bubble .tag{display:block;font:9px var(--mono);letter-spacing:.16em;color:var(--teal);margin-bottom:6px}
 .bubble.user .tag{color:var(--teal);text-align:right}
+.quick{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px 0;background:#0a0c12}
+.qbtn{cursor:pointer;border:1px solid var(--line);color:var(--fog);background:#ffffff06;border-radius:30px;padding:8px 12px;font-size:11.5px}
+.qbtn:hover{color:var(--teal);border-color:#2fd4b855}
 .composer{display:flex;gap:8px;border-top:1px solid var(--line);padding:12px;background:#0a0c12}
 .composer textarea{flex:1;background:#ffffff08;border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 13px;font:13px/1.5 var(--disp);resize:none;min-height:44px;max-height:120px;outline:none}
 .composer textarea:focus{border-color:#2fd4b866}
 .send{border:none;background:var(--teal);color:#04231d;font-weight:700;border-radius:12px;padding:0 18px;font-size:13px;cursor:pointer}
 .send:disabled{opacity:.4;cursor:default}
+.chatfoot{display:flex;justify-content:space-between;align-items:center;padding:8px 14px 12px;background:#0a0c12}
+.memnote{font:9.5px var(--mono);letter-spacing:.12em;color:var(--dim)}
+.clearbtn{border:1px solid #ffb45444;color:var(--gold);background:transparent;border-radius:20px;padding:5px 11px;font:10px var(--mono);letter-spacing:.1em;cursor:pointer}
 .notice{margin-top:16px;border:1px solid var(--line);background:#ffffff06;color:var(--fog);border-radius:14px;padding:13px 16px;font-size:11.5px;line-height:1.7}
 .back{display:inline-block;margin-top:14px;font:11px var(--mono);letter-spacing:.14em;color:var(--fog)}
 footer{border-top:1px solid var(--line);padding:18px;color:var(--dim);font:9px var(--mono);letter-spacing:.14em;text-align:center}
@@ -77,12 +83,22 @@ footer{border-top:1px solid var(--line);padding:18px;color:var(--dim);font:9px v
     <div class="log" id="log">
       <div class="bubble assistant"><span class="tag">ORBIT</span><span id="welcome">hey — i'm live. honest about what i am: a small model running in your browser. i can think and chat, but i can't make calls, book things, or act. that's the full assistant's job.</span></div>
     </div>
+    <div class="quick" id="quick">
+      <button class="qbtn">what can you actually do?</button>
+      <button class="qbtn">plan my tomorrow</button>
+      <button class="qbtn">draft a text for me</button>
+      <button class="qbtn">explain something simply</button>
+    </div>
     <div class="composer">
       <textarea id="box" rows="1" placeholder="say something…"></textarea>
       <button class="send" id="send">send</button>
     </div>
+    <div class="chatfoot">
+      <span class="memnote" id="memnote">your conversation stays on this device only</span>
+      <button class="clearbtn" id="clear">clear memory</button>
+    </div>
   </div>
-  <div class="notice" id="notice"><b>What this is:</b> a genuine small AI (Llama / Qwen, open weights) running on your device via WebGPU. It is NOT the full ORBIT assistant: no calls, no bookings, no tools, no memory between visits. Nothing you type leaves your device in browser mode. Backend mode activates automatically when a server is connected with <b>?api=…</b></div>
+  <div class="notice" id="notice"><b>What this is:</b> a genuine small AI (Llama / Qwen, open weights) running on your device via WebGPU. It is NOT the full ORBIT assistant: no calls, no bookings, no tools, no memory beyond this device. Nothing you type leaves your device in browser mode; your chat is saved locally so it remembers you between visits, and "clear memory" wipes it. Backend mode activates automatically when a server is connected with <b>?api=…</b></div>
   <a class="back" href="./">← back to the site</a>
 </div>
 <footer>ORBIT © 2026 · LIVE AI</footer>
@@ -92,10 +108,15 @@ const apiFromUrl=params.get('api');
 let API=null;
 if(apiFromUrl){API=apiFromUrl.replace(/\/$/,"");try{localStorage.setItem('orbit_api',API)}catch(e){}}
 else{try{API=localStorage.getItem('orbit_api')}catch(e){}}
-const bar=document.getElementById('bar'),bootlog=document.getElementById('bootlog'),err=document.getElementById('err'),chatwrap=document.getElementById('chatwrap'),log=document.getElementById('log'),box=document.getElementById('box'),send=document.getElementById('send'),badge=document.getElementById('badge'),boot=document.getElementById('boot');
+const bar=document.getElementById('bar'),bootlog=document.getElementById('bootlog'),err=document.getElementById('err'),chatwrap=document.getElementById('chatwrap'),log=document.getElementById('log'),box=document.getElementById('box'),send=document.getElementById('send'),badge=document.getElementById('badge'),boot=document.getElementById('boot'),memnote=document.getElementById('memnote');
 let engine=null, chosen="Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
-document.querySelectorAll('.mbtn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');chosen=b.dataset.model});
+try{const savedModel=localStorage.getItem('orbit_model');if(savedModel){chosen=savedModel;document.querySelectorAll('.mbtn').forEach(x=>x.classList.toggle('on',x.dataset.model===savedModel))}}catch(e){}
+document.querySelectorAll('.mbtn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');chosen=b.dataset.model;try{localStorage.setItem('orbit_model',chosen)}catch(e){}});
 function add(cls,tag,text){const el=document.createElement('div');el.className='bubble '+cls;el.innerHTML='<span class="tag">'+tag+'</span>';const s=document.createElement('span');s.textContent=text;el.appendChild(s);log.appendChild(el);log.scrollTop=log.scrollHeight;return s}
+const SYS="You are ORBIT, a direct, warm AI assistant. You talk like a person: short sentences, plain words, no corporate filler. You are honest about what you are: an AI assistant on the ORBIT website. You cannot make calls, book things, browse the web, or take actions yet — say so plainly when asked, and never pretend otherwise. Never invent confirmations, links, or facts; if you are unsure, say you are unsure.";
+let hist=[{role:'system',content:SYS}];
+function saveChat(){try{localStorage.setItem('orbit_chat',JSON.stringify(hist.slice(1).slice(-20)))}catch(e){}}
+function restoreChat(){try{const saved=JSON.parse(localStorage.getItem('orbit_chat')||'[]');if(saved.length){saved.forEach(m=>{add(m.role==='user'?'user':'assistant',m.role==='user'?'you':'ORBIT',m.content)});hist.push(...saved);const n=add('assistant','ORBIT','picked up where we left off — your last conversation is saved on this device only. "clear memory" wipes it.');}}catch(e){}}
 async function bootLocal(){
  err.textContent='';
  if(!('gpu' in navigator)){err.textContent='your browser does not support WebGPU yet, so the model can\'t run here. try the latest chrome on android or a desktop chrome/edge — safari support is partial.';return}
@@ -108,11 +129,9 @@ async function bootLocal(){
    const t=(p.text||'').split('\n').pop();if(t)bootlog.textContent=t.slice(0,90);
   }});
   bar.style.width='100%';bootlog.textContent='ready — model is on your device';badge.textContent='LIVE · '+chosen.split('-Instruct')[0].toUpperCase();badge.classList.remove('gold');
-  boot.style.display='none';chatwrap.style.display='block';
+  boot.style.display='none';chatwrap.style.display='block';restoreChat();
  }catch(e){err.textContent='load failed: '+(e&&e.message?e.message:e)+' — check your connection (the download is real) and try again.';document.querySelectorAll('.mbtn').forEach(x=>x.disabled=false);bootlog.textContent='idle';bar.style.width='0%'}
 }
-const SYS="You are ORBIT, a direct, warm AI assistant. You talk like a person: short sentences, plain words, no corporate filler. You are honest about what you are: an AI assistant on the ORBIT website. You cannot make calls, book things, browse the web, or take actions yet — say so plainly when asked, and never pretend otherwise. Never invent confirmations, links, or facts; if you are unsure, say you are unsure.";
-let hist=[{role:'system',content:SYS}];
 async function askBackend(t){
  const slot=add('assistant','ORBIT','…');
  try{
@@ -120,13 +139,13 @@ async function askBackend(t){
   if(!r.ok)throw new Error('server said '+r.status);
   const data=await r.json();
   slot.textContent=data.reply||'(empty reply)';
-  hist.push({role:'user',content:t});hist.push({role:'assistant',content:data.reply||''});
+  hist.push({role:'user',content:t});hist.push({role:'assistant',content:data.reply||''});saveChat();
  }catch(e){slot.textContent='backend call failed ('+e.message+'). if the server is down, the site falls back to browser mode.'}
  log.scrollTop=log.scrollHeight;
 }
 async function askLocal(t){
  const slot=add('assistant','ORBIT','…');
- try{const chunks=await engine.chat.completions.createStream({messages:[...hist,{role:'user',content:t}],max_tokens:600,temperature:0.7});let out='';for await(const c of chunks){const d=c.choices[0]?.delta?.content||'';if(d){out+=d;slot.textContent=out;log.scrollTop=log.scrollHeight}}hist.push({role:'user',content:t});hist.push({role:'assistant',content:out});if(hist.length>24)hist=[hist[0],...hist.slice(-20)]}catch(e){slot.textContent='hmm, that answer failed — try again.'}
+ try{const chunks=await engine.chat.completions.createStream({messages:[...hist,{role:'user',content:t}],max_tokens:600,temperature:0.7});let out='';for await(const c of chunks){const d=c.choices[0]?.delta?.content||'';if(d){out+=d;slot.textContent=out;log.scrollTop=log.scrollHeight}}hist.push({role:'user',content:t});hist.push({role:'assistant',content:out});saveChat();if(hist.length>24)hist=[hist[0],...hist.slice(-20)]}catch(e){slot.textContent='hmm, that answer failed — try again.'}
 }
 async function ask(){
  const t=box.value.trim();if(!t)return;box.value='';send.disabled=true;
@@ -135,14 +154,15 @@ async function ask(){
  send.disabled=false;
 }
 send.onclick=ask;box.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask()}});
+document.querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{box.value=b.textContent;ask()});
+document.getElementById('clear').onclick=()=>{try{localStorage.removeItem('orbit_chat')}catch(e){}hist=[{role:'system',content:SYS}];log.querySelectorAll('.bubble').forEach((el,i)=>{if(i>0)el.remove()});add('assistant','ORBIT','memory cleared — fresh start, still on this device only.')};
 if(API){
  badge.textContent='LIVE AI · BACKEND CONNECTED';badge.classList.remove('gold');
  document.getElementById('kicker').textContent='REAL BACKEND · REAL MODEL';
  document.getElementById('introline').textContent='Connected to the ORBIT backend — answers come from the server-side model. Browser mode stays available by clearing the ?api= parameter.';
  document.getElementById('welcome').textContent="hey — i'm live through the real backend now. still honest about what i am: a chat model on a server. i can think and answer, but calls, bookings and real actions are still the full assistant's job.";
- boot.style.display='none';chatwrap.style.display='block';
+ boot.style.display='none';chatwrap.style.display='block';restoreChat();
 }else{
- document.querySelector('.modelrow').insertAdjacentHTML('beforebegin','<p></p>');
  const b=document.createElement('button');b.className='mbtn';b.textContent='Load the model';b.onclick=bootLocal;document.querySelector('.modelrow').appendChild(b);
 }
 </script>
