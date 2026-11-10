@@ -14,7 +14,7 @@ let controller = null;
 let busy = false;
 
 const API = "https://text.pollinations.ai/openai";
-const MODEL = "openai-fast";
+let MODEL = localStorage.getItem("witch.model") || "openai-fast";
 const LOCAL_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
 
 /* local engine */
@@ -61,7 +61,9 @@ function gpuOk() {
   return typeof navigator !== "undefined" && !!navigator.gpu;
 }
 function buildMessages() {
-  const msgs = [{ role: "system", content: WITCH_SYSTEM[mode] }];
+  const mem = window.WITCH_MEMORY && window.WITCH_MEMORY.text();
+  const sys = WITCH_SYSTEM[mode] + (mem ? "\n\nSaved memory about this user:\n" + mem : "");
+  const msgs = [{ role: "system", content: sys }];
   history.slice(-16).forEach((m) => msgs.push({ role: m.role, content: m.content }));
   return msgs;
 }
@@ -219,6 +221,15 @@ async function askHosted(bubbleWrap) {
     if (!reply) throw new Error("empty reply");
     bubbleWrap.remove();
     addMsg("bot", reply.trim());
+    if (window.WITCH_TEAM) {
+      setStatus("busy", "team review…");
+      try {
+        const r2 = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: MODEL, messages: [{ role: "system", content: "You are the reviewer on an AI team. Check the answer below for mistakes, missing pieces or overclaims. Short verdict first, then corrections. If it holds up, say so in one line." }, { role: "user", content: reply.trim() }], referrer: "witch" }) });
+        const d2 = await r2.json();
+        const rev = d2 && d2.choices && d2.choices[0] && d2.choices[0].message ? d2.choices[0].message.content : null;
+        if (rev) addMsg("bot", "**review**\n" + rev.trim());
+      } catch (e3) {}
+    }
     setStatus(localMode && localReady ? "online" : "online", "free · unlimited");
   } catch (err) {
     bubbleWrap.remove();
@@ -366,6 +377,13 @@ clearBtn.addEventListener("click", () => {
   welcomeEl.style.display = "";
   toast("cleared");
 });
+
+window.WITCH_SETMODE = (m) => {
+  if (!WITCH_SYSTEM[m]) m = "witch";
+  mode = m;
+  localStorage.setItem(LS_MODE, m);
+  document.querySelectorAll(".mode:not(#localBtn)").forEach((b) => b.classList.toggle("active", b.dataset.mode === m));
+};
 
 /* ---------------- boot ---------------- */
 restore();
