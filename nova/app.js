@@ -22,6 +22,7 @@ let webllmMod = null;
 let engine = null;
 let localReady = false;
 let localLoading = false;
+let localWhich = null;
 
 /* ---------------- elements ---------------- */
 const $ = (id) => document.getElementById(id);
@@ -95,13 +96,29 @@ async function loadLocal() {
   setStatus("busy", "downloading model…");
   try {
     webllmMod = await import("https://esm.run/@mlc-ai/web-llm");
-    engine = await webllmMod.CreateMLCEngine(LOCAL_MODEL, {
-      initProgressCallback: (r) => setProgress(r.progress || 0, r.text || ""),
-    });
+    const ablib = {
+      model: "https://huggingface.co/RaiseRuntimeError/Huihui-Qwen3.5-2B-abliterated-q4f16_1-MLC",
+      model_id: "Huihui-Qwen3.5-2B-abliterated-q4f16_1-MLC",
+      model_lib: webllmMod.modelLibURLPrefix + webllmMod.modelVersion + "/Qwen3.5-2B-q4f16_1_cs1k-webgpu.wasm",
+      vram_required_MB: 2245.44,
+      overrides: { context_window_size: 4096, max_history_size: 1 },
+    };
+    try {
+      engine = await webllmMod.CreateMLCEngine(ablib.model_id, {
+        appConfig: { model_list: [ablib] },
+        initProgressCallback: (r) => setProgress(r.progress || 0, r.text || ""),
+      });
+      localWhich = "uncensored";
+    } catch (e2) {
+      engine = await webllmMod.CreateMLCEngine(LOCAL_MODEL, {
+        initProgressCallback: (r) => setProgress(r.progress || 0, r.text || ""),
+      });
+      localWhich = "standard";
+    }
     localReady = true;
     hideProgress();
-    toast("local model ready — it lives on your phone now");
-    setStatus("online", "local · on your phone");
+    toast(localWhich === "uncensored" ? "uncensored model ready — lives on your phone" : "local model ready — it lives on your phone now");
+    setStatus("online", localWhich === "uncensored" ? "local · uncensored · on your phone" : "local · on your phone");
     return true;
   } catch (e) {
     engine = null;
@@ -202,7 +219,7 @@ async function askHosted(bubbleWrap) {
     if (!reply) throw new Error("empty reply");
     bubbleWrap.remove();
     addMsg("bot", reply.trim());
-    setStatus("online", "free · unlimited");
+    setStatus(localMode && localReady ? "online" : "online", "free · unlimited");
   } catch (err) {
     bubbleWrap.remove();
     if (err.name === "AbortError") {
