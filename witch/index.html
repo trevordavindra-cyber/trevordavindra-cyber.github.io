@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d0912">
 <title>WITCH</title>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <header>
@@ -20,6 +20,7 @@
   <button class="navbtn" data-panel="agents">agents</button>
   <button class="navbtn" data-panel="memory">memory</button>
   <button class="navbtn" data-panel="settings">settings</button>
+<button class="navbtn" data-panel="features">features</button>
 </nav>
 <div id="chatwrap">
   <main id="chat">
@@ -81,10 +82,16 @@
   <div class="prow"><button id="exportBtn" class="pbtn">export everything</button><button id="wipeBtn" class="pbtn danger">wipe all data</button></div>
   <div class="sub">everything lives on this phone only. no accounts, no servers. your messages go to the model, nothing else leaves.</div>
 </section>
+<section id="panel-features" class="panel" hidden>
+  <div class="phead"><span>feature registry</span><button id="featExport" class="pbtn solid2">download json</button></div>
+  <div id="featstats" class="sub"></div>
+  <div id="featdivs"></div>
+</section>
 <div id="toast"></div>
-<script src="prompt.js?v=3"></script>
-<script src="app.js?v=3"></script>
-<script src="ui.js?v=3"></script>
-<script src="extras.js?v=3"></script>
+<script src="prompt.js?v=4"></script>
+<script src="app.js?v=4"></script>
+<script src="ui.js?v=4"></script>
+<script src="extras.js?v=4"></script>
+<script src="features.js?v=1" defer></script>
 </body>
 </html>
