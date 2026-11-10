@@ -1,8 +1,20 @@
 {
   "v": "0.6-server",
-  "cycle": 3,
+  "cycle": 4,
   "startedAt": 1794228560595,
   "events": [
+    {
+      "t": 1794315496539,
+      "type": "act",
+      "src": "server",
+      "text": "SCOUT → Retrieval-augmented generation: Retrieval-augmented generation (RAG) is a technique that enables large language models (LLMs) to retrieve and incorporate new information from external data sources. With"
+    },
+    {
+      "t": 1794315496396,
+      "type": "think",
+      "src": "server",
+      "text": "SCOUT (server) — verify one new research topic and file it"
+    },
     {
       "t": 1794285053323,
       "type": "act",
@@ -43,6 +55,11 @@
   "memory": {
     "long": [
       {
+        "t": 1794315496539,
+        "text": "research: Retrieval-augmented generation — Retrieval-augmented generation (RAG) is a technique that enables large language models (LLMs) to retrieve and incorporate new information from external data sources. With RAG, LLMs first refer to a specified set of documents, then respond to user queries",
+        "kind": "fact"
+      },
+      {
         "t": 1794285053323,
         "text": "research: Reinforcement learning — In machine learning and optimal control, reinforcement learning (RL) is concerned with how an intelligent agent should take actions in a dynamic environment in order to maximize a reward signal. Reinforcement learning is one of the three basic machine learning para",
         "kind": "fact"
@@ -67,10 +84,11 @@
   "researched": [
     "Artificial general intelligence",
     "Transformer (machine learning model)",
-    "Reinforcement learning"
+    "Reinforcement learning",
+    "Retrieval-augmented generation"
   ],
   "metrics": {
-    "done": 3,
+    "done": 4,
     "failed": 0,
     "toolStats": {}
   },
