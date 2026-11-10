@@ -141,3 +141,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .msg{max-width:70%}
   .messages{padding:20px 16px 8px}
 }
+
+/* ---------- local mode ---------- */
+.modesep{width:1px;height:20px;background:var(--line);flex-shrink:0;align-self:center}
+.localbar{height:4px;margin-top:8px;border-radius:4px;background:rgba(0,0,0,.08);overflow:hidden}
+.localbar .lfill{height:100%;width:0%;background:var(--accent);border-radius:4px;transition:width .3s ease}
+.mode.on{background:var(--accent);color:var(--accentink);border-color:var(--accent)}
+.caret{display:inline-block;width:2px;height:1em;background:var(--ink);vertical-align:-2px;animation:blink 1s infinite}

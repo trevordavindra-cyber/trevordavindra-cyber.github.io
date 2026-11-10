@@ -46,7 +46,10 @@
     <button class="mode active" data-mode="default">nova</button>
     <button class="mode" data-mode="coder">code mode</button>
     <button class="mode" data-mode="creative">creative mode</button>
+    <span class="modesep"></span>
+    <button class="mode" id="localBtn">local: off</button>
   </div>
+  <div id="localbar" class="localbar" hidden><div class="lfill" id="lfill"></div></div>
   <form id="askForm" class="inputrow">
     <textarea id="input" rows="1" placeholder="ask nova anything…" autocomplete="off"></textarea>
     <button id="sendBtn" class="send" type="submit" aria-label="Send">

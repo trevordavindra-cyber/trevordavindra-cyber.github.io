@@ -1,18 +1,27 @@
-/* NOVA — chat app. Free, keyless via text.pollinations.ai */
+/* NOVA — chat app. Hosted: text.pollinations.ai (free, keyless). Local: WebLLM in-browser. */
 (function () {
 "use strict";
 
 /* ---------------- state ---------------- */
 const LS_KEY = "nova.history.v1";
 const LS_MODE = "nova.mode.v1";
+const LS_LOCAL = "nova.local.v1";
 let mode = localStorage.getItem(LS_MODE) || "default";
 if (!NOVA_SYSTEM[mode]) mode = "default";
+let localMode = localStorage.getItem(LS_LOCAL) === "1";
 let history = loadHistory();
 let controller = null;
 let busy = false;
 
 const API = "https://text.pollinations.ai/openai";
 const MODEL = "openai";
+const LOCAL_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+
+/* local engine */
+let webllmMod = null;
+let engine = null;
+let localReady = false;
+let localLoading = false;
 
 /* ---------------- elements ---------------- */
 const $ = (id) => document.getElementById(id);
@@ -20,6 +29,7 @@ const chatEl = $("chat"), messagesEl = $("messages"), welcomeEl = $("welcome");
 const inputEl = $("input"), formEl = $("askForm"), sendBtn = $("sendBtn");
 const statusEl = $("statusLine"), toastEl = $("toast");
 const newBtn = $("newBtn"), clearBtn = $("clearBtn");
+const localBtn = $("localBtn"), localbar = $("localbar"), lfill = $("lfill");
 
 /* ---------------- helpers ---------------- */
 function loadHistory() {
@@ -45,6 +55,66 @@ function el(tag, cls, text) {
   if (cls) n.className = cls;
   if (text != null) n.textContent = text;
   return n;
+}
+function gpuOk() {
+  return typeof navigator !== "undefined" && !!navigator.gpu;
+}
+function buildMessages() {
+  const msgs = [{ role: "system", content: NOVA_SYSTEM[mode] }];
+  history.slice(-16).forEach((m) => msgs.push({ role: m.role, content: m.content }));
+  return msgs;
+}
+
+/* ---------------- local engine ---------------- */
+function setProgress(p, label) {
+  localbar.hidden = false;
+  lfill.style.width = Math.round(Math.max(0, Math.min(1, p)) * 100) + "%";
+  setStatus("busy", "downloading model " + Math.round(p * 100) + "%");
+  if (label) localBtn.textContent = "local: " + Math.round(p * 100) + "%";
+}
+function hideProgress() {
+  localbar.hidden = true;
+  lfill.style.width = "0%";
+}
+function updateLocalBtn() {
+  if (localLoading) return;
+  localBtn.textContent = "local: " + (localMode ? "on" : "off");
+  localBtn.classList.toggle("on", localMode);
+}
+async function loadLocal() {
+  if (localReady) return true;
+  if (localLoading) return false;
+  if (!gpuOk()) {
+    toast("this phone's browser can't run local models (needs webgpu)");
+    localMode = false;
+    localStorage.setItem(LS_LOCAL, "0");
+    updateLocalBtn();
+    return false;
+  }
+  localLoading = true;
+  setStatus("busy", "downloading model…");
+  try {
+    webllmMod = await import("https://esm.run/@mlc-ai/web-llm");
+    engine = await webllmMod.CreateMLCEngine(LOCAL_MODEL, {
+      initProgressCallback: (r) => setProgress(r.progress || 0, r.text || ""),
+    });
+    localReady = true;
+    hideProgress();
+    toast("local model ready — it lives on your phone now");
+    setStatus("online", "local · on your phone");
+    return true;
+  } catch (e) {
+    engine = null;
+    hideProgress();
+    toast("couldn't load the local model — staying hosted");
+    localMode = false;
+    localStorage.setItem(LS_LOCAL, "0");
+    setStatus("online", "free · unlimited");
+    return false;
+  } finally {
+    localLoading = false;
+    updateLocalBtn();
+  }
 }
 
 /* ---------------- markdown-lite ---------------- */
@@ -114,22 +184,15 @@ function restore() {
   history.forEach((m) => addMsg(m.role === "assistant" ? "bot" : "user", m.content, false));
 }
 
-/* ---------------- api ---------------- */
-async function ask(text) {
-  if (busy) return;
-  busy = true;
-  sendBtn.disabled = true;
-  addMsg("user", text);
-  const bubbleWrap = typingBubble();
+/* ---------------- hosted api ---------------- */
+async function askHosted(bubbleWrap) {
   setStatus("busy", "thinking…");
   controller = new AbortController();
-  const msgs = [{ role: "system", content: NOVA_SYSTEM[mode] }];
-  history.slice(-16).forEach((m) => msgs.push({ role: m.role, content: m.content }));
   try {
     const res = await fetch(API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: MODEL, messages: msgs, referrer: "nova" }),
+      body: JSON.stringify({ model: MODEL, messages: buildMessages(), referrer: "nova" }),
       signal: controller.signal,
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -149,12 +212,76 @@ async function ask(text) {
       toast("rate limit or network — try again in a moment");
       setStatus("online", "free · unlimited");
     }
-  } finally {
-    busy = false;
-    controller = null;
-    sendBtn.disabled = false;
-    inputEl.focus();
   }
+}
+
+/* ---------------- local chat (streaming) ---------------- */
+async function askLocal(bubbleWrap) {
+  const ok = await loadLocal();
+  if (!ok) { await askHosted(bubbleWrap); return; }
+  bubbleWrap.remove();
+  const wrap = el("div", "msg bot");
+  const bubble = el("div", "bubble");
+  wrap.appendChild(bubble);
+  messagesEl.appendChild(wrap);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  setStatus("busy", "running on your phone…");
+  let raw = "";
+  try {
+    const stream = await engine.chat.completions.create({
+      messages: buildMessages(),
+      temperature: 0.9,
+      stream: true,
+    });
+    const iter = stream[Symbol.asyncIterator]();
+    while (true) {
+      const step = await iter.next();
+      if (step.done) break;
+      const chunk = step.value;
+      const delta = chunk && chunk.choices && chunk.choices[0] && chunk.choices[0].delta
+        ? (chunk.choices[0].delta.content || "") : "";
+      if (delta) {
+        raw += delta;
+        bubble.innerHTML = md(raw) + '<span class="caret"></span>';
+        chatEl.scrollTop = chatEl.scrollHeight;
+      }
+    }
+    if (!raw.trim()) throw new Error("empty reply");
+    bubble.innerHTML = md(raw.trim());
+    const tools = el("div", "tools");
+    const copy = el("button", null, "copy");
+    copy.addEventListener("click", () => {
+      navigator.clipboard && navigator.clipboard.writeText(raw.trim());
+      toast("copied");
+    });
+    tools.appendChild(copy);
+    wrap.appendChild(tools);
+    history.push({ role: "assistant", content: raw.trim() });
+    saveHistory();
+    setStatus("online", "local · on your phone");
+  } catch (err) {
+    bubble.innerHTML = md(raw.trim() || "⚠️ the local model hit a snag (" + (err.message || "error") + "). switching to the hosted one for this.");
+    if (!raw.trim()) { await askHosted(wrap); return; }
+    setStatus("online", "local · on your phone");
+  }
+}
+
+/* ---------------- router ---------------- */
+async function ask(text) {
+  if (busy) return;
+  busy = true;
+  sendBtn.disabled = true;
+  addMsg("user", text);
+  const bubbleWrap = typingBubble();
+  if (localMode) {
+    await askLocal(bubbleWrap);
+  } else {
+    await askHosted(bubbleWrap);
+  }
+  busy = false;
+  controller = null;
+  sendBtn.disabled = false;
+  inputEl.focus();
 }
 
 /* ---------------- wiring ---------------- */
@@ -182,15 +309,31 @@ $("chips").addEventListener("click", (e) => {
   const btn = e.target.closest(".chip");
   if (btn) ask(btn.dataset.q);
 });
-$("modebar").addEventListener("click", (e) => {
+$("modebar").addEventListener("click", async (e) => {
   const btn = e.target.closest(".mode");
-  if (!btn) return;
+  if (!btn || btn === localBtn) return;
   mode = btn.dataset.mode;
   localStorage.setItem(LS_MODE, mode);
-  document.querySelectorAll(".mode").forEach((m) => m.classList.toggle("active", m === btn));
+  document.querySelectorAll(".mode:not(#localBtn)").forEach((m) => m.classList.toggle("active", m === btn));
   toast(btn.textContent + " on");
 });
-document.querySelectorAll(".mode").forEach((m) => m.classList.toggle("active", m.dataset.mode === mode));
+document.querySelectorAll(".mode:not(#localBtn)").forEach((m) => m.classList.toggle("active", m.dataset.mode === mode));
+
+localBtn.addEventListener("click", async () => {
+  if (localLoading) return;
+  if (localMode && localReady) {
+    localMode = false;
+    localStorage.setItem(LS_LOCAL, "0");
+    updateLocalBtn();
+    setStatus("online", "free · unlimited");
+    toast("back on the hosted model");
+  } else {
+    localMode = true;
+    localStorage.setItem(LS_LOCAL, "1");
+    updateLocalBtn();
+    await loadLocal();
+  }
+});
 
 newBtn.addEventListener("click", () => {
   history = [];
@@ -209,13 +352,16 @@ clearBtn.addEventListener("click", () => {
 
 /* ---------------- boot ---------------- */
 restore();
-setStatus("online", "free · unlimited");
+updateLocalBtn();
+if (localMode && localReady) setStatus("online", "local · on your phone");
+else if (localMode) setStatus("", "local on · loads when you send");
+else setStatus("online", "free · unlimited");
 async function ping() {
   try {
     const r = await fetch("https://text.pollinations.ai/models");
-    if (r.ok) { setStatus("online", "free · unlimited"); }
+    if (r.ok && !(localMode && localReady)) setStatus("online", "free · unlimited");
   } catch (e) {
-    setStatus("", "offline — check connection");
+    if (!(localMode && localReady)) setStatus("", "offline — check connection");
   }
 }
 ping();
