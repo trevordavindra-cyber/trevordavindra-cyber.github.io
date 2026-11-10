@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0912">
+<title>WITCH</title>
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo">✶</span><div><h1>WITCH</h1><div class="sub" id="statusLine">free · unlimited</div></div></div>
+  <div class="hbtns"><button id="clearBtn" class="ghost">clear</button><button id="newBtn" class="solid">new chat</button></div>
+</header>
+<main id="chat">
+  <div id="messages"></div>
+  <div id="welcome">
+    <h2>what are we conjuring?</h2>
+    <p>Free, unlimited, no signup. One witch, many brains — code, science, or whatever you throw at it.</p>
+    <div id="chips">
+      <button class="chip" data-q="Explain black holes like I'm 12">black holes, explained</button>
+      <button class="chip" data-q="Write a working python script that renames all files in a folder by date">a script that works</button>
+      <button class="chip" data-q="Plan my week">plan my week</button>
+      <button class="chip" data-q="Explain quantum entanglement for real, no fluff">quantum, no fluff</button>
+      <button class="chip" data-q="Debug this: my code says undefined but the variable exists. why?">debug my code</button>
+      <button class="chip" data-q="Roast my plan">roast my plan</button>
+    </div>
+  </div>
+</main>
+<div id="localbar" hidden><div id="lfill"></div></div>
+<footer>
+  <div id="modebar" class="modes">
+    <button class="mode active" data-mode="witch">witch</button>
+    <button class="mode" data-mode="code">code</button>
+    <button class="mode" data-mode="science">science</button>
+    <button class="mode" id="localBtn">local: off</button>
+  </div>
+  <form id="askForm"><textarea id="input" rows="1" placeholder="ask the witch..."></textarea><button id="sendBtn" type="submit" aria-label="send">↑</button></form>
+  <div class="foot">free · no key · one witch, many brains</div>
+</footer>
+<div id="toast"></div>
+<script src="prompt.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
