@@ -60,11 +60,14 @@ function el(tag, cls, text) {
 function gpuOk() {
   return typeof navigator !== "undefined" && !!navigator.gpu;
 }
-function buildMessages() {
+function buildMessages(img) {
   const mem = window.WITCH_MEMORY && window.WITCH_MEMORY.text();
   const sys = WITCH_SYSTEM[mode] + (mem ? "\n\nSaved memory about this user:\n" + mem : "");
   const msgs = [{ role: "system", content: sys }];
   history.slice(-16).forEach((m) => msgs.push({ role: m.role, content: m.content }));
+  if (img && msgs.length && msgs[msgs.length - 1].role === "user") {
+    msgs[msgs.length - 1].content = [{ type: "text", text: msgs[msgs.length - 1].content }, { type: "image_url", image_url: { url: img } }];
+  }
   return msgs;
 }
 
@@ -162,11 +165,12 @@ function md(src) {
 }
 
 /* ---------------- rendering ---------------- */
-function addMsg(role, text, save) {
+function addMsg(role, text, save, img) {
   welcomeEl.style.display = "none";
   const wrap = el("div", "msg " + role);
   const bubble = el("div", "bubble");
-  if (role === "user") { bubble.textContent = text; }
+  if (img) { const im = document.createElement("img"); im.src = img; im.className = "attach"; im.alt = "attached image"; bubble.appendChild(im); }
+  if (role === "user") { if (text) bubble.appendChild(document.createTextNode(text)); }
   else { bubble.innerHTML = md(text); }
   wrap.appendChild(bubble);
   if (role === "bot") {
@@ -204,17 +208,27 @@ function restore() {
 }
 
 /* ---------------- hosted api ---------------- */
-async function askHosted(bubbleWrap) {
-  setStatus("busy", "thinking…");
+async function askHosted(bubbleWrap, img) {
+  const vkey = localStorage.getItem("witch.visionKey");
+  const vurl = localStorage.getItem("witch.visionUrl") || "https://api.openai.com/v1/chat/completions";
+  const vmodel = localStorage.getItem("witch.visionModel") || "gpt-4o-mini";
+  if (img && !vkey) {
+    bubbleWrap.remove();
+    addMsg("bot", "the free brain here reads text only, so no image answers yet. add any free openai-style key in settings → image brain (a free gemini key from aistudio.google.com works) and i'll see pictures.");
+    setStatus("online", "free · unlimited");
+    return;
+  }
+  setStatus("busy", img ? "looking at your image…" : "thinking…");
   controller = new AbortController();
   try {
-    const res = await fetch(API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: MODEL, messages: buildMessages(), referrer: "witch" }),
-      signal: controller.signal,
-    });
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    const res = img && vkey
+      ? await fetch(vurl, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + vkey }, body: JSON.stringify({ model: vmodel, messages: buildMessages(img) }), signal: controller.signal })
+      : await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: MODEL, messages: buildMessages(img), referrer: "witch" }), signal: controller.signal });
+    if (!res.ok) {
+      let em = "HTTP " + res.status;
+      try { const j = JSON.parse(await res.text()); if (j && j.error && j.error.message) em = j.error.message; } catch (e4) {}
+      throw new Error(em);
+    }
     const data = await res.json();
     const reply = data && data.choices && data.choices[0] && data.choices[0].message
       ? data.choices[0].message.content : (typeof data === "string" ? data : null);
@@ -295,16 +309,16 @@ async function askLocal(bubbleWrap) {
 }
 
 /* ---------------- router ---------------- */
-async function ask(text) {
+async function ask(text, img) {
   if (busy) return;
   busy = true;
   sendBtn.disabled = true;
-  addMsg("user", text);
+  addMsg("user", text, undefined, img);
   const bubbleWrap = typingBubble();
-  if (localMode) {
+  if (localMode && !img) {
     await askLocal(bubbleWrap);
   } else {
-    await askHosted(bubbleWrap);
+    await askHosted(bubbleWrap, img);
   }
   busy = false;
   controller = null;
@@ -316,10 +330,12 @@ async function ask(text) {
 formEl.addEventListener("submit", (e) => {
   e.preventDefault();
   const text = inputEl.value.trim();
-  if (!text) return;
+  const img = window.WITCH_PENDING_IMAGE || null;
+  if (window.WITCH_CLEAR_IMAGE) window.WITCH_CLEAR_IMAGE();
+  if (!text && !img) return;
   inputEl.value = "";
   autoGrow();
-  ask(text);
+  ask(text || "what is in this image?", img);
 });
 inputEl.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 760) {

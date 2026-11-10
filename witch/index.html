@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d0912">
 <title>WITCH</title>
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <header>
@@ -43,12 +43,16 @@
       <button class="mode active" data-mode="witch">witch</button>
       <button class="mode" id="localBtn">local: off</button>
     </div>
-    <form id="askForm"><textarea id="input" rows="1" placeholder="ask the witch..."></textarea><button id="sendBtn" type="submit" aria-label="send">↑</button></form>
+    <form id="askForm"><button type="button" id="attachBtn" class="roundbtn" aria-label="attach image">📎</button><textarea id="input" rows="1" placeholder="ask the witch..."></textarea><button id="sendBtn" type="submit" aria-label="send">↑</button><button type="button" id="micBtn" class="roundbtn" aria-label="voice input">🎙️</button></form>
+    <div id="imgprev" hidden><img id="imgthumb" alt="attached image"><button id="imgclear" class="pbtn">remove</button></div>
+    <input type="file" id="imgInput" accept="image/*" hidden>
     <div class="foot">free · no key · one brain, everything in it</div>
   </footer>
 </div>
 <section id="panel-studio" class="panel" hidden>
   <div class="phead"><span>code studio</span><div class="prow"><button id="studioBuild" class="pbtn solid2">AI build</button><button id="studioRun" class="pbtn solid2">run</button></div></div>
+  <div class="prow"><input id="projName" class="field" placeholder="name this project..."><button id="projSave" class="pbtn solid2">save project</button></div>
+  <div id="projlist"></div>
   <textarea id="editor" spellcheck="false"></textarea>
   <iframe id="preview" sandbox="allow-scripts allow-modals"></iframe>
 </section>
@@ -69,12 +73,18 @@
   <div class="lbl">hosted brain</div>
   <select id="modelSel"></select>
   <div class="sub">local mode still runs the no-refusal model on this phone, toggle is in the chat bar.</div>
+  <div class="lbl">image brain (optional — free gemini key from aistudio.google.com works)</div>
+  <input id="visionKey" class="field" type="password" placeholder="api key (stays on this phone)">
+  <input id="visionModel" class="field" placeholder="model, e.g. gemini-2.0-flash or gpt-4o-mini">
+  <input id="visionUrl" class="field" placeholder="endpoint (default: openai) — gemini: https://generativelanguage.googleapis.com/v1beta/openai/chat/completions">
+  <button id="visionSave" class="pbtn solid2">save image brain</button>
   <div class="prow"><button id="exportBtn" class="pbtn">export everything</button><button id="wipeBtn" class="pbtn danger">wipe all data</button></div>
   <div class="sub">everything lives on this phone only. no accounts, no servers. your messages go to the model, nothing else leaves.</div>
 </section>
 <div id="toast"></div>
-<script src="prompt.js?v=2"></script>
-<script src="app.js?v=2"></script>
-<script src="ui.js?v=2"></script>
+<script src="prompt.js?v=3"></script>
+<script src="app.js?v=3"></script>
+<script src="ui.js?v=3"></script>
+<script src="extras.js?v=3"></script>
 </body>
 </html>
