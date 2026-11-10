@@ -13,30 +13,53 @@ $("nav").addEventListener("click", (e) => {
   if (!b) return;
   document.querySelectorAll("#nav .navbtn").forEach((x) => x.classList.toggle("active", x === b));
   if (b.dataset.mode) { if (window.WITCH_SETMODE) window.WITCH_SETMODE(b.dataset.mode); show("chat"); }
-  else { show(b.dataset.panel); }
+  else { if (window.WITCH_SETMODE && (b.dataset.panel === "memory" || b.dataset.panel === "settings")) {} show(b.dataset.panel); }
 });
 
 /* ---------------- memory ---------------- */
 const MEMKEY = "witch.memory.v1";
 function memList() { try { return JSON.parse(localStorage.getItem(MEMKEY)) || []; } catch (e) { return []; } }
 function memSave(l) { try { localStorage.setItem(MEMKEY, JSON.stringify(l.slice(-200))); } catch (e) {} }
-function renderMem() {
+function renderMem(q) {
   const box = $("memlist");
   box.innerHTML = "";
+  const query = (q || "").trim().toLowerCase();
+  let shown = 0;
   memList().forEach((m, i) => {
+    if (query && m.toLowerCase().indexOf(query) === -1) return;
+    shown++;
     const row = document.createElement("div");
     row.className = "memrow";
     row.appendChild(document.createTextNode(m));
     const del = document.createElement("button");
     del.textContent = "×";
-    del.onclick = () => { const l = memList(); l.splice(i, 1); memSave(l); renderMem(); };
+    del.onclick = () => { const l = memList(); l.splice(i, 1); memSave(l); renderMem($("memsearch").value); };
     row.appendChild(del);
     box.appendChild(row);
   });
+  if (query && !shown) {
+    const none = document.createElement("div");
+    none.className = "sub";
+    none.textContent = "no memories match";
+    box.appendChild(none);
+  }
 }
+$("memsearch").addEventListener("input", () => renderMem($("memsearch").value));
 window.WITCH_MEMORY = {
   text: () => (memList().length ? "- " + memList().join("\n- ") : ""),
-  add: (t) => { const l = memList(); l.push(t); memSave(l); renderMem(); },
+  add: (t) => {
+    const l = memList();
+    if (l.some((x) => x.toLowerCase() === t.toLowerCase())) {
+      const mi = $("meminput");
+      mi.value = "";
+      mi.placeholder = "already saved";
+      setTimeout(() => { mi.placeholder = "save a fact about you or a project..."; }, 2000);
+      return;
+    }
+    l.push(t);
+    memSave(l);
+    renderMem($("memsearch").value);
+  },
   list: memList,
 };
 $("memaddform").addEventListener("submit", (e) => {
