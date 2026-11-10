@@ -97,4 +97,46 @@ $("visionSave").onclick = () => {
   $("visionKey").value = "";
   window.alert("image brain saved");
 };
+
+/* ---------------- offline watch ---------------- */
+let offBanner = null;
+function netCheck() {
+  if (!navigator.onLine && !offBanner) {
+    offBanner = document.createElement("div");
+    offBanner.style.cssText = "position:fixed;top:0;left:0;right:0;padding:6px 10px;background:#5b2a86;color:#fff;font-size:12px;text-align:center;z-index:99";
+    offBanner.textContent = "offline — witch still works on this phone (local mode + memory)";
+    document.body.appendChild(offBanner);
+  } else if (navigator.onLine && offBanner) { offBanner.remove(); offBanner = null; }
+}
+window.addEventListener("online", netCheck);
+window.addEventListener("offline", netCheck);
+netCheck();
+
+/* ---------------- storage meter ---------------- */
+function bytes(n) { return n > 1024 ? Math.round(n / 1024) + " kb" : n + " b"; }
+function storageMeter() {
+  let used = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    used += k.length + (localStorage.getItem(k) || "").length;
+  }
+  const el = $("storagemeter");
+  if (el) el.textContent = "on-device storage: about " + bytes(used * 2) + " used of ~5 mb";
+}
+storageMeter();
+
+/* ---------------- text size ---------------- */
+const SIZES = [["normal", "100%"], ["big", "115%"], ["huge", "130%"]];
+let si = SIZES.findIndex((s) => s[0] === localStorage.getItem("witch.textsize"));
+if (si < 0) si = 0;
+function applySize() {
+  document.documentElement.style.fontSize = SIZES[si][1];
+  $("fontBtn").textContent = "text size: " + SIZES[si][0];
+}
+applySize();
+$("fontBtn").onclick = () => {
+  si = (si + 1) % SIZES.length;
+  try { localStorage.setItem("witch.textsize", SIZES[si][0]); } catch (e) {}
+  applySize();
+};
 })();
