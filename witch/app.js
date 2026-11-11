@@ -156,7 +156,7 @@ function md(src) {
   t = t.replace(/^#\s+(.+)$/gm, "<h1>$1</h1>");
   t = t.replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>");
   t = t.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,!?,]|$)/g, "$1<em>$2</em>");
-  t = t.replace(/\[([^\]\n]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  t = t.replace(/\[([^\]\n]+)\]\((https?:[^)\s"']+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   t = t.replace(/^\s*[-*]\s+(.+)$/gm, "<li>$1</li>");
   t = t.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, "<ul>$1</ul>");
   t = t.replace(/\n{2,}/g, "<br><br>").replace(/(?<!>)\n(?!<)/g, "<br>");
