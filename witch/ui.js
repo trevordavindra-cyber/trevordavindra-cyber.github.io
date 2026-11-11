@@ -167,7 +167,7 @@ $("exportBtn").onclick = () => {
 };
 $("wipeBtn").onclick = () => {
   if (window.confirm("wipe ALL witch data on this phone (chats, memory, settings)?")) {
-    ["witch.history.v1", "witch.mode.v1", "witch.local.v1", "witch.memory.v1", "witch.model", "witch.editor"].forEach((k) => localStorage.removeItem(k));
+    Object.keys(localStorage).filter((k) => k.indexOf("witch.") === 0).forEach((k) => localStorage.removeItem(k));
     location.reload();
   }
 };

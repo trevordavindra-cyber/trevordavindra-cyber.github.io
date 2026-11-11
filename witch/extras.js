@@ -36,7 +36,8 @@ fileIn.addEventListener("change", () => {
   const f = fileIn.files && fileIn.files[0];
   if (!f) return;
   if (f.size > 4 * 1024 * 1024) { window.alert("image too big (4mb max)"); fileIn.value = ""; return; }
-  if (!/^image\//.test(f.type)) { window.alert("that file isn't an image"); fileIn.value = ""; return; }
+  const isImg = /^image\//.test(f.type) || /\.(jpe?g|png|gif|webp|heic|heif|bmp|avif)$/i.test(f.name || "");
+  if (!isImg) { window.alert("that file isn't an image"); fileIn.value = ""; return; }
   const r = new FileReader();
   r.onload = () => {
     window.WITCH_PENDING_IMAGE = r.result;
