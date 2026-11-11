@@ -11,7 +11,7 @@ const inp = $("input");
 if (!SR) { mic.hidden = true; }
 else {
   recog = new SR();
-  recog.lang = "en-US";
+  recog.lang = localStorage.getItem("witch.voicelang") || "en-US";
   recog.interimResults = true;
   recog.continuous = false;
   recog.onresult = (e) => {
@@ -138,5 +138,52 @@ $("fontBtn").onclick = () => {
   si = (si + 1) % SIZES.length;
   try { localStorage.setItem("witch.textsize", SIZES[si][0]); } catch (e) {}
   applySize();
+};
+
+/* ---------------- usage counter ---------------- */
+function bumpUsage() {
+  const today = new Date().toISOString().slice(0, 10);
+  let u = {};
+  try { u = JSON.parse(localStorage.getItem("witch.usage") || "{}"); } catch (e) {}
+  u.total = (u.total || 0) + 1;
+  u.days = u.days || {};
+  u.days[today] = (u.days[today] || 0) + 1;
+  const days = Object.keys(u.days).sort();
+  while (days.length > 90) { delete u.days[days.shift()]; }
+  try { localStorage.setItem("witch.usage", JSON.stringify(u)); } catch (e) {}
+  const el = $("usagecounter");
+  if (el) el.textContent = "asks: " + u.total + " total · " + (u.days[today] || 0) + " today";
+}
+(function initUsage() {
+  const today = new Date().toISOString().slice(0, 10);
+  let u = {};
+  try { u = JSON.parse(localStorage.getItem("witch.usage") || "{}"); } catch (e) {}
+  const el = $("usagecounter");
+  if (el) el.textContent = "asks: " + (u.total || 0) + " total · " + ((u.days || {})[today] || 0) + " today";
+})();
+$("askForm").addEventListener("submit", bumpUsage);
+
+/* ---------------- error log (debug panel) ---------------- */
+window.addEventListener("error", (e) => {
+  let l = [];
+  try { l = JSON.parse(localStorage.getItem("witch.errors") || "[]"); } catch (err) {}
+  l.push(new Date().toLocaleTimeString() + " " + (e.message || "unknown error"));
+  try { localStorage.setItem("witch.errors", JSON.stringify(l.slice(-10))); } catch (err) {}
+  const el = $("debugpanel");
+  if (el) el.textContent = "last error: " + (e.message || "unknown error");
+});
+(function initDebug() {
+  const el = $("debugpanel");
+  if (!el) return;
+  let l = [];
+  try { l = JSON.parse(localStorage.getItem("witch.errors") || "[]"); } catch (e) {}
+  el.textContent = l.length ? "last error: " + l[l.length - 1] : "no errors caught";
+})();
+
+/* ---------------- voice language picker ---------------- */
+$("voiceLang").value = localStorage.getItem("witch.voicelang") || "en-US";
+$("voiceLang").onchange = () => {
+  localStorage.setItem("witch.voicelang", $("voiceLang").value);
+  if (recog) recog.lang = $("voiceLang").value;
 };
 })();
