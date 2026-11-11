@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1020">
+<meta name="description" content="PRESIDENTIAL AI: COMMAND OF A NATION — a living presidential simulator with an AI population, free in your browser.">
+<title>PRESIDENTIAL AI: Command of a Nation</title>
+<link rel="preconnect" href="https://text.pollinations.ai" crossorigin>
+<style>
+:root{--bg:#0a1020;--panel:#111a30;--card:#15203a;--line:#233155;--gold:#d4af5f;--txt:#e8ecf6;--dim:#8ea0c0;--ok:#5fbf7a;--bad:#e0705f;--accent:#7aa2ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1200px 700px at 50% -10%,#18244a 0%,var(--bg) 60%);color:var(--txt);font-family:Georgia,'Times New Roman',serif;min-height:100vh;padding-bottom:90px}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(180deg,#0d1530f2,#0d1530d9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.seal{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#1c2a52,#0e1730);border:1px solid var(--gold);font-size:19px}
+header h1{font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+header .sub{font-size:10px;color:var(--dim);letter-spacing:.08em}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;gap:4px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:#0c1428f0;backdrop-filter:blur(8px);border-top:1px solid var(--line);overflow-x:auto}
+nav button{flex:1;min-width:58px;background:transparent;border:1px solid transparent;border-radius:10px;color:var(--dim);font:inherit;font-size:11px;padding:7px 4px;cursor:pointer}
+nav button.active{color:var(--gold);border-color:var(--gold);background:#d4af5f14}
+main{max-width:760px;margin:0 auto;padding:14px}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.kpi .v{font-size:22px;color:var(--gold)}.kpi .l{font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+.kpi .d{font-size:11px;margin-top:2px}
+h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:4px 0 10px}
+button.act{background:linear-gradient(180deg,#26355e,#1a2748);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:9px 12px;font:inherit;font-size:12px;cursor:pointer}
+button.act.gold{border-color:var(--gold);color:var(--gold)}
+button.act:disabled{opacity:.45;cursor:default}
+.pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid var(--line);color:var(--dim);margin-right:5px}
+.pill.hot{color:var(--bad);border-color:#e0705f66}.pill.ok{color:var(--ok);border-color:#5fbf7a66}
+textarea,input,select{width:100%;background:#0d1530;border:1px solid var(--line);border-radius:10px;color:var(--txt);font:inherit;font-size:13px;padding:9px}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+.msg{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;font-size:13px;line-height:1.45}
+.msg.me{background:#1a2547;border-color:#2c3d6b}
+.msg .who{font-size:10px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.bar{height:7px;background:#0d1530;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#d4af5f,#f0d78a)}
+.news-item{border-left:2px solid var(--gold);padding:6px 10px;margin:8px 0;font-size:13px}
+.news-item .src{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+canvas{width:100%;height:110px;display:block}
+.small{font-size:11px;color:var(--dim)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:76px;background:#1a2547;border:1px solid var(--gold);color:var(--txt);padding:9px 16px;border-radius:24px;font-size:12px;opacity:0;transition:.3s;pointer-events:none;z-index:9}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header><div class="seal">🦅</div><div><h1>Presidential AI</h1><div class="sub" id="hdrSub">command of a nation</div></div><div style="margin-left:auto;text-align:right"><div class="sub" id="hdrDay"></div><div id="hdrApp" style="color:var(--gold);font-size:14px"></div></div></header>
+<main>
+  <section id="panel-dashboard" class="panel active"></section>
+  <section id="panel-inbox" class="panel"></section>
+  <section id="panel-congress" class="panel"></section>
+  <section id="panel-states" class="panel"></section>
+  <section id="panel-news" class="panel"></section>
+  <section id="panel-adviser" class="panel"></section>
+  <section id="panel-settings" class="panel"></section>
+</main>
+<nav id="nav">
+  <button class="active" data-p="dashboard">office</button>
+  <button data-p="inbox">inbox</button>
+  <button data-p="congress">congress</button>
+  <button data-p="states">nation</button>
+  <button data-p="news">press</button>
+  <button data-p="adviser">adviser</button>
+  <button data-p="settings">more</button>
+</nav>
+<div id="toast"></div>
+<script src="game.js?v=1"></script>
+</body>
+</html>
