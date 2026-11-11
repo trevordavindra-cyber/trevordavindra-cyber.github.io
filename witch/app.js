@@ -181,6 +181,16 @@ function addMsg(role, text, save, img) {
       toast("copied");
     });
     tools.appendChild(copy);
+    const speak = el("button", null, "speak");
+    speak.addEventListener("click", () => {
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text.replace(/[#*`_>|]/g, ""));
+        speechSynthesis.speak(u);
+        toast("speaking");
+      } catch (e5) { toast("no voice"); }
+    });
+    tools.appendChild(speak);
     wrap.appendChild(tools);
   }
   messagesEl.appendChild(wrap);
@@ -308,6 +318,42 @@ async function askLocal(bubbleWrap) {
   }
 }
 
+/* ---------------- free drawing (keyless, rate-limited) ---------------- */
+async function drawImage(bubbleWrap, prompt) {
+  setStatus("busy", "drawing…");
+  const url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=768&height=768&nologo=true&seed=" + Math.floor(Math.random() * 1000000);
+  const im = document.createElement("img");
+  im.onload = () => {
+    bubbleWrap.remove();
+    const wrap = el("div", "msg bot");
+    const bubble = el("div", "bubble");
+    im.className = "attach";
+    im.style.width = "100%";
+    im.style.borderRadius = "12px";
+    bubble.appendChild(im);
+    const tools = el("div", "tools");
+    const copy = el("button", null, "copy link");
+    copy.addEventListener("click", () => {
+      navigator.clipboard && navigator.clipboard.writeText(url);
+      toast("copied");
+    });
+    tools.appendChild(copy);
+    wrap.appendChild(bubble);
+    wrap.appendChild(tools);
+    messagesEl.appendChild(wrap);
+    chatEl.scrollTop = chatEl.scrollHeight;
+    history.push({ role: "assistant", content: "🎨 drew: " + prompt });
+    saveHistory();
+    setStatus("online", "free · unlimited");
+  };
+  im.onerror = () => {
+    bubbleWrap.remove();
+    addMsg("bot", "⚠️ the free drawer is rate-limited right now. give it a minute and try again.");
+    setStatus("online", "free · unlimited");
+  };
+  im.src = url;
+}
+
 /* ---------------- router ---------------- */
 async function ask(text, img) {
   if (busy) return;
@@ -315,7 +361,17 @@ async function ask(text, img) {
   sendBtn.disabled = true;
   addMsg("user", text, undefined, img);
   const bubbleWrap = typingBubble();
-  if (localMode && !img) {
+  const tr = window.WITCH_TOOLS && window.WITCH_TOOLS.tryRun(text);
+  if (tr && !img) {
+    bubbleWrap.remove();
+    busy = false;
+    sendBtn.disabled = false;
+    Promise.resolve(tr).then((r) => { addMsg("bot", r); inputEl.focus(); });
+    return;
+  }
+  if (mode === "draw" && !img) {
+    await drawImage(bubbleWrap, text);
+  } else if (localMode && !img) {
     await askLocal(bubbleWrap);
   } else {
     await askHosted(bubbleWrap, img);
@@ -395,7 +451,7 @@ clearBtn.addEventListener("click", () => {
 });
 
 window.WITCH_SETMODE = (m) => {
-  if (!WITCH_SYSTEM[m]) m = "witch";
+  if (m !== "draw" && !WITCH_SYSTEM[m]) m = "witch";
   mode = m;
   localStorage.setItem(LS_MODE, m);
   document.querySelectorAll(".mode:not(#localBtn)").forEach((b) => b.classList.toggle("active", b.dataset.mode === m));
