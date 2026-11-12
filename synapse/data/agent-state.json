@@ -1,8 +1,20 @@
 {
   "v": "0.6-server",
-  "cycle": 9,
+  "cycle": 10,
   "startedAt": 1794228560595,
   "events": [
+    {
+      "t": 1794452957593,
+      "type": "act",
+      "src": "server",
+      "text": "SCOUT → AI agent: An AI agent is an artificial intelligence program that can make decisions, pursue goals, and take actions independently of human programmers. Agentic AI contrasts with to"
+    },
+    {
+      "t": 1794452957459,
+      "type": "think",
+      "src": "server",
+      "text": "SCOUT (server) — verify one new research topic and file it"
+    },
     {
       "t": 1794435452238,
       "type": "act",
@@ -115,6 +127,11 @@
   "memory": {
     "long": [
       {
+        "t": 1794452957593,
+        "text": "research: AI agent — An AI agent is an artificial intelligence program that can make decisions, pursue goals, and take actions independently of human programmers. Agentic AI contrasts with tool-like AI use for narrow, specific tasks such as answering questions - as with chatbots in the non-agentic f",
+        "kind": "fact"
+      },
+      {
         "t": 1794435452238,
         "text": "research: Vector database — A vector database, vector store or vector search engine is a database that stores and retrieves embeddings of data in vector space. Vector databases typically implement approximate nearest neighbor algorithms so users can search for records semantically similar to a given",
         "kind": "fact"
@@ -178,10 +195,11 @@
     "Knowledge graph",
     "Neural architecture search",
     "Model distillation",
-    "Vector database"
+    "Vector database",
+    "AI agent"
   ],
   "metrics": {
-    "done": 9,
+    "done": 10,
     "failed": 0,
     "toolStats": {}
   },
