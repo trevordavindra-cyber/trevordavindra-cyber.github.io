@@ -1,8 +1,20 @@
 {
   "v": "0.6-server",
-  "cycle": 10,
+  "cycle": 11,
   "startedAt": 1794228560595,
   "events": [
+    {
+      "t": 1794482975926,
+      "type": "act",
+      "src": "server",
+      "text": "SCOUT → Mixture of experts: Mixture of experts (MoE) is a machine learning technique where multiple expert networks (learners) are used to divide a problem space into homogeneous regions. MoE repres"
+    },
+    {
+      "t": 1794482975829,
+      "type": "think",
+      "src": "server",
+      "text": "SCOUT (server) — verify one new research topic and file it"
+    },
     {
       "t": 1794452957593,
       "type": "act",
@@ -127,6 +139,11 @@
   "memory": {
     "long": [
       {
+        "t": 1794482975926,
+        "text": "research: Mixture of experts — Mixture of experts (MoE) is a machine learning technique where multiple expert networks (learners) are used to divide a problem space into homogeneous regions. MoE represents a form of ensemble learning",
+        "kind": "fact"
+      },
+      {
         "t": 1794452957593,
         "text": "research: AI agent — An AI agent is an artificial intelligence program that can make decisions, pursue goals, and take actions independently of human programmers. Agentic AI contrasts with tool-like AI use for narrow, specific tasks such as answering questions - as with chatbots in the non-agentic f",
         "kind": "fact"
@@ -196,10 +213,11 @@
     "Neural architecture search",
     "Model distillation",
     "Vector database",
-    "AI agent"
+    "AI agent",
+    "Mixture of experts"
   ],
   "metrics": {
-    "done": 10,
+    "done": 11,
     "failed": 0,
     "toolStats": {}
   },
