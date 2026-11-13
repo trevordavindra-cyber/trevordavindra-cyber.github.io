@@ -1,0 +1,10 @@
+{
+  "name": "ETRNO.GATE",
+  "short_name": "ETRNO",
+  "description": "Underground AI terminal interface",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f1ea",
+  "theme_color": "#d97757",
+  "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
