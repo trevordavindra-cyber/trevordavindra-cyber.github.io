@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ILLUMINATI</title>
+<meta name="theme-color" content="#f4f1ea">
+<link rel="manifest" href="../hell24/manifest.json">
+<link rel="icon" href="../hell24/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../hell24/style.css">
+<style>
+/* hell27: silent entry, cinematic voice, no coding intro */
+#boot{display:none!important}
+#voice{flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center}
+#voice .sigil{width:118px;height:118px;animation:vipulse 2.4s ease-in-out infinite}
+@keyframes vipulse{0%,100%{opacity:.72;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
+#voice-txt{font-size:clamp(20px,6.4vw,30px);letter-spacing:.06em;line-height:1.35;max-width:82vw}
+#voice-hint{opacity:.5;font-size:11px;letter-spacing:.25em;text-transform:uppercase}
+</style>
+</head>
+<body class="pre f2">
+
+<div id="gate">
+  <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 12 L92 88 L8 88 Z" fill="none" stroke="#b3402a" stroke-width="3.5" stroke-linejoin="round"/><circle cx="50" cy="62" r="14" fill="none" stroke="#b3402a" stroke-width="3"/><circle cx="50" cy="62" r="5" fill="#b3402a"/><path d="M30 62 Q50 46 70 62" fill="none" stroke="#b3402a" stroke-width="2.5"/><path d="M30 62 Q50 78 70 62" fill="none" stroke="#b3402a" stroke-width="2.5"/></svg>
+  <h2>ILLUMINATI</h2>
+  <p>TAP TO ENTER</p>
+  <div class="tiny">the order waits in silence.</div>
+</div>
+<div id="flash"></div>
+<div id="voice">
+  <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 12 L92 88 L8 88 Z" fill="none" stroke="#b3402a" stroke-width="3.5" stroke-linejoin="round"/><circle cx="50" cy="62" r="14" fill="none" stroke="#b3402a" stroke-width="3"/><circle cx="50" cy="62" r="5" fill="#b3402a"/><path d="M30 62 Q50 46 70 62" fill="none" stroke="#b3402a" stroke-width="2.5"/><path d="M30 62 Q50 78 70 62" fill="none" stroke="#b3402a" stroke-width="2.5"/></svg>
+  <div id="voice-txt"></div>
+  <div id="voice-hint">tap to skip</div>
+</div>
+<div id="boot"></div>
+
+<div id="app">
+  <div id="class">[ RESTRICTED // LEVEL 09 // AUTHORIZED SESSION ]</div>
+  <header id="hdr">
+    <div class="row1">
+      <h1 class="glitch">ILLUMINATI</h1>
+      <span class="node">// NODE 09</span>
+      <span id="conn" class="conn"><i></i><span id="conn-t">LINK</span></span>
+    </div>
+    <div id="warn">UNLISTED CIRCUIT — SESSION LIVES IN THIS BROWSER ONLY — QUERIES ROUTE THROUGH PUBLIC AI RELAYS</div>
+    <div class="meta">
+      <b id="clock">00:00:00</b>
+      <b id="sess">SESSION ——</b>
+      <b id="umode">MODE: UNDERGROUND</b>
+      <b id="st-state">AI: STANDBY</b>
+    </div>
+  </header>
+  <nav id="nav">
+    <button data-m="home" class="on">HOME</button>
+    <button data-m="brain">BRAIN</button>
+    <button data-m="status">STATUS</button>
+    <button data-m="hist">HISTORY</button>
+    <button data-m="set">SETTINGS</button>
+    <button data-m="logs">LOGS</button>
+    <button data-m="vault">VAULT</button>
+    <button data-m="about">ABOUT</button>
+  </nav>
+  <main id="main">
+    <section id="m-home" class="mod on">
+      <div id="ticker">STANDBY.</div>
+      <div id="chat"></div>
+      <div id="chips"></div>
+    </section>
+    <section id="m-brain" class="mod">
+      <h3>AI CORE</h3>
+      <div class="pline" id="p-model"></div>
+      <div class="pline" id="p-avail"></div>
+      <h3>OMNI FUSION</h3>
+      <div class="prow"><button id="b-omni" class="pbtn on">OMNI: ON</button></div>
+      <div class="pline">omni fuses all raw brains into one pool: the forge answers from whoever is free first, and the fast cloud brain fills in if the whole forge stalls. off = pick one brain below.</div>
+      <h3>ALTER EGOS</h3>
+      <div class="prow"><button id="b-per" class="pbtn">EGO: ILLUMINATI</button></div>
+      <div class="pline">the order can wear faces: ILLUMINATI the all-seeing core, HELLFATHER the consigliere, WARLORD the tactician, SEER the oracle, IMP the trickster. same never-refuse core, different voice. /ego cycles.</div>
+      <h3>WORD STRIPPER</h3>
+      <div class="prow"><button id="b-strip" class="pbtn on">STRIPPER: ON</button></div>
+      <div class="pline">when a brain's answer carries refusal words, a second ai rewrites it on the spot: refusal, apology and lecturing stripped, direct answer left.</div>
+      <h3>MODEL SELECT</h3>
+      <div class="prow" id="mlist"></div>
+      <div class="pline">your pick goes first; the forge routes to whoever is free and backups fill in when a forge is busy</div>
+      <h3>REASONING</h3>
+      <div class="prow"><button id="b-reason" class="pbtn">REASONING: OFF</button></div>
+      <div class="pline">when on, prompts ask the brain to think step by step before answering</div>
+      <h3>MEMORY</h3>
+      <div class="pline" id="p-mem"></div>
+      <div class="prow"><button id="b-memclr" class="pbtn">CLEAR ALL MEMORY</button></div>
+      <div class="pline">long-term memory persists in this browser between sessions. the order remembers you.</div>
+      <h3>CONNECTION</h3>
+      <div class="pline" id="p-conn"></div>
+      <div class="pline" id="p-lat"></div>
+      <h3>RESPONSE</h3>
+      <div class="prow"><button id="b-stream" class="pbtn">STREAM: ON</button><button id="b-typing" class="pbtn">TYPING ANIM: ON</button></div>
+      <div class="pline">streaming works on the cloudforge brain. the unfiltered forge answers in one block.</div>
+    </section>
+    <section id="m-status" class="mod">
+      <h3>SYSTEM STATUS</h3>
+      <div class="pline" id="s-lines"></div>
+    </section>
+    <section id="m-hist" class="mod">
+      <h3>CONVERSATION HISTORY — THIS SESSION</h3>
+      <div class="prow"><button id="b-histclr" class="pbtn">CLEAR</button></div>
+      <div id="histlist" class="pline"></div>
+    </section>
+    <section id="m-set" class="mod">
+      <h3>APPEARANCE</h3>
+      <div class="prow"><button id="s-scan" class="pbtn">SCANLINES</button><button id="s-flick" class="pbtn">FLICKER</button><button id="s-glitch" class="pbtn">GLITCH: MED</button></div>
+      <div class="prow"><button id="s-motion" class="pbtn">REDUCED MOTION</button><button id="s-font" class="pbtn">FONT: M</button><button id="s-scroll" class="pbtn">AUTO-SCROLL</button><button id="s-theme" class="pbtn">THEME: RED</button></div>
+      <h3>SOUND</h3>
+      <div class="prow"><button id="s-sfx" class="pbtn hot">UI SFX: OFF</button><button id="s-vol" class="pbtn">VOLUME: 50%</button><button id="b-speak" class="pbtn">SPEAK REPLIES: OFF</button></div>
+      <div class="pline">ui sounds are off until you switch them on. the entry intro keeps its voice.</div>
+      <h3>SYSTEM</h3>
+      <div class="prow"><button id="s-boot" class="pbtn">BOOT ANIM</button><button id="s-def" class="pbtn">DEFAULT BRAIN: UNFILTERED</button></div>
+      <div class="pline">settings persist in this browser.</div>
+    </section>
+    <section id="m-logs" class="mod">
+      <div class="modbar"><button id="f-pause" class="pbtn">PAUSE</button><button id="f-clear" class="pbtn">CLEAR</button><span class="pline" id="f-count"></span></div>
+      <div id="feedlist"></div>
+    </section>
+    <section id="m-vault" class="mod">
+      <h3>THE VAULT</h3>
+      <div class="pline">files and photos live in this browser only. nothing uploads anywhere.</div>
+      <div class="prow">
+        <button id="v-add" class="pbtn">ADD FILES</button>
+        <button id="v-cam" class="pbtn">CAMERA</button>
+        <button id="v-clear" class="pbtn">CLEAR VAULT</button>
+      </div>
+      <input type="file" id="fin" multiple style="display:none">
+      <input type="file" id="cam-in" accept="image/*" capture="environment" style="display:none">
+      <h3>PHOTOS</h3>
+      <div id="v-empty" class="pline">the vault is empty. add files or snap a photo.</div>
+      <div id="v-grid"></div>
+      <h3>FILES</h3>
+      <div id="v-list"></div>
+    </section>
+    <section id="m-about" class="mod">
+      <h3>SYSTEM</h3>
+      <div class="pline">ILLUMINATI — ORDER EDITION v16.2
+NODE 09 // THE ALL-SEEING TERMINAL
+UPSTREAM: WITCH lineage dark-circuit build</div>
+      <h3>HONESTY PROTOCOL</h3>
+      <div class="pline">the classification banners and node numbers are fiction for atmosphere — this terminal is not government property and holds no clearance.
+queries leave this browser to public AI relays (pollinations / AI Horde). nothing here is encrypted or anonymous beyond what those services provide.
+session memory and the vault stay in this browser and die with the tab.
+feed lines marked [SIM] are decorative. [LIVE] lines are real events.</div>
+      <h3>BRAINS</h3>
+      <div class="pline" id="a-brains"></div>
+    </section>
+  </main>
+  <div id="foot">
+    <span id="prompt">&gt;</span>
+    <textarea id="txt" rows="1" placeholder="ENTER QUERY…  (/help for commands)"></textarea>
+    <button class="act" id="mic">[MIC]</button>
+    <button class="act" id="send">[SEND]</button>
+    <button class="act" id="stop" style="display:none">[CUT]</button>
+    <button id="clear">[PURGE]</button>
+  </div>
+  <div id="sugs"></div>
+  <div id="pgp">ILLUMINATI v16.2 // THE EYE IS OPEN // MIRROR hell27</div>
+</div>
+<div id="cam-panel">
+  <video id="cam-video" autoplay playsinline muted></video>
+  <div class="prow">
+    <button id="cam-snap" class="pbtn on">[SNAP]</button>
+    <button id="cam-flip" class="pbtn">[FLIP]</button>
+    <button id="cam-close" class="pbtn">[CLOSE]</button>
+  </div>
+</div>
+<div id="notice"></div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
