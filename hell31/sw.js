@@ -1,5 +1,5 @@
-const CACHE='hell31-dw-v38';
-const ASSETS=['./','./index.html','./mods3.js','../hell30/mods2.js','../hell30/phase2.css','../hell29/app.js','../hell29/mods.js','../hell29/extra.css','../hell28/style.css','../hell24/app.js','../hell24/manifest.json','../hell24/icon.svg'];
+const CACHE='hell31-dw-v39';
+const ASSETS=['./','./index.html','./mods3.js','./mods2.js','./phase2.css','../hell29/app.js','../hell29/mods.js','../hell29/extra.css','../hell28/style.css','../hell24/app.js','../hell24/manifest.json','../hell24/icon.svg'];
 self.addEventListener('install',e=>{
  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
 });
