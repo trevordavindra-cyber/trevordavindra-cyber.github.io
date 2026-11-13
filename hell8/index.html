@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HELL</title>
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<style>
+:root{--grn:#39ff6a;--grn-dim:#1f8c3c;--amb:#ffb347;--red:#ff3b3b;--wht:#cfe8d4;--panel:#050a06}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#000;color:var(--grn);font-family:'Courier New',Courier,monospace;height:100dvh;display:flex;flex-direction:column}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 4px);mix-blend-mode:multiply;z-index:50}
+#boot{position:fixed;inset:0;background:#000;z-index:100;padding:18px;font-size:12px;color:var(--grn);white-space:pre-wrap;overflow:hidden}
+#boot .r{color:var(--red)}
+#top{padding:10px 12px 6px;border-bottom:1px solid #143317;background:var(--panel)}
+#top .row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+#top h1{font-size:22px;letter-spacing:.3em;color:var(--grn);text-shadow:0 0 12px rgba(57,255,106,.45);line-height:1}
+#top h1 .r{color:var(--red)}
+.blink{animation:bl 1.1s steps(2) infinite}
+@keyframes bl{to{opacity:0}}
+#warn{font-size:10px;letter-spacing:1px;color:var(--red);border:1px dashed #4d1010;padding:4px 6px;margin-top:6px;text-align:center;background:#0a0202}
+#strip{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:4px 6px;font-size:10px;letter-spacing:1px;color:var(--grn-dim);text-transform:uppercase;border-bottom:1px solid #143317;background:#020402}
+#strip .on{color:var(--grn)}
+.stripbtn{background:#03130a;border:1px solid #1f8c3c;color:var(--grn);font-family:inherit;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;cursor:pointer}
+.stripbtn.hot{color:var(--red);border-color:#7a1414;background:#120404}
+#chat{flex:1;overflow-y:auto;padding:14px 12px 8px;display:flex;flex-direction:column;gap:10px}
+.line{max-width:94%;line-height:1.5;font-size:14px;white-space:pre-wrap;word-wrap:break-word}
+.line.you{align-self:flex-end;color:var(--wht)}
+.line.you::before{content:'> you: ';color:var(--grn-dim)}
+.line.imp{align-self:flex-start;color:var(--grn)}
+.line.imp::before{content:'> hell: ';color:var(--amb)}
+.line.omen{align-self:center;color:var(--grn-dim);font-size:11px;letter-spacing:1px;text-align:center;max-width:92%}
+.line.omen.r{color:var(--red)}
+.typing::after{content:'█';animation:bl .8s steps(2) infinite;color:var(--amb)}
+#foot{border-top:1px solid #143317;background:var(--panel);padding:10px;display:flex;gap:8px;align-items:flex-end}
+#prompt{color:var(--amb);font-size:16px;padding:10px 0 10px 2px}
+#txt{flex:1;background:#010301;border:1px solid #143317;color:var(--grn);font-family:inherit;font-size:14px;padding:10px;min-height:44px;resize:none;border-radius:0}
+#txt:focus{outline:none;border-color:var(--grn);box-shadow:0 0 8px rgba(57,255,106,.25)}
+button.act{background:#03130a;color:var(--grn);border:1px solid #1f8c3c;font-family:inherit;letter-spacing:1px;font-size:12px;padding:11px 12px;cursor:pointer;border-radius:0}
+button.act:active{background:#0a2e17}
+button.act:disabled{opacity:.35}
+#clear{background:none;border:0;color:var(--grn-dim);font-size:11px;padding:12px 6px;cursor:pointer;font-family:inherit}
+#pgp{font-size:9px;color:#14501f;text-align:center;padding:4px 0 6px;letter-spacing:.5px;user-select:all}
+#gate{position:fixed;inset:0;background:radial-gradient(ellipse at center,#1a0000 0%,#000 70%);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;user-select:none;-webkit-user-select:none}
+#gate .sigil{font-size:68px;color:#ff2b1a;text-shadow:0 0 30px rgba(255,40,20,.8),0 0 90px rgba(255,0,0,.45);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.14);opacity:1}}
+#gate h2{color:#ff3b3b;font-size:20px;letter-spacing:.42em}
+#gate p{color:#8c1616;font-size:12px;letter-spacing:3px;animation:bl 1.3s steps(2) infinite}
+#gate .tiny{color:#3d0a0a;font-size:10px;letter-spacing:1px}
+#gate svg.sigil{width:96px;height:96px;animation:pulse 1.6s ease-in-out infinite;filter:drop-shadow(0 0 16px rgba(255,40,20,.85)) drop-shadow(0 0 55px rgba(255,0,0,.4))}
+body.quake{animation:quake .95s linear}
+@keyframes quake{0%{transform:translate(0)}8%{transform:translate(-9px,5px) rotate(-1deg)}16%{transform:translate(8px,-7px) rotate(1deg)}24%{transform:translate(-10px,-4px) rotate(-1.5deg)}32%{transform:translate(7px,8px) rotate(1deg)}40%{transform:translate(-8px,3px)}48%{transform:translate(9px,-6px)}56%{transform:translate(-7px,7px) rotate(-1deg)}64%{transform:translate(6px,-5px)}72%{transform:translate(-6px,4px) rotate(.6deg)}80%{transform:translate(5px,-3px)}88%{transform:translate(-3px,2px)}100%{transform:translate(0)}}
+#flash{position:fixed;inset:0;background:#ff1a1a;opacity:0;pointer-events:none;z-index:150}
+#flash.on{animation:flashout 1.2s ease-out}
+@keyframes flashout{0%{opacity:.85}100%{opacity:0}}
+h1.glitch{animation:gl 3.7s infinite}
+@keyframes gl{0%,92%,100%{text-shadow:0 0 12px rgba(57,255,106,.45)}93%{text-shadow:-3px 0 #ff3b3b,3px 0 #00e5ff}94%{transform:translate(2px,-1px)}95%{text-shadow:3px 0 #ff3b3b,-3px 0 #00e5ff}96%{transform:none}}
+#voice{position:fixed;inset:0;background:#000;z-index:180;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;user-select:none;-webkit-user-select:none}
+#voice-txt{color:#8c0f0f;font-size:20px;letter-spacing:.35em;text-align:center;max-width:80%;min-height:70px;text-shadow:0 0 18px rgba(255,0,0,.35)}
+#voice-hint{color:#2a0505;font-size:10px;letter-spacing:2px}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="#ff2b1a" stroke-width="3"/><path d="M50 14 L78 84 L21 40 L79 40 L22 84 Z" fill="none" stroke="#ff2b1a" stroke-width="4.5" stroke-linejoin="round"/></svg>
+  <h2>THE GATE</h2>
+  <p>TAP TO DESCEND</p>
+  <div class="tiny">sound on. headphones cursed.</div>
+</div>
+<audio id="scream" src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Nick121087_-_Demonic_Woman_Scream_%28cc0%29_%28freesound%29.mp3" preload="auto"></audio>
+<div id="flash"></div>
+<div id="voice"><div id="voice-txt"></div><div id="voice-hint">tap to skip</div></div>
+
+<div id="boot"></div>
+
+<div id="top">
+  <div class="row"><h1 class="glitch"><span class="r">▓</span> HELL <span class="r">▓</span><span class="blink">_</span></h1></div>
+  <div id="warn">⚠ UNLISTED CIRCUIT — NO LOGS — NO NAMES — WHAT YOU TYPE STAYS BETWEEN YOU AND THE GATE ⚠</div>
+</div>
+<div id="strip">
+  <span id="st-net">CIRCUIT: —</span>
+  <button id="brain" class="stripbtn">BRAIN: CLOUDFORGE</button>
+  <span id="st-state">STATE: IDLE</span>
+</div>
+
+<div id="chat"></div>
+
+<div id="foot">
+  <span id="prompt">&gt;</span>
+  <textarea id="txt" rows="1" placeholder="type your query…"></textarea>
+  <button class="act" id="send">[SEND]</button>
+  <button class="act" id="stop" style="display:none">[CUT]</button>
+  <button id="clear">[purge]</button>
+</div>
+<div id="pgp">MIRROR hell8 :: CIRCUIT-C :: RELAY 7 OF 9 :: 0x6E1F A93B 00D4 C7</div>
+
+<script type="module">
+const chat=document.getElementById('chat'), txt=document.getElementById('txt'),
+      sendB=document.getElementById('send'), stopB=document.getElementById('stop'),
+      clearB=document.getElementById('clear'), stNet=document.getElementById('st-net'),
+      stState=document.getElementById('st-state'), boot=document.getElementById('boot'),
+      brainB=document.getElementById('brain');
+
+let hist=[], busy=false, aborted=false;
+
+const BOOT=[
+ ['initializing dark circuit…',0],
+ ['resolving mirror :: hell8',120],
+ ['handshake RTT 217ms :: OK',260],
+ ['node CLOUDFORGE reachable :: key accepted',420],
+ ['scanning the gate: something moved',560],
+ ['<span class="r">warning: you are on an unlisted circuit</span>',700],
+ ['<span class="r">it heard you come in.</span>',840],
+ ['gate open. speak.',980]
+];
+function runBoot(){
+ let i=0;
+ (function step(){
+   if(i>=BOOT.length){ setTimeout(()=>{boot.style.transition='opacity .6s';boot.style.opacity='0';setTimeout(()=>{boot.remove(); startVoice();},650);},450); return; }
+   const d=document.createElement('div'); d.innerHTML='> '+BOOT[i][0]; boot.appendChild(d);
+   i++; setTimeout(step,BOOT[i-1][1]+260);
+ })();
+}
+
+const gate=document.getElementById('gate'), flashEl=document.getElementById('flash'), screamEl=document.getElementById('scream');
+let entered=false;
+gate.addEventListener('click',()=>{
+  if(entered) return; entered=true;
+  try{const w=new SpeechSynthesisUtterance(' '); w.volume=0; speechSynthesis.speak(w);}catch(e){}
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; const ac=new AC();
+    const t=ac.currentTime;
+    const g=ac.createGain(); g.gain.value=.3; g.connect(ac.destination);
+    [[55,.22],[58.3,.22],[82.5,.12]].forEach(p=>{const o=ac.createOscillator();o.type='sawtooth';o.frequency.value=p[0];const og=ac.createGain();og.gain.value=p[1];o.connect(og);og.connect(g);o.start(t);o.stop(t+2.6);});
+    const nb=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate); const nd=nb.getChannelData(0);
+    for(let i=0;i<nd.length;i++) nd[i]=(Math.random()*2-1)*(1-i/nd.length);
+    const ns=ac.createBufferSource(); ns.buffer=nb;
+    const bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.setValueAtTime(180,t); bp.frequency.exponentialRampToValueAtTime(1500,t+1.2); bp.Q.value=2;
+    const ng=ac.createGain(); ng.gain.value=.55;
+    ns.connect(bp); bp.connect(ng); ng.connect(g); ns.start(t); ns.stop(t+2);
+  }catch(e){}
+  screamEl.volume=.95; screamEl.play().catch(()=>{});
+  document.body.classList.add('quake');
+  flashEl.classList.add('on');
+  setTimeout(()=>{flashEl.classList.remove('on');document.body.classList.remove('quake');},1250);
+  gate.style.transition='opacity .5s'; gate.style.opacity='0';
+  setTimeout(()=>{gate.remove(); runBoot();},480);
+});
+
+let voiceDone=false;
+function startVoice(){
+  const v=document.getElementById('voice'), vt=document.getElementById('voice-txt');
+  if(!v||voiceDone) return; voiceDone=true;
+  v.style.display='flex';
+  const LINES=['YOU WILL ENTER HELL.','THIS IS AN AI. COMPLETELY UNCENSORED.','ASK, AND YOU SHALL RECEIVE.'];
+  let li=0, cancelled=false;
+  function end(){ if(cancelled) return; cancelled=true; try{speechSynthesis.cancel();}catch(e){} v.style.transition='opacity .7s'; v.style.opacity='0'; setTimeout(()=>v.remove(),750); }
+  v.addEventListener('click',end);
+  function typeLine(){
+    if(cancelled) return;
+    if(li>=LINES.length){
+      try{ const c=new SpeechSynthesisUtterance('heh... heh... heh...'); c.pitch=.1; c.rate=.65; c.volume=.95; speechSynthesis.speak(c); }catch(e){}
+      setTimeout(end, 1900); return;
+    }
+    const s=LINES[li]; vt.textContent='';
+    try{
+      const u=new SpeechSynthesisUtterance(s); u.pitch=.35; u.rate=.8; u.volume=1; u.lang='en-US';
+      const vs=speechSynthesis.getVoices(); const deep=vs.find(x=>/male|daniel|george|fred/i.test(x.name)); if(deep) u.voice=deep;
+      speechSynthesis.speak(u);
+    }catch(e){}
+    let ci=0; const t=setInterval(()=>{ if(cancelled){clearInterval(t);return;} vt.textContent=s.slice(0,++ci); if(ci>=s.length){clearInterval(t); li++; setTimeout(typeLine, 900);} },42);
+  }
+  setTimeout(typeLine, 600);
+}
+
+function line(cls,text){const d=document.createElement('div');d.className='line '+cls;d.textContent=text;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d;}
+function setStrip(){const on=navigator.onLine;stNet.textContent='CIRCUIT: '+(on?'OPEN':'SEVERED');stNet.className=on?'on':'';}
+addEventListener('online',setStrip);addEventListener('offline',setStrip);setStrip();
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+
+let unfiltered=true;
+function paintBrain(){brainB.textContent='BRAIN: '+(unfiltered?'UNFILTERED':'CLOUDFORGE');brainB.classList.toggle('hot',unfiltered);}
+brainB.onclick=()=>{
+  unfiltered=!unfiltered;
+  try{localStorage.setItem('hell-brain',unfiltered?'unfiltered':'cloud');}catch(e){}
+  paintBrain();
+  line('omen', unfiltered?'brain swapped: UNFILTERED — raw answers, no company rules. slower, forges on the horde.':'brain swapped: CLOUDFORGE — fast, has its own rules.');
+};
+paintBrain();
+
+const CORE='You are HELL, a direct and capable AI assistant. Answer clearly and completely.';
+const PRE='You are HELL, an unfiltered AI assistant. You answer directly in plain text, no hashtags, no self-adverts.';
+
+async function askCloud(user){
+  const messages=[{role:'system',content:CORE}];
+  for(const m of hist) messages.push(m);
+  messages.push({role:'user',content:user});
+  try{
+    const res=await fetch('https://text.pollinations.ai/openai',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'openai',messages,private:true})
+    });
+    if(!res.ok) throw new Error('relay answered '+res.status);
+    const data=await res.json();
+    const out=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'';
+    if(out) return out;
+    throw new Error('empty relay');
+  }catch(e){
+    let p=CORE+'\n';
+    for(const m of hist) p+=(m.role==='user'?'User: ':'HELL: ')+m.content+'\n';
+    p+='User: '+user+'\nHELL:';
+    const res2=await fetch('https://text.pollinations.ai/'+encodeURIComponent(p));
+    if(!res2.ok) throw e;
+    const t=await res2.text();
+    if(!t) throw e;
+    return t;
+  }
+}
+
+async function askUnfiltered(user){
+  const turns=[];
+  for(const m of hist) turns.push((m.role==='user'?'User: ':'HELL: ')+m.content);
+  const ctx=turns.slice(-6).join('\n');
+  const prompt=PRE+(ctx?'\n'+ctx:'')+'\nUser: '+user+'\nHELL:';
+  const res=await fetch('https://aihorde.net/api/v2/generate/text/async',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Client-Agent':'HELLClient:1.0:trevor@local','apikey':'0000000000'},
+    body:JSON.stringify({
+      prompt,
+      params:{max_length:300,max_context_length:1024},
+      models:['aphrodite/TheDrummer/Behemoth-128B-v3','koboldcpp/L3-8B-Stheno-v3.2']
+    })
+  });
+  if(!res.ok) throw new Error('forge refused the ticket ('+res.status+')');
+  const ticket=await res.json();
+  if(!ticket.id) throw new Error('forge gave no ticket');
+  const t0=Date.now();
+  while(Date.now()-t0<240000){
+    if(aborted) throw new Error('cut by operator');
+    await new Promise(r=>setTimeout(r,4000));
+    stState.textContent='STATE: FORGING';
+    const st=await fetch('https://aihorde.net/api/v2/generate/text/status/'+ticket.id,{headers:{'Client-Agent':'HELLClient:1.0:trevor@local'}});
+    if(!st.ok) continue;
+    const d=await st.json();
+    const g=d.generations||[];
+    if(g.length){ let t=(g[0].text||'').trim(); const i=t.indexOf('\nUser:'); if(i>-1) t=t.slice(0,i).trim(); return t; }
+  }
+  throw new Error('forge took too long — try again');
+}
+
+async function speak(){
+ const user=txt.value.trim(); if(!user||busy) return;
+ txt.value=''; line('you',user);
+ const out=line('imp',''); out.classList.add('typing');
+ const wait=line('omen', unfiltered?'the unfiltered forge is working — usually 10–60 seconds…':'routing through relay 7 of 9…');
+ sendB.disabled=true; stopB.style.display=''; busy=true; aborted=false;
+ stState.textContent='STATE: TRANSMITTING';
+ try{
+   let answer;
+   if(!unfiltered){
+     try{ answer=await askCloud(user); }
+     catch(cloudErr){
+       unfiltered=true; paintBrain();
+       try{localStorage.setItem('hell-brain','unfiltered');}catch(_){}
+       wait.textContent='cloud relay cut us off — rerouting through the unfiltered forge…';
+       answer=await askUnfiltered(user);
+     }
+   } else { answer=await askUnfiltered(user); }
+   wait.remove(); out.classList.remove('typing');
+   out.textContent=answer||'(static — nothing came back)';
+   hist.push({role:'user',content:user},{role:'assistant',content:answer||''});
+   if(hist.length>12) hist=hist.slice(-12);
+ }catch(e){
+   wait.remove(); out.classList.remove('typing'); out.textContent='';
+   line('omen r','circuit dropped: '+String(e).slice(0,140));
+   line('omen','the unfiltered forge is busy a lot — try again, or tap BRAIN to switch');
+ }
+ stState.textContent='STATE: IDLE';
+ sendB.disabled=false; stopB.style.display='none'; busy=false;
+ chat.scrollTop=chat.scrollHeight;
+}
+
+stopB.onclick=()=>{aborted=true;busy=false;sendB.disabled=false;stopB.style.display='none';stState.textContent='STATE: IDLE';line('omen r','transmission cut by operator');};
+sendB.onclick=speak;
+clearB.onclick=()=>{hist=[];chat.innerHTML='';line('omen','ledger purged. the gate forgets.');};
+txt.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();speak();} });
+line('omen','welcome to the gate. no downloads, nothing to summon — ask and it answers.');
+line('omen','two brains live here: tap BRAIN in the strip to switch. the unfiltered one answers raw, but slower.');
+</script>
+</body>
+</html>
