@@ -67,22 +67,13 @@ let halt = false;
       else { const p = document.createElement('div'); p.className = 'pline outp'; p.textContent = '—'; bd.appendChild(p); }
       f.append(hd, bd); c.appendChild(f);
       hd.querySelectorAll('button').forEach(b => b.onclick = e => { e.stopPropagation(); const a = b.dataset.a; if (a === 'del') wf.nodes.splice(i, 1); if (a === 'up' && i > 0) [wf.nodes[i - 1], wf.nodes[i]] = [wf.nodes[i], wf.nodes[i - 1]]; if (a === 'dn' && i < wf.nodes.length - 1) [wf.nodes[i + 1], wf.nodes[i]] = [wf.nodes[i], wf.nodes[i + 1]]; render(); });
-      /* drag to reorder: pointer on the header bar */
-      hd.addEventListener('pointerdown', e => {
-        if (e.target.tagName === 'BUTTON') return;
-        e.preventDefault(); f.classList.add('dragging');
-        const mv = ev => { const rows = [...c.querySelectorAll('.fnode')]; const tgt = rows.find(r => { const b = r.getBoundingClientRect(); return ev.clientY > b.top && ev.clientY < b.bottom && r !== f; }); if (tgt) { const j = +tgt.dataset.i; const from = +f.dataset.i; wf.nodes.splice(from, 1); wf.nodes.splice(j, 0, wf.nodes.length ? wf.nodes.splice(0, 0) && null || wf.nodes[from] || wf.nodes[0] : null); wf.nodes = wf.nodes.filter(x => x); render(); } };
-        const up = () => { f.classList.remove('dragging'); removeEventListener('pointermove', mv); removeEventListener('pointerup', up); render(); };
-        addEventListener('pointermove', mv); addEventListener('pointerup', up);
-      });
     });
     $('wf-name').value = wf.name;
     paintList(); paintHist();
   }
-  /* simpler, reliable reorder used by the drag handler above is superseded by arrows; keep drag minimal */
   function paintList() {
     const l = LS.get('hl30-flows', '[]');
-    $('wf-list').innerHTML = l.length ? 'saved: ' + l.map((f, i) => '<span class="gtag">' + esc(f.name) + ' (' + f.nodes.length + ' steps)</span>').join(' · ') : 'no saved workflows yet.';
+    $('wf-list').innerHTML = l.length ? 'saved: ' + l.map((f, i) => '<span class="gtag">' + esc(f.name) + ' (' + f.nodes.length + ' steps)</span>').join(' · ') : 'no saved workflows yet. tap a saved name to load it.';
   }
   function paintHist() {
     const h = LS.get('hl30-runlog', '[]');
@@ -98,9 +89,9 @@ let halt = false;
       const n = wf.nodes[i], st = cards[i].querySelector('.astat');
       st.className = 'astat run'; st.textContent = 'RUNNING';
       try {
-        if (n.t === 'ai') carry = await ai([{ role: 'system', content: (P ? P + '\n\n' : '') + 'You are one step in a workflow. Follow the step instruction exactly on the input. No preamble.' }, { role: 'user', content: (n.cfg.instr || 'process') + '\n\nINPUT:\n' + (carry || '(none)') })];
-        else if (n.t === 'research') carry = await ai([{ role: 'system', content: (P ? P + '\n\n' : '') + 'Research step. Work from your knowledge, mark uncertainty, no live web. No preamble.' }, { role: 'user', content: (n.cfg.instr || 'research') + '\n\nCONTEXT:\n' + (carry || '(none)') })];
-        else if (n.t === 'verify') carry = await ai([{ role: 'system', content: 'You are a verification step in a workflow. Test the material against the check instruction. State plainly what holds, what does not, and what is uncertain.' }, { role: 'user', content: (n.cfg.instr || 'check for errors and unsupported claims') + '\n\nMATERIAL:\n' + (carry || '(none)') })];
+        if (n.t === 'ai') carry = await ai([{ role: 'system', content: (P ? P + '\n\n' : '') + 'You are one step in a workflow. Follow the step instruction exactly on the input. No preamble.' }, { role: 'user', content: (n.cfg.instr || 'process') + '\n\nINPUT:\n' + (carry || '(none)') }]);
+        else if (n.t === 'research') carry = await ai([{ role: 'system', content: (P ? P + '\n\n' : '') + 'Research step. Work from your knowledge, mark uncertainty, no live web. No preamble.' }, { role: 'user', content: (n.cfg.instr || 'research') + '\n\nCONTEXT:\n' + (carry || '(none)') }]);
+        else if (n.t === 'verify') carry = await ai([{ role: 'system', content: 'You are a verification step in a workflow. Test the material against the check instruction. State plainly what holds, what does not, and what is uncertain.' }, { role: 'user', content: (n.cfg.instr || 'check for errors and unsupported claims') + '\n\nMATERIAL:\n' + (carry || '(none)') }]);
         else if (n.t === 'transform') {
           const op = n.cfg.op || WFTX[0];
           if (op === 'trim whitespace') carry = carry.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
@@ -109,7 +100,6 @@ let halt = false;
           else if (op === 'extract questions') carry = (carry.match(/^[^\n?\n]*\?/gm) || []).join('\n') || '(no questions found)';
         }
         ok++; st.className = 'astat ok'; st.textContent = 'DONE';
-        const out = cards[i].querySelector('.outp'); if (out && (n.t === 'output' || n.t === 'export')) out.textContent = (carry || '').slice(0, 2000);
       } catch (e) { fail++; st.className = 'astat err'; st.textContent = 'FAILED'; const out = cards[i].querySelector('.outp'); if (out) out.textContent = 'step refused: ' + e.message; if (n.t === 'ai' || n.t === 'research' || n.t === 'verify') break; }
       if (n.t === 'output' || n.t === 'export') { const out = cards[i].querySelector('.outp'); if (out) out.textContent = (carry || '').slice(0, 2000); }
     }
@@ -119,7 +109,7 @@ let halt = false;
   $('wf-halt').onclick = () => { halt = true; };
   $('wf-save').onclick = () => { wf.name = $('wf-name').value.trim() || 'untitled'; const l = LS.get('hl30-flows', '[]'); const ex = l.findIndex(f => f.name === wf.name); if (ex >= 0) l[ex] = JSON.parse(JSON.stringify(wf)); else l.unshift(JSON.parse(JSON.stringify(wf))); LS.set('hl30-flows', l.slice(0, 30)); paintList(); };
   $('wf-new').onclick = () => { wf = { name: 'new workflow', nodes: [{ t: 'input', cfg: { text: '' } }, { t: 'ai', cfg: { instr: '' } }, { t: 'output', cfg: {} }] }; render(); };
-  $('wf-dup').onclick = () => { wf.name = ($('wf-name').value.trim() || 'workflow') + ' copy'; wf = JSON.parse(JSON.stringify(wf)); wf.name = wf.name; render(); };
+  $('wf-dup').onclick = () => { wf = JSON.parse(JSON.stringify(wf)); wf.name = ($('wf-name').value.trim() || 'workflow') + ' copy'; render(); };
   $('wf-del').onclick = () => { const l = LS.get('hl30-flows', '[]').filter(f => f.name !== wf.name); LS.set('hl30-flows', l); paintList(); };
   $('wf-export').onclick = () => dl(($('wf-name').value.trim() || 'workflow') + '.json', JSON.stringify(wf, null, 2), 'application/json');
   $('wf-list').addEventListener('click', e => { const l = LS.get('hl30-flows', '[]'); const hit = l.find(f => e.target.textContent.startsWith(f.name + ' ')); if (hit) { wf = JSON.parse(JSON.stringify(hit)); render(); } });
@@ -163,7 +153,7 @@ let pjs = LS.get('hl30-projs', '[]'), active = -1;
     try {
       const txt = await ai([{ role: 'system', content: 'You advise on one project only. Project: ' + p.name + '. Description: ' + (p.desc || '(none)') + '. Standing instructions: ' + (p.inst || '(none)') + '. Notes: ' + (p.notes || '(none)') + '. Tasks: ' + (p.tasks || []).map(t => (t.done ? '[done] ' : '[ ] ') + t.t).join('; ') + '. Answer within this project\'s context only.' }, { role: 'user', content: q }]);
       const c = out.firstElementChild; c.querySelector('.astat').className = 'astat ok'; c.querySelector('.astat').textContent = 'DONE'; c.querySelector('.abody').textContent = txt || '(empty)';
-      p.answers = p.answers || []; p.answers.unshift({ d: Date.now(), q, a: txt.slice(0, 2000) }); LS.set('hl30-projs', pjs);
+      p.answers = p.answers || []; p.answers.unshift({ d: Date.now(), q: q, a: txt.slice(0, 2000) }); LS.set('hl30-projs', pjs);
     } catch (e) { const c = out.firstElementChild; c.querySelector('.astat').className = 'astat err'; c.querySelector('.astat').textContent = 'FAILED'; c.querySelector('.abody').textContent = 'the relay refused: ' + e.message; }
     busy($('pj-ask'), false);
   };
