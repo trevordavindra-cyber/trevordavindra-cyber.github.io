@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WITCH Offline</title>
+<meta name="theme-color" content="#0b0e14">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#0b0e14;--panel:#131a26;--edge:#233149;--ink:#e8eef8;--dim:#8fa3c0;--acc:#7ef29d;--acc2:#a78bfa;--warn:#fbbf24;--bad:#f87171}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;height:100dvh;display:flex;flex-direction:column}
+header{padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--edge);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header h1{font-size:17px;letter-spacing:.5px}
+.badge{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--edge);color:var(--dim)}
+.badge.ok{color:var(--acc);border-color:var(--acc)}
+.badge.warn{color:var(--warn);border-color:var(--warn)}
+#log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:92%;padding:10px 12px;border-radius:14px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;font-size:15px}
+.msg.you{align-self:flex-end;background:#1d2a44;border-bottom-right-radius:4px}
+.msg.bot{align-self:flex-start;background:var(--panel);border:1px solid var(--edge);border-bottom-left-radius:4px}
+.msg.bot.think{color:var(--dim);font-size:13px}
+.sys{align-self:center;font-size:12px;color:var(--dim);text-align:center;max-width:90%}
+.sys b{color:var(--warn)}
+#bar{padding:10px;border-top:1px solid var(--edge);background:var(--panel);display:flex;gap:8px}
+#txt{flex:1;background:#0e1420;border:1px solid var(--edge);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:16px;min-height:44px;resize:none}
+button{border:0;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:600;cursor:pointer}
+#send{background:var(--acc);color:#06210f}
+#stop{background:var(--bad);color:#fff;display:none}
+.dlg{margin:6px 14px 2px;display:flex;gap:8px;flex-wrap:wrap}
+.dlg button{background:var(--acc2);color:#14102b;font-size:14px;padding:9px 12px}
+#modelinfo{font-size:12px;color:var(--dim);padding:6px 14px}
+a{color:var(--acc2)}
+details{margin:8px 14px;color:var(--dim);font-size:13px}
+details summary{color:var(--acc2);margin-bottom:6px}
+details li{margin:6px 0 6px 16px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧙 WITCH OFFLINE</h1>
+  <span class="badge" id="net">checking…</span>
+  <span class="badge" id="sw">offline-ready: no</span>
+</header>
+
+<div class="dlg">
+  <button id="pick">📂 Load model file (.gguf)</button>
+  <button id="unload" style="display:none">Unload model</button>
+  <input type="file" id="file" accept=".gguf" hidden>
+</div>
+<div id="modelinfo">no model loaded — the model runs on your phone, nothing is sent anywhere</div>
+
+<details>
+  <summary>Model notes (tap to open)</summary>
+  <ul>
+    <li><b>Phone-friendly:</b> under ~2 GB quantized GGUFs (Q4 of 0.6B–1.7B models). Download one from Hugging Face in Safari, then pick it above.</li>
+    <li><a href="https://huggingface.co/unsloth/Qwen3-0.6B-GGUF">Qwen3 0.6B GGUF (fastest)</a> · <a href="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF">Qwen3 1.7B GGUF (smarter)</a> · <a href="https://huggingface.co/huihui-ai/Huihui-Qwen3.8-Flash-Next-abliterated-v2-GGUF">abliterated 3B (uncensored, heavy — may not fit)</a></li>
+    <li><b>The 27B you linked</b> (<a href="https://huggingface.co/douyamv/Qwen3.8-27B-abliterated-GGUF">douyamv/Qwen3.8-27B-abliterated-GGUF</a>) is 8–28 GB. No phone can run it in a browser — it needs a gaming PC.</li>
+    <li>First ever load downloads the engine (~2 MB) once. After that the whole site works with no internet.</li>
+  </ul>
+</details>
+
+<div id="log"></div>
+
+<div id="bar">
+  <textarea id="txt" rows="1" placeholder="message WITCH…"></textarea>
+  <button id="send">Send</button>
+  <button id="stop">Stop</button>
+</div>
+
+<script type="module">
+import { Wllama, CONFIG_PATHS } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/index.js';
+
+const CDN='https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/';
+CONFIG_PATHS['single-thread/wllama.wasm']=CDN+'single-thread/wllama.wasm';
+CONFIG_PATHS['multi-thread/wllama.wasm']=CDN+'multi-thread/wllama.wasm';
+
+const log=document.getElementById('log'), txt=document.getElementById('txt'),
+      sendB=document.getElementById('send'), stopB=document.getElementById('stop'),
+      pick=document.getElementById('pick'), unloadB=document.getElementById('unload'),
+      fileIn=document.getElementById('file'), minfo=document.getElementById('modelinfo');
+
+let wllama=null, ready=false, abort=false, hist=[];
+
+function sys(html,cls='sys'){const d=document.createElement('div');d.className=cls;d.innerHTML=html;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+function bubble(who,text){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+
+function netBadge(){const el=document.getElementById('net');
+ if(navigator.onLine){el.textContent='online';el.className='badge ok';}else{el.textContent='offline (still works)';el.className='badge warn';}}
+addEventListener('online',netBadge);addEventListener('offline',netBadge);netBadge();
+
+if('serviceWorker' in navigator){
+ navigator.serviceWorker.register('./sw.js').then(r=>{
+   const upd=()=>{ document.getElementById('sw').textContent='offline-ready: yes'; document.getElementById('sw').className='badge ok'; };
+   if(r.active) upd(); else r.addEventListener('activate',upd);
+ }).catch(()=>{document.getElementById('sw').textContent='offline-ready: no';});
+}
+
+const SYS_PROMPT='You are WITCH, a helpful, direct AI assistant. Answer clearly and completely.';
+
+function chatPrompt(user){
+ let p='';
+ p+='<|im_start|>system\n'+SYS_PROMPT+'<|im_end|>\n';
+ for(const m of hist) p+='<|im_start|>'+m.role+'\n'+m.text+'<|im_end|>\n';
+ p+='<|im_start|>user\n'+user+'<|im_end|>\n<|im_start|>assistant\n';
+ return p;
+}
+
+pick.onclick=()=>fileIn.click();
+fileIn.onchange=async()=>{
+ const f=fileIn.files[0]; if(!f) return;
+ if(wllama){try{await wllama.exit();}catch(e){} wllama=null; ready=false;}
+ const gb=f.size/1e9;
+ if(gb>2.5) sys('<b>'+gb.toFixed(1)+' GB is too big for a phone browser</b> — this will probably run out of memory. Small models (under ~2 GB) work best. Trying anyway…');
+ minfo.textContent='loading '+f.name+' ('+gb.toFixed(2)+' GB)… first load compiles the engine, give it a minute';
+ sys('loading model…');
+ try{
+   wllama=new Wllama(CONFIG_PATHS,{allowOffline:true});
+   await wllama.loadModel([f],{n_ctx: gb>1?1024:2048});
+   ready=true; hist=[];
+   minfo.textContent='model: '+f.name+' ('+gb.toFixed(2)+' GB) — loaded, fully offline';
+   sys('model loaded ✅ ask it something');
+   pick.style.display='none'; unloadB.style.display='';
+ }catch(e){
+   sys('<b>could not load this file:</b> '+String(e).slice(0,200)+'. Usually means the phone ran out of memory — try a smaller GGUF.');
+   minfo.textContent='no model loaded';
+   ready=false;
+ }
+};
+
+unloadB.onclick=async()=>{
+ try{await wllama.exit();}catch(e){}
+ wllama=null;ready=false;hist=[];
+ minfo.textContent='no model loaded';
+ pick.style.display='';unloadB.style.display='none';
+ sys('model unloaded');
+};
+
+function cut(text){const i=text.indexOf('<|im_end|>');return i>=0?text.slice(0,i):text;}
+
+async function sendMsg(){
+ const user=txt.value.trim(); if(!user) return;
+ if(!ready){sys('load a .gguf model first (button up top)');return;}
+ txt.value=''; bubble('you',user);
+ const b=bubble('bot','');
+ const think=document.createElement('div');think.className='bot think';log.appendChild(think);think.textContent='thinking…';log.scrollTop=log.scrollHeight;
+ sendB.disabled=true;stopB.style.display='';abort=false;
+ const prompt=chatPrompt(user);
+ let out='';
+ try{
+  await wllama.createCompletion(prompt,{
+    nPredict:512,
+    sampling:{temp:0.8,top_p:0.95},
+    onNewToken:(tok,piece,current)=>{
+      out=current;
+      const clean=cut(out);
+      b.textContent=clean;
+      log.scrollTop=log.scrollHeight;
+      if(clean.length>0) think.textContent='';
+      if(out.includes('<|im_end|>')){try{wllama.stopCompletion();}catch(e){}}
+      if(abort){try{wllama.stopCompletion();}catch(e){}}
+    }
+  });
+  const clean=cut(out)||'(empty reply)';
+  b.textContent=clean;
+  hist.push({role:'user',text:user},{role:'assistant',text:clean});
+  if(hist.length>12) hist=hist.slice(-12);
+ }catch(e){
+  b.textContent=b.textContent||'';
+  sys('<b>error:</b> '+String(e).slice(0,200));
+ }
+ think.textContent='';
+ sendB.disabled=false;stopB.style.display='none';
+}
+
+stopB.onclick=()=>{abort=true;};
+sendB.onclick=sendMsg;
+txt.addEventListener('keydown',e=>{
+ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
+});
+</script>
+</body>
+</html>
