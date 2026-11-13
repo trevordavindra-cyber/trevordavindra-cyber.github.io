@@ -1,1 +1,18 @@
-Y29uc3QgQ0FDSEU9J2hlbGwzMS1kdy12NDAnOwpjb25zdCBBU1NFVFM9WycuLycsJy4vaW5kZXguaHRtbCcsJy4vbW9kczMuanMnLCcuL21vZHMyLmpzJywnLi9jaW5lLmpzJywnLi9waGFzZTIuY3NzJywnLi4vaGVsbDI5L2FwcC5qcycsJy4uL2hlbGwyOS9tb2RzLmpzJywnLi4vaGVsbDI5L2V4dHJhLmNzcycsJy4uL2hlbGwyOC9zdHlsZS5jc3MnLCcuLi9oZWxsMjQvYXBwLmpzJywnLi4vaGVsbDI0L21hbmlmZXN0Lmpzb24nLCcuLi9oZWxsMjQvaWNvbi5zdmcnXTsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJyxlPT57CiBlLndhaXRVbnRpbChjYWNoZXMub3BlbihDQUNIRSkudGhlbihjPT5jLmFkZEFsbChBU1NFVFMpKS50aGVuKCgpPT5zZWxmLnNraXBXYWl0aW5nKCkpKTsKfSk7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignYWN0aXZhdGUnLGU9PnsKIGUud2FpdFVudGlsKGNhY2hlcy5rZXlzKCkudGhlbihrZXlzPT5Qcm9taXNlLmFsbChrZXlzLmZpbHRlcihrPT5rIT09Q0FDSEUpLm1hcChrPT5jYWNoZXMuZGVsZXRlKGspKSkpLnRoZW4oKCk9PnNlbGYuY2xpZW50cy5jbGFpbSgpKSk7Cn0pOwpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2ZldGNoJyxlPT57CiBpZihlLnJlcXVlc3QubWV0aG9kIT09J0dFVCcpIHJldHVybjsKIGNvbnN0IHVybD1uZXcgVVJMKGUucmVxdWVzdC51cmwpOwogaWYodXJsLmhvc3RuYW1lPT09J3RleHQucG9sbGluYXRpb25zLmFpJykgcmV0dXJuOwogaWYodXJsLmhvc3RuYW1lPT09J2ltYWdlLnBvbGxpbmF0aW9ucy5haScpIHJldHVybjsKIGlmKHVybC5ob3N0bmFtZT09PSd0cmFuc2xhdGUuZ29vZ2xlLmNvbScpIHJldHVybjsKIGlmKHVybC5ob3N0bmFtZT09PSdhcGkuZHVja2R1Y2tnby5jb20nKSByZXR1cm47CiBpZih1cmwuaG9zdG5hbWU9PT0nZW4ud2lraXBlZGlhLm9yZycpIHJldHVybjsKIGUucmVzcG9uZFdpdGgoY2FjaGVzLm1hdGNoKGUucmVxdWVzdCx7aWdub3JlU2VhcmNoOnRydWV9KS50aGVuKGhpdD0+aGl0fHxmZXRjaChlLnJlcXVlc3QpKSk7Cn0pOwo=
+const CACHE='hell31-dw-v40';
+const ASSETS=['./','./index.html','./mods3.js','./mods2.js','./cine.js','./phase2.css','../hell29/app.js','../hell29/mods.js','../hell29/extra.css','../hell28/style.css','../hell24/app.js','../hell24/manifest.json','../hell24/icon.svg'];
+self.addEventListener('install',e=>{
+ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
+});
+self.addEventListener('activate',e=>{
+ e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+});
+self.addEventListener('fetch',e=>{
+ if(e.request.method!=='GET') return;
+ const url=new URL(e.request.url);
+ if(url.hostname==='text.pollinations.ai') return;
+ if(url.hostname==='image.pollinations.ai') return;
+ if(url.hostname==='translate.google.com') return;
+ if(url.hostname==='api.duckduckgo.com') return;
+ if(url.hostname==='en.wikipedia.org') return;
+ e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(hit=>hit||fetch(e.request)));
+});
