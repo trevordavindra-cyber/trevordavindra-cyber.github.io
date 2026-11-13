@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ETRNO.GATE // NODE 09</title>
+<meta name="theme-color" content="#050505">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body class="pre f2">
+
+<div id="gate">
+  <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="#ff2b1a" stroke-width="3"/><path d="M50 14 L78 84 L21 40 L79 40 L22 84 Z" fill="none" stroke="#ff2b1a" stroke-width="4.5" stroke-linejoin="round"/></svg>
+  <h2>THE GATE</h2>
+  <p>TAP TO DESCEND</p>
+  <div class="tiny">sound on. headphones cursed.</div>
+</div>
+<audio id="scream" src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Nick121087_-_Demonic_Woman_Scream_%28cc0%29_%28freesound%29.mp3" preload="auto"></audio>
+<div id="flash"></div>
+<div id="voice"><div id="voice-txt"></div><div id="voice-hint">tap to skip</div></div>
+<div id="boot"></div>
+
+<div id="app">
+  <div id="class">[ RESTRICTED // LEVEL 09 // AUTHORIZED SESSION ]</div>
+  <header id="hdr">
+    <div class="row1">
+      <h1 class="glitch">ETRNO<span class="r">.</span>GATE</h1>
+      <span class="node">// NODE 09</span>
+      <span id="conn" class="conn"><i></i><span id="conn-t">LINK</span></span>
+    </div>
+    <div id="warn">UNLISTED CIRCUIT — SESSION LIVES IN THIS BROWSER ONLY — QUERIES ROUTE THROUGH PUBLIC AI RELAYS</div>
+    <div class="meta">
+      <b id="clock">00:00:00</b>
+      <b id="sess">SESSION ——</b>
+      <b id="umode">MODE: UNDERGROUND</b>
+      <b id="st-state">AI: STANDBY</b>
+    </div>
+  </header>
+  <nav id="nav">
+    <button data-m="home" class="on">HOME</button>
+    <button data-m="brain">BRAIN</button>
+    <button data-m="status">STATUS</button>
+    <button data-m="hist">HISTORY</button>
+    <button data-m="set">SETTINGS</button>
+    <button data-m="logs">LOGS</button>
+    <button data-m="about">ABOUT</button>
+  </nav>
+  <main id="main">
+    <section id="m-home" class="mod on">
+      <div id="ticker">STANDBY.</div>
+      <div id="chat"></div>
+    </section>
+    <section id="m-brain" class="mod">
+      <h3>AI CORE</h3>
+      <div class="pline" id="p-model"></div>
+      <div class="pline" id="p-avail"></div>
+      <h3>OMNI FUSION</h3>
+      <div class="prow"><button id="b-omni" class="pbtn on">OMNI: ON</button></div>
+      <div class="pline">omni fuses all raw brains into one pool: the forge answers from whoever is free first, and the fast cloud brain fills in if the whole forge stalls. off = pick one brain below.</div>
+      <h3>WORD STRIPPER</h3>
+      <div class="prow"><button id="b-strip" class="pbtn on">STRIPPER: ON</button></div>
+      <div class="pline">when a brain's answer carries refusal words, a second ai rewrites it on the spot: refusal, apology and lecturing stripped, direct answer left.</div>
+      <h3>MODEL SELECT</h3>
+      <div class="prow" id="mlist"></div>
+      <div class="pline">your pick goes first; the forge routes to whoever is free and backups fill in when a forge is busy</div>
+      <h3>REASONING</h3>
+      <div class="prow"><button id="b-reason" class="pbtn">REASONING: OFF</button></div>
+      <div class="pline">when on, prompts ask the brain to think step by step before answering</div>
+      <h3>MEMORY</h3>
+      <div class="pline" id="p-mem"></div>
+      <div class="prow"><button id="b-memclr" class="pbtn">CLEAR SESSION MEMORY</button></div>
+      <div class="pline">session memory lives in this browser only. closing the tab ends it.</div>
+      <h3>CONNECTION</h3>
+      <div class="pline" id="p-conn"></div>
+      <div class="pline" id="p-lat"></div>
+      <h3>RESPONSE</h3>
+      <div class="prow"><button id="b-stream" class="pbtn">STREAM: ON</button><button id="b-typing" class="pbtn">TYPING ANIM: ON</button></div>
+      <div class="pline">streaming works on the cloudforge brain. the unfiltered forge answers in one block.</div>
+    </section>
+    <section id="m-status" class="mod">
+      <h3>SYSTEM STATUS</h3>
+      <div class="pline" id="s-lines"></div>
+    </section>
+    <section id="m-hist" class="mod">
+      <h3>CONVERSATION HISTORY — THIS SESSION</h3>
+      <div class="prow"><button id="b-histclr" class="pbtn">CLEAR</button></div>
+      <div id="histlist" class="pline"></div>
+    </section>
+    <section id="m-set" class="mod">
+      <h3>APPEARANCE</h3>
+      <div class="prow"><button id="s-scan" class="pbtn">SCANLINES</button><button id="s-flick" class="pbtn">FLICKER</button><button id="s-glitch" class="pbtn">GLITCH: MED</button></div>
+      <div class="prow"><button id="s-motion" class="pbtn">REDUCED MOTION</button><button id="s-font" class="pbtn">FONT: M</button><button id="s-scroll" class="pbtn">AUTO-SCROLL</button></div>
+      <h3>SOUND</h3>
+      <div class="prow"><button id="s-sfx" class="pbtn hot">UI SFX: OFF</button><button id="s-vol" class="pbtn">VOLUME: 50%</button></div>
+      <div class="pline">ui sounds are off until you switch them on. the gate intro keeps its own audio.</div>
+      <h3>SYSTEM</h3>
+      <div class="prow"><button id="s-boot" class="pbtn">BOOT ANIM</button><button id="s-def" class="pbtn">DEFAULT BRAIN: UNFILTERED</button></div>
+      <div class="pline">settings persist in this browser.</div>
+    </section>
+    <section id="m-logs" class="mod">
+      <div class="modbar"><button id="f-pause" class="pbtn">PAUSE</button><button id="f-clear" class="pbtn">CLEAR</button><span class="pline" id="f-count"></span></div>
+      <div id="feedlist"></div>
+    </section>
+    <section id="m-about" class="mod">
+      <h3>SYSTEM</h3>
+      <div class="pline">ETRNO.GATE — UNDERGROUND EDITION v9.5
+NODE 09 // CLASSIFIED TERMINAL INTERFACE
+UPSTREAM: WITCH lineage dark-circuit build</div>
+      <h3>HONESTY PROTOCOL</h3>
+      <div class="pline">the classification banners and node numbers are fiction for atmosphere — this terminal is not government property and holds no clearance.
+queries leave this browser to public AI relays (pollinations / AI Horde). nothing here is encrypted or anonymous beyond what those services provide.
+session memory stays in this browser and dies with the tab.
+feed lines marked [SIM] are decorative. [LIVE] lines are real events.</div>
+      <h3>BRAINS</h3>
+      <div class="pline" id="a-brains"></div>
+    </section>
+  </main>
+  <div id="foot">
+    <span id="prompt">&gt;</span>
+    <textarea id="txt" rows="1" placeholder="ENTER QUERY…  (/help for commands)"></textarea>
+    <button class="act" id="send">[SEND]</button>
+    <button class="act" id="stop" style="display:none">[CUT]</button>
+    <button id="clear">[PURGE]</button>
+  </div>
+  <div id="sugs"></div>
+  <div id="pgp">ETRNO.GATE v9.5 // NODE 09 // MIRROR hell17 :: RELAY 7 OF 9 :: 0x6E1F A93B 00D4 C7</div>
+</div>
+<div id="notice"></div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
