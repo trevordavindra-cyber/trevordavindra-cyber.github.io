@@ -1,52 +1,20 @@
-/* hell30 phase-2 styles: workflow builder, workspaces, studio, marketplace, graph, analytics */
-
-/* ===== workflow builder ===== */
-.wfnode{display:flex;flex-direction:column;gap:6px;background:rgba(0,0,0,.55);border:1px solid rgba(220,40,40,.35);border-radius:6px;padding:10px;position:relative;cursor:grab;transition:border-color .15s, box-shadow .15s}
-.wfnode.dragging{opacity:.4;cursor:grabbing}
-.wfnode.executing{border-color:rgba(0,229,255,.8);box-shadow:0 0 14px rgba(0,229,255,.4)}
-.wfnode.done{border-color:rgba(0,200,90,.6)}
-.wfnode.failed{border-color:rgba(255,80,80,.7)}
-.wfnode .wftop{display:flex;justify-content:space-between;align-items:center}
-.wfnode .wftitle{font-size:11px;letter-spacing:2px;color:rgba(0,229,255,.9)}
-.wfnode .wfbar{position:absolute;left:0;top:0;bottom:0;width:8px;background:rgba(220,40,40,.35);cursor:grab}
-.wfnode textarea,.wfnode select{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:#eee;font-size:11px;border-radius:4px;padding:4px 6px;width:100%;font-family:inherit}
-.wfnode .wfdel{font-size:10px;color:rgba(255,120,120,.7);background:none;border:none;cursor:pointer}
-#wf-canvas{display:flex;flex-direction:column;gap:8px;min-height:40px}
-.wfstatus{font-size:10px;letter-spacing:1px;color:rgba(0,229,255,.7)}
-
-/* ===== workspaces ===== */
-#pj-panel{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-#pj-list .pbtn.active{border-color:rgba(0,229,255,.8);color:#00e5ff}
-#pj-tasks .pjt{display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0}
-#pj-tasks .pjt input{accent-color:#dc2828}
-#pj-tasks .pjt.done span{text-decoration:line-through;opacity:.5}
-
-/* ===== studio ===== */
-#st-out .abody{max-height:300px;overflow:auto}
-#st-prev{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:10px;margin-top:8px;max-height:400px;overflow:auto;display:none}
-#st-body{font-family:monospace;font-size:12px;line-height:1.5;resize:vertical}
-
-/* ===== marketplace ===== */
-.mkcard{background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px}
-.mkcard h4{margin:0;font-size:12px;letter-spacing:2px;color:#00e5ff}
-.mkcard .mkl{font-size:10px;color:rgba(255,255,255,.45)}
-.mkcard .lat{font-size:11px;color:rgba(0,229,255,.8)}
-#mk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-
-/* ===== graph ===== */
-#graphc{width:100%;height:420px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);border-radius:6px;cursor:move}
-.gnode{cursor:pointer}
-.gnode circle{stroke:rgba(0,229,255,.5);stroke-width:1.5;fill:rgba(0,229,255,.15)}
-.gnode text{fill:rgba(255,255,255,.75);font-size:10px;pointer-events:none}
-.glink{stroke:rgba(220,40,40,.3);stroke-width:1}
-
-/* ===== analytics ===== */
-#anc{width:100%;height:180px}
-
-/* log page additions */
-#feedlist .line{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-
-/* ===== debates ===== */
-.dbturn{background:rgba(0,0,0,.5);border-left:3px solid rgba(220,40,40,.6);padding:10px;border-radius:4px;margin-bottom:8px}
-.dbturn.b{border-left-color:rgba(0,229,255,.6)}
-.dbturn .who{font-size:10px;letter-spacing:2px;color:rgba(0,229,255,.8);margin-bottom:4px}
+/* hell30 phase-2 styles: workflow builder, workspaces, studio, marketplace */
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.5}
+.fnode{background:rgba(9,9,12,.72);border:1px solid rgba(192,0,32,.25);border-radius:14px;margin:8px 0;position:relative;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.fnode.dragging{opacity:.45}
+.fnode-hd{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(192,0,32,.18);cursor:grab;touch-action:none}
+.fnode-hd b{font-family:Georgia,serif;font-size:10.5px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase;flex:1}
+.fnode-hd button{background:none;border:1px solid rgba(255,255,255,.14);color:var(--mut);font-size:10px;width:24px;height:24px;border-radius:7px;cursor:pointer}
+.fnode-bd{padding:8px 10px}
+.fnode-bd .inp{margin:2px 0}
+.fnode .astat{flex:0 0 auto}
+.fcon{width:2px;height:14px;background:linear-gradient(rgba(192,0,32,.7),rgba(192,0,32,.15));margin:0 auto}
+#pj-list .pbtn.on{box-shadow:0 0 calc(10px*var(--glow)) rgba(192,0,32,.3)}
+.pj-arch{opacity:.55}
+.taskrow{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12.5px;color:#d9d9de;border-bottom:1px dotted rgba(255,255,255,.06)}
+.taskrow.done{opacity:.45;text-decoration:line-through}
+.taskrow button{background:none;border:1px solid rgba(255,255,255,.14);color:var(--mut);font-size:9px;padding:3px 8px;border-radius:999px;cursor:pointer}
+#st-prev{background:rgba(9,9,12,.72);border:1px solid rgba(192,0,32,.22);border-radius:14px;padding:12px;font-size:13px;color:#d9d9de;margin-top:8px}
+#st-prev h1,#st-prev h2,#st-prev h3{margin:10px 0 6px;color:var(--acc)}
+#st-prev code{font-family:ui-monospace,monospace;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:5px}
+.mkcard .mspec{font-size:11.5px;color:var(--mut);margin:4px 0 8px}
