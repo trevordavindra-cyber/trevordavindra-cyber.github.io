@@ -1,0 +1,4 @@
+// ILLUMINATI upgrade #6: Pulse Corner (v18.12)
+// Adds a subtle pulsing glow corner element to the dashboard.
+// Additive only. Injected by overnight upgrade run.
+(() => { const doc=document, win=window; if (!doc||!win) return; const init=()=>{ if (doc.getElementById('hl6-pulse')) return; const style=doc.createElement('style'); style.textContent=`@keyframes hl6-pulse{0%{opacity:0.5}50%{opacity:1}100%{opacity:0.5}}`; doc.head.appendChild(style); const pulse=doc.createElement('div'); pulse.id='hl6-pulse'; pulse.style.cssText='position:fixed;top:10px;right:10px;width:40px;height:40px;border:2px solid rgba(255,255,255,0.7);border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.2),transparent);animation:hl6-pulse 2s infinite;pointer-events:none;'; doc.body.appendChild(pulse); }; if (doc.readyState==='loading') doc.addEventListener('DOMContentLoaded',init); else init(); })();
