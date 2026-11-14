@@ -1,0 +1,4 @@
+// ILLUMINATI upgrade #20: hl20 (v18.26)
+// Arrow‑key pulse edge glow
+// Additive only. Injected by overnight upgrade run.
+const hl20 = (()=>{if(typeof document!=='object'||!document.body)return;const style=document.createElement('style');style.textContent=`.hl20Pulse{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;box-shadow:inset 0 0 140px rgba(0,229,255,.35);opacity:0;animation:hl20Fade .8s forwards;}`;const keyframes=`@keyframes hl20Fade{0%{opacity:.4}100%{opacity:0}}`;style.textContent+=keyframes;document.head.append(style);const el=document.createElement('div');el.className='hl20Pulse';document.body.append(el);const keys={ArrowUp:true,ArrowDown:true,ArrowLeft:true,ArrowRight:true};document.addEventListener('keydown',e=>{if(keys[e.key]){el.style.animation='hl20Fade .5s';}});})();
