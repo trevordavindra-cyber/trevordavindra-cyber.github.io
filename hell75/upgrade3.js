@@ -1,23 +1,29 @@
 // ILLUMINATI upgrade #3: Vignette Scanline (v18.9)
-// Adds a slow-moving dark vignette band overlay to reinforce the dark circuit atmosphere.
-// Additive only. Injected by overnight upgrade run.
+// Adds a subtle CRT-style vignette and drifting scanline overlay. Additive only.
 (function () {
   function init() {
     try {
-      if (document.getElementById('hl3-scanline')) return;
+      if (document.getElementById('hl3-scan')) return;
       var st = document.createElement('style');
-      st.textContent =
-        '#hl3-scanline{position:fixed;inset:0;pointer-events:none;z-index:9997;'+
-        'background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 48%,rgba(0,0,0,.75) 50%,rgba(0,0,0,.55) 52%,transparent 100%);'+
-        'background-size:100% 220%;opacity:.18;animation:hl3scan 7s linear infinite;}'+
-        '@keyframes hl3scan{0%{background-position:0 -120%}100%{background-position:0 120%}}'+
-        '@media (prefers-reduced-motion: reduce){#hl3-scanline{animation:none}}';
+      st.id = 'hl3-scan-style';
+      st.textContent = [
+        '#hl3-scan { position: fixed; inset: 0; z-index: 2147483646; pointer-events: none;',
+        '  background: radial-gradient(ellipse at center, transparent 62%, rgba(0,0,0,.28) 100%);',
+        '  mix-blend-mode: multiply; opacity: .55; }',
+        '#hl3-scan::after { content: ""; position: absolute; left: 0; right: 0; height: 46px;',
+        '  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(255,255,255,.015) 3px 4px);',
+        '  animation: hl3Drift 14s linear infinite; }',
+        '@keyframes hl3Drift { from { top: -46px; } to { top: 100%; } }',
+        '@media (prefers-reduced-motion: reduce) { #hl3-scan::after { animation: none; } }'
+      ].join('\n');
       document.head.appendChild(st);
-      var band = document.createElement('div');
-      band.id = 'hl3-scanline';
-      document.body.appendChild(band);
-    } catch (e) { /* silent */ }
+      var ov = document.createElement('div');
+      ov.id = 'hl3-scan';
+      ov.setAttribute('aria-hidden', 'true');
+      (document.body || document.documentElement).appendChild(ov);
+    } catch (e) { /* never break the site */ }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
 })();

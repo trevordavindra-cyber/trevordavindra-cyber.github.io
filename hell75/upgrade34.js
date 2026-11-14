@@ -1,22 +1,32 @@
 // ILLUMINATI upgrade #34: hl34-trail-trail (v18.40)
-// A short fading cursor trail of tiny red embers behind the pointer.
-// Additive, guarded, respects prefers-reduced-motion (no trail). Injected by overnight upgrade run.
-(function(){
-  if(!document||!document.body)return;
-  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  var style=document.createElement('style');
-  style.textContent='.hl34-ember{position:fixed;width:3px;height:3px;border-radius:50%;background:rgba(220,40,40,.7);pointer-events:none;z-index:9997;box-shadow:0 0 5px rgba(220,40,40,.5);animation:hl34fade .7s ease-out forwards;}@keyframes hl34fade{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(.2)}}';
-  document.head.appendChild(style);
-  var last=0;
-  document.addEventListener('mousemove',function(e){
-    var now=performance.now();
-    if(now-last<50)return;
-    last=now;
-    var ember=document.createElement('span');
-    ember.className='hl34-ember';
-    ember.style.left=(e.clientX-1)+'px';
-    ember.style.top=(e.clientY-1)+'px';
-    document.body.appendChild(ember);
-    setTimeout(function(){if(ember.parentNode)ember.parentNode.removeChild(ember);},750);
-  },{passive:true});
+// Pointer-trail echo: small glowing dots trail the cursor and fade out.
+// Additive only; mouse pointer only, capped trail so it can't flood the DOM.
+// Self-designed this cycle (relay returned malformed JSON).
+(function () {
+  if (window.__hl34Trail) return;
+  window.__hl34Trail = true;
+  function start() {
+    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return;
+    var MAX = 14, last = 0;
+    var colors = ['#ff2b4e', '#00e5ff', '#ffc107', '#b06cff'];
+    document.addEventListener('pointermove', function (e) {
+      if (e && e.pointerType && e.pointerType !== 'mouse') return;
+      var now = Date.now();
+      if (now - last < 40) return;
+      last = now;
+      if (!document.body) return;
+      if (document.querySelectorAll('.hl34-dot').length >= MAX) return;
+      var d = document.createElement('div');
+      d.className = 'hl34-dot';
+      var x = (typeof e.clientX === 'number') ? e.clientX : 0;
+      var y = (typeof e.clientY === 'number') ? e.clientY : 0;
+      d.style.cssText = 'position:fixed;left:' + (x - 3) + 'px;top:' + (y - 3) + 'px;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:9998;opacity:.9;background:' + colors[Math.floor(Math.random() * colors.length)] + ';box-shadow:0 0 8px currentColor;transition:opacity .55s linear, transform .55s ease-out;will-change:opacity,transform;';
+      document.body.appendChild(d);
+      setTimeout(function () { d.style.opacity = '0'; d.style.transform = 'scale(2.4)'; }, 16);
+      setTimeout(function () { if (d && d.parentNode) d.parentNode.removeChild(d); }, 700);
+    }, true);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else { start(); }
 })();
