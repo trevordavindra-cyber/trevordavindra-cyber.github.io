@@ -1,0 +1,4 @@
+// ILLUMINATI upgrade #16: Idle Shimmer (v18.22)
+// An idle easter egg that displays a short cyan shimmer overlay over the particle background after 90 seconds of no user interaction.
+// Additive only. Injected by overnight upgrade run.
+(function(){const d=document; if(!d.body)return;const id='hl16-shimmer';const idle=90000;let t;const reset=()=>{clearTimeout(t);t=setTimeout(activate,idle);};const activate=()=>{const div=d.createElement('div');div.id=id;const s=div.style;s.position='fixed';s.top='0';s.left='0';s.width='100%';s.height='100%';s.pointerEvents='none';s.background='radial-gradient(circle,rgba(0,255,255,0.1) 0%,rgba(0,0,0,0) 70%)';s.opacity='0';s.transition='opacity .5s';d.body.appendChild(div);setTimeout(()=>{s.opacity='1';},50);setTimeout(()=>{s.opacity='0';},3500);setTimeout(()=>{if(div.parentNode)div.parentNode.removeChild(div);},4000);};document.addEventListener('click',reset);document.addEventListener('keypress',reset);reset();})();
