@@ -1,0 +1,4 @@
+// ILLUMINATI upgrade #21: hl21-line-highlight (v18.27)
+// Highlights lines containing numbers in cyan for a numeric-scan effect.
+// Additive only. Injected by overnight upgrade run.
+(function(){if(typeof document!=='object'||!document.body)return;var style=document.createElement('style');style.textContent='.hl21-line-highlight{color:rgba(0,229,255,.9);text-shadow:0 0 6px rgba(0,229,255,.4);}';document.head.appendChild(style);var nodes=document.querySelectorAll('#ticker,#logs,#feedlist,#chat');function scan(){nodes.forEach(function(n){Array.prototype.forEach.call(n.children,function(c){if(/\d/.test(c.textContent||''))c.classList.add('hl21-line-highlight');});});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();})();

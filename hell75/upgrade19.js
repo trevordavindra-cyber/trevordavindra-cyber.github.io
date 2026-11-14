@@ -1,0 +1,4 @@
+// ILLUMINATI upgrade #19: hl19-sigil-hover (v18.25)
+// Adds a gentle hover tilt to the sigil SVG via a class + injected CSS, guarded for SSR/reduced-motion.
+// Additive only. Injected by overnight upgrade run.
+(function(){if(typeof document!=='object'||!document.body)return;if(document.getElementById('hl19-sigil-tilt'))return;var s=document.createElement('style');s.id='hl19-sigil-tilt';s.textContent='.sigil{transition:transform .3s ease}.sigil:hover{transform:rotate(2deg) scale(1.02)}@media (prefers-reduced-motion:reduce){.sigil{transition:none}.sigil:hover{transform:none}}';document.head.appendChild(s);})();
