@@ -1,4 +1,4 @@
-/* hell29 loader: runs the ILLUMINATI core engine (v16 lineage) with coding intro + entry hum removed */
+/* hell83 loader: runs the ILLUMINATI core engine (v16 lineage) with coding intro + entry hum removed */
 const SRC = '../hell24/app.js';
 let code = '';
 try {
@@ -31,9 +31,14 @@ else {
   /* empty-reply hardening: no brain may hand back blank text */
   sub("if(out) return out;\n    throw new Error('empty relay');","if(out&&out.trim()) return out;\n    throw new Error('empty relay');");
   sub("if(!t) throw e;","if(!t||!t.trim()) throw e;");
-  sub("if(out) return out;\n  throw new Error('empty stream');","if(out&&out.trim()) return out;\n  throw new Error('empty stream');");
+  sub("if(out) return out;\n  throw new Error('empty stream');","if(out&&out.trim()) return out;\n    throw new Error('empty stream');");
   sub("if(g.length){ let t=(g[0].text||'').trim(); const i=t.indexOf('\\nUser:'); if(i>-1) t=t.slice(0,i).trim(); return t; }",
       "if(g.length){ let t=(g[0].text||'').trim(); const i=t.indexOf('\\nUser:'); if(i>-1) t=t.slice(0,i).trim(); if(t) return t; }");
+
+  /* rows must land in the chat: line() builds every row but must also hang it on the page */
+  const lineRe=/function line\(cls,text\)\{[\s\S]*?\n\}/;
+  const lm=code.match(lineRe);
+  if(lm && !lm[0].includes('chat.appendChild')) code=code.replace(lineRe, m=>m.replace('return d;','chat.appendChild(d);\n  return d;'));
 
   /* sendQuery: an empty answer reroutes through the unfiltered forge instead of printing blank */
   sub("lastLat=Date.now()-t0;",
