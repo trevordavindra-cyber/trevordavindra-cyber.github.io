@@ -1,0 +1,4 @@
+// ILLUMINATI upgrade #7: hl7-bottom-border (v18.13)
+// Adds a subtle glowing animated bottom border that sweeps across the screen, enhancing the dashboard ambience without intruding on functionality.
+// Additive only. Injected by overnight upgrade run.
+(function(){var d=document,w=window;if(!d||!w)return;function init(){var s=d.createElement('style');s.textContent='@keyframes hl7-wave{0%{background-position:0%}100%{background-position:100%}} .hl7-bottom-border{position:fixed;bottom:0;left:0;width:100%;height:4px;background:linear-gradient(to right,rgba(0,255,255,0.2),rgba(0,255,255,0));background-size:200% 100%;animation:hl7-wave 5s linear infinite;pointer-events:none;z-index:9999;}';d.head.appendChild(s);var b=d.createElement('div');b.className='hl7-bottom-border';d.body.appendChild(b);}d.readyState==='loading'?d.addEventListener('DOMContentLoaded',init):init();})();
