@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ILLUMINATI // REROUTE</title>
+<meta name="theme-color" content="#050505">
+<style>
+html,body{margin:0;min-height:100%;background:#050505;color:#e8c15a;font-family:monospace;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.eye{font-size:64px;color:#e8c15a;text-shadow:0 0 30px #e8c15a,0 0 70px #b06cff}
+.t{margin-top:18px;font-size:13px;letter-spacing:3px;color:#9fb6c9}
+.s{margin-top:10px;font-size:10px;letter-spacing:2px;color:#5a6b7a;max-width:80vw}
+</style>
+</head>
+<body>
+<div class="eye">◉</div>
+<div class="t">SIGNAL LOST — REROUTING…</div>
+<div class="s">the eye never closes. taking you to the newest build.</div>
+<script>
+(function(){
+  var REPO='trevordavindra-cyber/trevordavindra-cyber.github.io';
+  var FALLBACK='/hell81/';
+  function go(p){
+    var cur=location.pathname.replace(/\/+$/,'');
+    var tgt=p.replace(/\/+$/,'');
+    if(cur!==tgt){ location.replace(p); }
+  }
+  function find(){
+    try{
+      fetch('https://api.github.com/repos/'+REPO+'/contents/?per_page=100').then(function(r){return r.json();}).then(function(list){
+        var best=null,bn=-1;
+        (list||[]).forEach(function(it){
+          var m=/^hell(\d+)$/.exec(it && it.name || '');
+          if(m && it.type==='directory'){ var n=parseInt(m[1],10); if(n>bn){bn=n;best='/hell'+n+'/';} }
+        });
+        go(best||FALLBACK);
+      }).catch(function(){go(FALLBACK);});
+    }catch(e){go(FALLBACK);}
+  }
+  find();
+  setTimeout(function(){go(FALLBACK);},2500);
+})();
+</script>
+</body>
+</html>
