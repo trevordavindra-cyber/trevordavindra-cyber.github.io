@@ -1,12 +1,25 @@
 // ILLUMINATI upgrade #29: hl29-grid-drift (v18.35)
-// Faint blue grid overlay drifting diagonally behind content, like a slow oscilloscope sweep.
-// Additive only; guarded; respects prefers-reduced-motion. Injected by overnight upgrade run.
-(function(){
-  if(!document||!document.body)return;
-  if(document.getElementById('hl29-grid'))return;
-  var style=document.createElement('style');
-  style.textContent='#hl29-grid{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.14;background-image:linear-gradient(rgba(0,229,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.5) 1px,transparent 1px);background-size:48px 48px;}@keyframes hl29drift{0%{background-position:0 0}100%{background-position:48px 48px}}@media (prefers-reduced-motion:reduce){#hl29-grid{animation:none}}';
-  document.head.appendChild(style);
-  var g=document.createElement('div');g.id='hl29-grid';document.body.appendChild(g);
-  if(window.matchMedia&&!matchMedia('(prefers-reduced-motion: reduce)').matches){g.style.animation='hl29drift 8s linear infinite';}
+// Faint blueprint grid overlay that drifts slowly across the whole page,
+// settling to a near-invisible opacity after 30 s. Purely additive,
+// pointer-events none so nothing becomes unclickable.
+(function () {
+  if (window.__hl29Grid) return;
+  window.__hl29Grid = true;
+  function start() {
+    if (!document.body || !document.head || document.getElementById('hl29-grid')) return;
+    var st = document.createElement('style');
+    st.textContent = '@keyframes hl29drift{from{background-position:0 0,0 0}to{background-position:48px 48px,48px 48px}}';
+    document.head.appendChild(st);
+    var g = document.createElement('div');
+    g.id = 'hl29-grid';
+    g.style.cssText = 'position:fixed;inset:0;z-index:2147483640;pointer-events:none;opacity:.05;transition:opacity 2s;'
+      + 'background-image:linear-gradient(rgba(0,229,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.6) 1px,transparent 1px);'
+      + 'background-size:48px 48px;'
+      + 'animation:hl29drift 60s linear infinite;';
+    document.body.appendChild(g);
+    setTimeout(function () { g.style.opacity = '.035'; }, 30000);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else { start(); }
 })();

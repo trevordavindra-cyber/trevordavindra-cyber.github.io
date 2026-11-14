@@ -1,18 +1,28 @@
 // ILLUMINATI upgrade #38: hl38-click-ripple (v18.44)
-// Subtle cyan ripple on every click, expansion only, nothing moved.
-// Additive, guarded, respects prefers-reduced-motion. Injected by overnight upgrade run.
-(function(){
-  if(!document||!document.body)return;
-  var style=document.createElement('style');
-  style.textContent='.hl38-ripple{position:fixed;border:2px solid rgba(0,229,255,.5);border-radius:50%;pointer-events:none;z-index:99998;animation:hl38-ripple .6s ease-out forwards;}@keyframes hl38-ripple{0%{width:0;height:0;opacity:.6;}100%{width:120px;height:120px;opacity:0;}}@media (prefers-reduced-motion:reduce){.hl38-ripple{display:none}}';
-  document.head.appendChild(style);
-  document.addEventListener('click',function(e){
-    if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    var r=document.createElement('span');
-    r.className='hl38-ripple';
-    r.style.left=(e.clientX-60)+'px';
-    r.style.top=(e.clientY-60)+'px';
-    document.body.appendChild(r);
-    setTimeout(function(){if(r.parentNode)r.parentNode.removeChild(r);},700);
-  },true);
+// Subtle ripple ring at every mouse click. Additive only: new <style> tag,
+// new ripples appended to body and removed after the animation.
+// Self-designed this cycle (relay returned malformed JSON).
+(function () {
+  if (window.__hl38ClickRipple) return;
+  window.__hl38ClickRipple = true;
+  function start() {
+    var style = document.createElement('style');
+    style.id = 'hl38-click-ripple-style';
+    style.textContent =
+      '.hl38-ripple{position:fixed;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;' +
+      'border:2px solid rgba(159,182,201,.55);pointer-events:none;z-index:9998;' +
+      'animation:hl38Ripple .55s ease-out forwards;}@keyframes hl38Ripple{from{opacity:.7;' +
+      'transform:scale(1)}to{opacity:0;transform:scale(3.4)}}';
+    document.head.appendChild(style);
+    document.addEventListener('click', function (e) {
+      var r = document.createElement('div');
+      r.className = 'hl38-ripple';
+      r.style.left = e.clientX + 'px';
+      r.style.top = e.clientY + 'px';
+      document.body.appendChild(r);
+      setTimeout(function () { if (r && r.parentNode) r.parentNode.removeChild(r); }, 600);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
 })();

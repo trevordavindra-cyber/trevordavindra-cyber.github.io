@@ -1,26 +1,31 @@
 // ILLUMINATI upgrade #39: hl39-clock-chip (v18.45)
-// Tiny top-right clock chip showing real local time, ticking every second.
-// Additive, guarded, reduced-motion-safe (text only). Injected by overnight upgrade run.
-(function(){
-  if(!document||!document.body)return;
-  function start(){
-    if(document.getElementById('hl39-clock'))return;
-    var c=document.createElement('div');
-    c.id='hl39-clock';
-    c.style.cssText='position:fixed;top:12px;right:12px;z-index:9995;font-family:monospace;font-size:10px;'+
-      'letter-spacing:1px;color:rgba(0,229,255,.75);background:rgba(0,0,0,.55);border:1px solid rgba(0,229,255,.25);'+
-      'border-radius:4px;padding:3px 8px;pointer-events:none;';
-    document.body.appendChild(c);
-    function tick(){
-      var d=new Date();
-      var h=d.getHours(),m=d.getMinutes(),s=d.getSeconds();
-      var ap=h>=12?'PM':'AM';
-      h=h%12||12;
-      c.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+' '+ap;
+// Small top-right chip showing the visitor's local time, ticking every 30s.
+// Additive only: one new div, no existing element or behavior touched.
+(function () {
+  if (window.__hl39ClockChip) return;
+  window.__hl39ClockChip = true;
+  function start() {
+    if (!document.body) return;
+    var d = document.createElement('div');
+    d.id = 'hl39-clock-chip';
+    d.title = 'Local time';
+    d.style.cssText = 'position:fixed;top:10px;right:12px;z-index:9995;font-family:monospace;' +
+      'font-size:11px;letter-spacing:1.5px;color:#7de3ff;background:rgba(4,8,14,.55);' +
+      'border:1px solid rgba(125,227,255,.25);border-radius:999px;padding:4px 10px;' +
+      'pointer-events:none;backdrop-filter:blur(3px);';
+    function tick() {
+      var n = new Date();
+      var h = n.getHours(), m = n.getMinutes();
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12; if (h === 0) h = 12;
+      var mm = (m < 10 ? '0' : '') + m;
+      var el = document.getElementById('hl39-clock-chip');
+      if (el) el.textContent = h + ':' + mm + ' ' + ampm;
     }
+    document.body.appendChild(d);
     tick();
-    setInterval(tick,1000);
+    setInterval(tick, 30000);
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
 })();
