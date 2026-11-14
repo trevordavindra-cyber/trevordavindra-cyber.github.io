@@ -1,9 +1,9 @@
 const CACHE='hell84-dw-v92';
 const ASSETS=[
-  './upgrade.js','./upgrade2.js','./upgrade3.js','./upgrade4.js','./upgrade5.js','./upgrade6.js','./upgrade7.js','./upgrade8.js','./upgrade9.js','./upgrade10.js','./upgrade11.js','./upgrade12.js','./upgrade13.js','./upgrade14.js','./upgrade15.js','./upgrade16.js','./upgrade17.js','./upgrade18.js','./upgrade19.js','./upgrade20.js','./upgrade21.js','./upgrade22.js','./upgrade23.js','./upgrade24.js','./upgrade25.js','./upgrade26.js','./upgrade27.js','./upgrade28.js','./upgrade29.js','./upgrade30.js','./upgrade31.js','./upgrade32.js','./upgrade33.js','./upgrade34.js','./upgrade35.js','./upgrade36.js','./upgrade37.js','./upgrade38.js','./upgrade39.js','./upgrade40.js','./upgrade41.js','./upgrade42.js','./upgrade43.js','./upgrade44.js',
-  './upgrade45.js',
-  './upgrade46.js',
-  './upgrade47.js','./upgrade48.js','./upgrade49.js','./upgrade50.js','./','./index.html','./mods3.js','./mods2.js','./cine.js','./phase2.css','./app.js','../hell29/mods.js','./extra.css','./style.css','../hell24/app.js','../hell24/manifest.json','../hell24/icon.svg'];
+  '../hell83/upgrade.js','../hell83/upgrade2.js','../hell83/upgrade3.js','../hell83/upgrade4.js','../hell83/upgrade5.js','../hell83/upgrade6.js','../hell83/upgrade7.js','../hell83/upgrade8.js','../hell83/upgrade9.js','../hell83/upgrade10.js','../hell83/upgrade11.js','../hell83/upgrade12.js','../hell83/upgrade13.js','../hell83/upgrade14.js','../hell83/upgrade15.js','../hell83/upgrade16.js','../hell83/upgrade17.js','../hell83/upgrade18.js','../hell83/upgrade19.js','../hell83/upgrade20.js','../hell83/upgrade21.js','../hell83/upgrade22.js','../hell83/upgrade23.js','../hell83/upgrade24.js','../hell83/upgrade25.js','../hell83/upgrade26.js','../hell83/upgrade27.js','../hell83/upgrade28.js','../hell83/upgrade29.js','../hell83/upgrade30.js','../hell83/upgrade31.js','../hell83/upgrade32.js','../hell83/upgrade33.js','../hell83/upgrade34.js','../hell83/upgrade35.js','../hell83/upgrade36.js','../hell83/upgrade37.js','../hell83/upgrade38.js','../hell83/upgrade39.js','../hell83/upgrade40.js','../hell83/upgrade41.js','../hell83/upgrade42.js','../hell83/upgrade43.js','../hell83/upgrade44.js',
+  '../hell83/upgrade45.js',
+  '../hell83/upgrade46.js',
+  '../hell83/upgrade47.js','../hell83/upgrade48.js','../hell83/upgrade49.js','../hell83/upgrade50.js','./','./index.html','../hell83/mods3.js','../hell30/mods2.js','../hell83/cine.js','../hell83/phase2.css','./app.js','../hell29/mods.js','../hell83/extra.css','../hell83/style.css','../hell24/app.js','../hell24/manifest.json','../hell24/icon.svg'];
 self.addEventListener('install',e=>{
  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
 });
