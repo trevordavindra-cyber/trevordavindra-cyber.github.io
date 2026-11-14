@@ -275,3 +275,134 @@ window.__NET=window.__NET||[];
       <div class="prow"><button id="b-histclr" class="pbtn">CLEAR</button></div>
       <div id="histlist" class="pline"></div>
     </section>
+    <section id="m-set" class="mod">
+      <h3>APPEARANCE</h3>
+      <div class="prow"><button id="s-scan" class="pbtn">SCANLINES</button><button id="s-flick" class="pbtn">FLICKER</button><button id="s-glitch" class="pbtn">GLITCH: MED</button></div>
+      <div class="prow"><button id="s-motion" class="pbtn">REDUCED MOTION</button><button id="s-font" class="pbtn">FONT: M</button><button id="s-scroll" class="pbtn">AUTO-SCROLL</button><button id="s-theme" class="pbtn">THEME: RED</button></div>
+      <h3>THEME STUDIO</h3>
+      <div class="prow" id="hlthemes">
+        <button class="pbtn on" data-hl="bloodline">BLOODLINE</button>
+        <button class="pbtn" data-hl="phantom">PHANTOM</button>
+        <button class="pbtn" data-hl="ghost">GHOST</button>
+        <button class="pbtn" data-hl="overdrive">OVERDRIVE</button>
+        <button class="pbtn" data-hl="void">VOID</button>
+        <button class="pbtn" data-hl="cybernetic">CYBERNETIC</button>
+      </div>
+      <div class="pline">six cinema presets for the whole environment. the classic theme dial above still works on top of them.</div>
+      <div class="prow"><button id="cine-tgl" class="pbtn on">STARTUP CINEMA: ON</button><button id="bg-tgl" class="pbtn on">LIVING BG: ON</button></div>
+      <h3>SOUND</h3>
+      <div class="prow"><button id="s-sfx" class="pbtn hot">UI SFX: OFF</button><button id="s-vol" class="pbtn">VOLUME: 50%</button><button id="b-speak" class="pbtn">SPEAK REPLIES: OFF</button></div>
+      <div class="pline">ui sounds are off until you switch them on. the entry is silent.</div>
+      <h3>SYSTEM</h3>
+      <div class="prow"><button id="s-boot" class="pbtn">BOOT ANIM</button><button id="s-def" class="pbtn">DEFAULT BRAIN: UNFILTERED</button></div>
+      <div class="pline">settings persist in this browser.</div>
+    </section>
+    <section id="m-logs" class="mod">
+      <div class="modbar"><button id="f-pause" class="pbtn">PAUSE</button><button id="f-clear" class="pbtn">CLEAR</button><span class="pline" id="f-count"></span></div>
+      <div id="feedlist"></div>
+    </section>
+    <section id="m-vault" class="mod">
+      <h3>THE VAULT</h3>
+      <div class="pline">files and photos live in this browser only. nothing uploads anywhere.</div>
+      <div class="prow">
+        <button id="v-add" class="pbtn">ADD FILES</button>
+        <button id="v-cam" class="pbtn">CAMERA</button>
+        <button id="v-clear" class="pbtn">CLEAR VAULT</button>
+      </div>
+      <input type="file" id="fin" multiple style="display:none">
+      <input type="file" id="cam-in" accept="image/*" capture="environment" style="display:none">
+      <h3>PHOTOS</h3>
+      <div id="v-empty" class="pline">the vault is empty. add files or snap a photo.</div>
+      <div id="v-grid"></div>
+      <h3>FILES</h3>
+      <div id="v-list"></div>
+    </section>
+    <section id="m-about" class="mod">
+      <h3>SYSTEM</h3>
+      <div class="pline">ILLUMINATI — ULTIMATE AI INTELLIGENCE OPERATING SYSTEM v18.46
+NODE 09 // THE ALL-SEEING TERMINAL
+UPSTREAM: WITCH lineage dark-circuit build</div>
+      <h3>HONESTY PROTOCOL</h3>
+      <div class="pline">the classification banners and node numbers are fiction for atmosphere — this terminal is not government property and holds no clearance.
+queries leave this browser to public AI relays (pollinations / AI Horde). nothing here is encrypted or anonymous beyond what those services provide.
+the v18 labs (agents, arena, debate, research) all run over one public relay pool with different mandates — they are real requests, not simulated agents.
+the ordinary research pass works from model knowledge. the WEB PASS gathers live extracts from duckduckgo answers and wikipedia and cites them; open every source yourself before trusting it.
+the marketplace shows live test-ping latencies you measure yourself. no prices: the relay is free and keyless.
+the workflow builder runs its steps for real, in order, with your text between nodes. pausing happens between steps, not mid-step.
+document analysis reads vault text files locally; images cannot be machine-read through the free relay.
+votes, analytics and diagnostics are measured or stored in this browser only. nothing is invented.
+session memory and the vault stay in this browser and die with the tab.
+feed lines marked [SIM] are decorative. [LIVE] lines are real events.
+the AI CORE visual reads the real session state: idle, working, forging, and link status.</div>
+      <h3>BRAINS</h3>
+      <div class="pline" id="a-brains"></div>
+    </section>
+  </main>
+  <div id="foot">
+    <span id="prompt">&gt;</span>
+    <textarea id="txt" rows="1" placeholder="ENTER QUERY…  (/help for commands)"></textarea>
+    <button class="act" id="mic">[MIC]</button>
+    <button class="act" id="send">[SEND]</button>
+    <button class="act" id="stop" style="display:none">[CUT]</button>
+    <button id="clear">[PURGE]</button>
+  </div>
+  <div id="sugs"></div>
+  <div id="pgp">ILLUMINATI v18.46 // THE EYE IS OPEN // MIRROR hell72</div>
+</div>
+<div id="desk" aria-hidden="false"></div>
+
+<div id="cam-panel">
+  <video id="cam-video" autoplay playsinline muted></video>
+  <div class="prow">
+    <button id="cam-snap" class="pbtn on">[SNAP]</button>
+    <button id="cam-flip" class="pbtn">[FLIP]</button>
+    <button id="cam-close" class="pbtn">[CLOSE]</button>
+  </div>
+</div>
+
+<div id="cmdbk">
+  <div id="cmdp">
+    <input id="cmdin" placeholder="TYPE A COMMAND…" autocomplete="off" spellcheck="false">
+    <div id="cmdlist"></div>
+  </div>
+</div>
+<div id="notice"></div>
+<script type="module" src="../hell29/app.js"></script>
+<script type="module" src="../hell30/mods2.js"></script>
+<script type="module" src="./mods3.js"></script>
+<script type="module" src="./cine.js"></script>
+<script src="./upgrade.js" defer></script>
+<script src="./upgrade2.js" defer></script>
+<script src="./upgrade3.js" defer></script>
+<script src="./upgrade4.js" defer></script>
+<script src="./upgrade5.js" defer></script>
+<script src="./upgrade6.js" defer></script>
+<script src="./upgrade7.js" defer></script>
+<script src="./upgrade8.js" defer></script>
+<script src="./upgrade9.js" defer></script>
+<script src="./upgrade10.js" defer></script>
+<script src="./upgrade11.js" defer></script>
+<script src="./upgrade12.js" defer></script>
+<script src="./upgrade13.js" defer></script>
+<script src="./upgrade14.js" defer></script>
+<script src="./upgrade15.js" defer></script>
+<script src="./upgrade16.js" defer></script>
+<script src="./upgrade17.js" defer></script>
+<script src="./upgrade18.js" defer></script>
+<script src="./upgrade19.js" defer></script>
+<script src="./upgrade20.js" defer></script>
+<script src="./upgrade21.js" defer></script>
+<script src="./upgrade22.js" defer></script>
+<script src="./upgrade23.js" defer></script>
+<script src="./upgrade24.js" defer></script>
+<script src="./upgrade25.js" defer></script>
+<script src="./upgrade26.js" defer></script><script src="./upgrade27.js" defer></script><script src="./upgrade28.js" defer></script><script src="./upgrade29.js" defer></script><script src="./upgrade30.js" defer></script><script src="./upgrade31.js" defer></script><script src="./upgrade32.js" defer></script>
+<script src="./upgrade33.js" defer></script>
+<script src="./upgrade34.js" defer></script>
+<script src="./upgrade35.js" defer></script>
+<script src="./upgrade36.js" defer></script>
+<script src="./upgrade37.js" defer></script>
+<script src="./upgrade38.js" defer></script>
+<script src="./upgrade39.js" defer></script><script src="./upgrade40.js" defer></script>
+</body>
+</html>
