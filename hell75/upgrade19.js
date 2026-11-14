@@ -1,4 +1,4 @@
-// ILLUMINATI upgrade #19: hl19-sigil-hover (v18.25)
-// Adds a gentle hover tilt to the sigil SVG via a class + injected CSS, guarded for SSR/reduced-motion.
+// ILLUMINATI upgrade #19: hl19-console-stats (v18.25)
+// Logs elapsed seconds and viewport dimensions once 15 seconds after page load.
 // Additive only. Injected by overnight upgrade run.
-(function(){if(typeof document!=='object'||!document.body)return;if(document.getElementById('hl19-sigil-tilt'))return;var s=document.createElement('style');s.id='hl19-sigil-tilt';s.textContent='.sigil{transition:transform .3s ease}.sigil:hover{transform:rotate(2deg) scale(1.02)}@media (prefers-reduced-motion:reduce){.sigil{transition:none}.sigil:hover{transform:none}}';document.head.appendChild(s);})();
+(() => { if (typeof window==='undefined'||!window.console) return; const start=Date.now(); setTimeout(()=>{ const secs=(Date.now()-start)/1000; const w=window.innerWidth; const h=window.innerHeight; window.console.log(`Elapsed: ${secs.toFixed(1)}s, Viewport: ${w}x${h}`); },15000);})();

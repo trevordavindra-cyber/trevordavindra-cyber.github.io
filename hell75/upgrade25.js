@@ -1,4 +1,4 @@
-// ILLUMINATI upgrade #25: hl25-page-fade-in (v18.31)
-// Fades the entire page in on load for a smooth, cinematic entrance.
+// ILLUMINATI upgrade #25: hl25-title-flicker (v18.31)
+// Light flicker of the page title every 45 seconds, appending a trailing eye symbol for 2 seconds before reverting to the original.
 // Additive only. Injected by overnight upgrade run.
-(function(){if(!document||!document.documentElement)return;var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(RM)return;var style=document.createElement('style');style.textContent='html{opacity:0;transition:opacity .6s ease-in-out;}html.hl25-fade-in{opacity:1;}';document.head.appendChild(style);if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(function(){document.documentElement.classList.add('hl25-fade-in');});});}else{requestAnimationFrame(function(){document.documentElement.classList.add('hl25-fade-in');});}})();
+(function(){if(typeof document==='undefined'||!document||!document.title){return;}var orig=document.title||'',eye=' 👁';setInterval(function(){document.title=orig+eye;setTimeout(function(){document.title=orig;},2000);},45000);})();

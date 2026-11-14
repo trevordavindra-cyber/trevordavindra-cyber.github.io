@@ -1,3 +1,4 @@
-// ILLUMINATI upgrade #9: hl9-rune-cursor (v18.15)
-// Replaces the cursor with a subtle rune/crosshair glow. Additive only.
-(function(){var d=document;if(!d||!d.body)return;var el=d.createElement('div');el.id='hl9-cursor';el.style.cssText='position:fixed;pointer-events:none;z-index:9999;width:14px;height:14px;border:1px solid rgba(220,40,40,.7);border-radius:2px;box-shadow:0 0 6px rgba(220,40,40,.4);transform:translate(-50%,-50%);mix-blend-mode:screen;';d.body.appendChild(el);var x=-100,y=-100;d.addEventListener('mousemove',function(e){x=e.clientX;y=e.clientY;el.style.left=x+'px';el.style.top=y+'px';},{passive:true});d.addEventListener('mouseleave',function(){el.style.opacity='0';});d.addEventListener('mouseenter',function(){el.style.opacity='1';});})();
+// ILLUMINATI upgrade #9: hl9-title-twinkle (v18.15)
+// Adds a subtle, periodic twinkling effect to the browser tab title, optionally prefixing with a star symbol for visual interest.
+// Additive only. Injected by overnight upgrade run.
+(()=>{function init(){const b=document.title||'';let s=!1;const i=setInterval(()=>{document.title=s?b:'✦'+b;s=!s;},800);}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}})();

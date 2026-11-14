@@ -1,4 +1,4 @@
-// ILLUMINATI upgrade #14: Cursor Glow (v18.20)
-// Adds a subtle glow effect following the cursor on the dashboard.
+// ILLUMINATI upgrade #14: hl14-button-hover (v18.20)
+// Adds a subtle cyan glow ring to buttons on hover for desktop pointer devices.
 // Additive only. Injected by overnight upgrade run.
-(function(){if(!document||!document.body)return;const glow=document.createElement('div');glow.style.cssText='position:fixed;width:100px;height:100px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(0,255,255,0.2),rgba(0,255,255,0) 70%);transform:translate(-50%,-50%);z-index:9999;transition:transform 0.1s ease-out;';document.body.appendChild(glow);document.addEventListener('mousemove',e=>{glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';},{passive:true});})();
+(function(){var d=document;if(!d||!d.head)return;var s=document.createElement('style');s.textContent='@media (hover: hover) and (pointer: fine){button:hover,.btn:hover{box-shadow:0 0 5px cyan;transition:box-shadow .2s}}';d.head.appendChild(s);hl14_buttonHover=true;})();

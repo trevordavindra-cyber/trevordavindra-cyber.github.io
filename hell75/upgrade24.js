@@ -1,4 +1,4 @@
-// ILLUMINATI upgrade #24: hl24-comic-sans (v18.30)
-// Easter egg toggle in the theme presets: swaps the terminal font to Comic Sans MS.
+// ILLUMINATI upgrade #24: hl24_scanline_flash (v18.30)
+// One-time thin scan line sweep down screen after 20 s
 // Additive only. Injected by overnight upgrade run.
-(function(){if(!document)return;var btn=document.createElement('button');btn.id='hl24-comic-btn';btn.textContent='COMIC MODE';btn.style.cssText='position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:99999;font-size:9px;letter-spacing:2px;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.5);color:#aaa;cursor:pointer;pointer-events:auto;';var on=false;btn.addEventListener('click',function(){on=!on;document.documentElement.style.setProperty('font-family',on?'"Comic Sans MS","Comic Sans",cursive':'');btn.style.color=on?'#00e5ff':'#aaa';});document.addEventListener('DOMContentLoaded',function(){if(document.body&&!document.getElementById('hl24-comic-btn'))document.body.appendChild(btn);});})();
+(()=>{const el=document.createElement('div');el.style.cssText='position:fixed;top:-100%;left:0;width:100%;height:1px;background:#66ff00;pointer-events:none;z-index:9999;';if(!document.body)return;document.body.appendChild(el);setTimeout(()=>{el.style.transition='top 0.5s linear';el.style.top='100%';},20000);setTimeout(()=>{document.body.removeChild(el);},21000);})();

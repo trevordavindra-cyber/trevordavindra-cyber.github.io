@@ -1,4 +1,4 @@
-// ILLUMINATI upgrade #13: hl13-title-blink (v18.19)
-// Alternates the document title with a version every 2 seconds, subtle dynamic touch.
+// ILLUMINATI upgrade #13: Click Counter Expose (v18.19)
+// Tracks number of clicks during the visit and stores the count on window.hl13ClickCount.
 // Additive only. Injected by overnight upgrade run.
-(function(){if(!window||!document)return;var base='ILLUMINATI';var alt='●ILLUMINATI';var on=true;setInterval(function(){try{document.title=on?base:alt;on=!on;}catch(e){}},2000);})();
+(()=>{if(typeof window!=='object'||!document)return;let count=0;const update=()=>{window.hl13ClickCount=count;};document.addEventListener('click',()=>{count++;update();});window.hl13ClickCount=0;})();
