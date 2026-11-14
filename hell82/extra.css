@@ -1,0 +1,26 @@
+/* hell29 extra styles for the v18 labs */
+.nsep{width:1px;background:rgba(192,0,32,.35);align-self:stretch;margin:2px 3px;flex:0 0 auto}
+.inp{width:100%;background:#0d0d10;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:var(--wht);font-family:inherit;font-size:13px;padding:10px 12px;outline:none;margin:6px 0;resize:vertical}
+.inp:focus{border-color:var(--acc);box-shadow:0 0 calc(10px*var(--glow)) rgba(192,0,32,.2)}
+select.inp{appearance:none;-webkit-appearance:none}
+.lab-note{font-size:11px;line-height:1.5;color:#c9a08f;border:1px dashed rgba(192,0,32,.45);border-radius:10px;padding:8px 10px;margin:6px 0 10px;background:rgba(192,0,32,.05)}
+.agrid{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:720px){.agrid{grid-template-columns:1fr 1fr}}
+.acard{background:rgba(9,9,12,.72);border:1px solid rgba(192,0,32,.22);border-radius:14px;padding:10px 12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.acard .ahd{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.16em;margin-bottom:6px}
+.acard .ahd b{color:var(--acc);font-family:Georgia,serif;font-size:11px}
+.acard .ahd .ams{margin-left:auto;color:var(--mut);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px}
+.astat{font-size:9px;letter-spacing:.14em;padding:2px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.18);color:var(--mut)}
+.astat.run{color:#f5c96b;border-color:rgba(245,201,107,.5);animation:pulse 1s infinite}
+.astat.ok{color:#35d07f;border-color:rgba(53,208,127,.5)}
+.astat.err{color:var(--acc);border-color:rgba(192,0,32,.6)}
+.abody{font-size:12.5px;color:#d9d9de;white-space:pre-wrap;word-wrap:break-word;max-height:260px;overflow-y:auto}
+.vote{background:none;border:1px solid rgba(192,0,32,.4);color:var(--acc);font-size:10px;padding:4px 10px;border-radius:999px;cursor:pointer;font-family:inherit;margin-top:8px}
+.vote.on{background:var(--acc);color:#fff}
+.wins{font-size:9px;color:var(--mut);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.drow{display:flex;gap:8px;align-items:baseline;padding:6px 2px;border-bottom:1px dotted rgba(255,255,255,.06);font-size:12px}
+.drow .dl{flex:0 0 118px;color:var(--mut);font-size:10px;letter-spacing:.1em}
+.drow .dv{color:var(--wht);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;word-break:break-word}
+.dv.pass{color:#35d07f}.dv.fail{color:var(--acc)}
+#graphc,#anc{width:100%;max-width:560px;display:block;margin:8px auto;border:1px solid rgba(192,0,32,.18);border-radius:14px;background:rgba(5,5,5,.5);touch-action:none}
+.gtag{font-size:10px;color:var(--mut)}
