@@ -1,0 +1,52 @@
+/* hell30 phase-2 styles: workflow builder, workspaces, studio, marketplace, graph, analytics */
+
+/* ===== workflow builder ===== */
+.wfnode{display:flex;flex-direction:column;gap:6px;background:rgba(0,0,0,.55);border:1px solid rgba(220,40,40,.35);border-radius:6px;padding:10px;position:relative;cursor:grab;transition:border-color .15s, box-shadow .15s}
+.wfnode.dragging{opacity:.4;cursor:grabbing}
+.wfnode.executing{border-color:rgba(0,229,255,.8);box-shadow:0 0 14px rgba(0,229,255,.4)}
+.wfnode.done{border-color:rgba(0,200,90,.6)}
+.wfnode.failed{border-color:rgba(255,80,80,.7)}
+.wfnode .wftop{display:flex;justify-content:space-between;align-items:center}
+.wfnode .wftitle{font-size:11px;letter-spacing:2px;color:rgba(0,229,255,.9)}
+.wfnode .wfbar{position:absolute;left:0;top:0;bottom:0;width:8px;background:rgba(220,40,40,.35);cursor:grab}
+.wfnode textarea,.wfnode select{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:#eee;font-size:11px;border-radius:4px;padding:4px 6px;width:100%;font-family:inherit}
+.wfnode .wfdel{font-size:10px;color:rgba(255,120,120,.7);background:none;border:none;cursor:pointer}
+#wf-canvas{display:flex;flex-direction:column;gap:8px;min-height:40px}
+.wfstatus{font-size:10px;letter-spacing:1px;color:rgba(0,229,255,.7)}
+
+/* ===== workspaces ===== */
+#pj-panel{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+#pj-list .pbtn.active{border-color:rgba(0,229,255,.8);color:#00e5ff}
+#pj-tasks .pjt{display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0}
+#pj-tasks .pjt input{accent-color:#dc2828}
+#pj-tasks .pjt.done span{text-decoration:line-through;opacity:.5}
+
+/* ===== studio ===== */
+#st-out .abody{max-height:300px;overflow:auto}
+#st-prev{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:10px;margin-top:8px;max-height:400px;overflow:auto;display:none}
+#st-body{font-family:monospace;font-size:12px;line-height:1.5;resize:vertical}
+
+/* ===== marketplace ===== */
+.mkcard{background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.mkcard h4{margin:0;font-size:12px;letter-spacing:2px;color:#00e5ff}
+.mkcard .mkl{font-size:10px;color:rgba(255,255,255,.45)}
+.mkcard .lat{font-size:11px;color:rgba(0,229,255,.8)}
+#mk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+
+/* ===== graph ===== */
+#graphc{width:100%;height:420px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);border-radius:6px;cursor:move}
+.gnode{cursor:pointer}
+.gnode circle{stroke:rgba(0,229,255,.5);stroke-width:1.5;fill:rgba(0,229,255,.15)}
+.gnode text{fill:rgba(255,255,255,.75);font-size:10px;pointer-events:none}
+.glink{stroke:rgba(220,40,40,.3);stroke-width:1}
+
+/* ===== analytics ===== */
+#anc{width:100%;height:180px}
+
+/* log page additions */
+#feedlist .line{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+
+/* ===== debates ===== */
+.dbturn{background:rgba(0,0,0,.5);border-left:3px solid rgba(220,40,40,.6);padding:10px;border-radius:4px;margin-bottom:8px}
+.dbturn.b{border-left-color:rgba(0,229,255,.6)}
+.dbturn .who{font-size:10px;letter-spacing:2px;color:rgba(0,229,255,.8);margin-bottom:4px}
