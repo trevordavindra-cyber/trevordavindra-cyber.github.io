@@ -46,6 +46,18 @@ else {
     if(!answer){ wait.textContent='the fast brain came back empty — rerouting through the unfiltered forge…'; feed('EMPTY REPLY — REROUTING TO HORDE','warn'); answer=await askUnfiltered(user); answer=String(answer==null?'':answer).trim(); }
     lastLat=Date.now()-t0;`);
 
+  /* operator-cut hardening: the CUT button waits a beat so a stray tap can't hit it,
+     and a cut ends the exchange cleanly instead of printing a failure cascade */
+  sub("stopB.style.display='';","setTimeout(function(){ if(busy) stopB.style.display=''; },900);");
+  sub("wait.remove(); out.classList.remove('typing'); setBody(out,'');",
+      "wait.remove(); out.classList.remove('typing'); const CUTERR=String(e).indexOf('cut by operator')>-1; setBody(out, CUTERR ? '— transmission cut by operator —' : '');");
+  sub("line('omen r','circuit dropped: '+String(e).slice(0,140));",
+      "if(!CUTERR) line('omen r','circuit dropped: '+String(e).slice(0,140));");
+  sub("line('omen','the forge is busy a lot — try again, or switch brains in the BRAIN module');",
+      "if(!CUTERR) line('omen','the forge is busy a lot — try again, or switch brains in the BRAIN module');");
+  sub("feed('REQUEST FAILED :: '+String(e).slice(0,60),'warn'); notice('warn','WARNING','request could not be processed');",
+      "if(!CUTERR){ feed('REQUEST FAILED :: '+String(e).slice(0,60),'warn'); notice('warn','WARNING','request could not be processed'); }");
+
   try {
     const blob = new Blob([code], { type: 'text/javascript' });
     await import(URL.createObjectURL(blob));
