@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ILLUMINATI</title>
+<meta name="theme-color" content="#050505">
+<link rel="manifest" href="../hell24/manifest.json">
+<link rel="icon" href="../hell24/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../hell28/style.css">
+<link rel="stylesheet" href="../hell29/extra.css">
+<link rel="stylesheet" href="./phase2.css">
+<script>
+window.__NET=window.__NET||[];
+(function(){
+  const of=window.fetch;
+  if(!of||window.__NETWRAP) return; window.__NETWRAP=1;
+  window.fetch=function(...a){
+    const url=String(a[0]&&a[0].url||a[0]||'');
+    const t0=performance.now();
+    return of.apply(this,a).then(
+      r=>{ try{window.__NET.push({u:url.slice(0,80),ms:performance.now()-t0,ok:r.ok,t:Date.now()});}catch(e){} return r; },
+      e=>{ try{window.__NET.push({u:url.slice(0,80),ms:performance.now()-t0,ok:false,t:Date.now()});}catch(e2){} throw e; });
+  };
+})();
+</script>
+</head>
+<body class="pre f2" data-hl="bloodline">
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<div id="cine">
+  <svg class="c-emb" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 12 L92 88 L8 88 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><circle cx="50" cy="62" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="50" cy="62" r="5" fill="currentColor"/><path d="M30 62 Q50 46 70 62" fill="none" stroke="currentColor" stroke-width="2"/><path d="M30 62 Q50 78 70 62" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+  <div class="c-rings" aria-hidden="true"><i></i><i></i></div>
+  <div class="c-lines">
+    <div>ILLUMINATI</div>
+    <div>ULTIMATE INTELLIGENCE ENVIRONMENT</div>
+    <div>CORE ONLINE · NODE 09</div>
+  </div>
+  <button id="c-skip">SKIP</button>
+</div>
+
+<div id="gate">
+  <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 12 L92 88 L8 88 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><circle cx="50" cy="62" r="14" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="62" r="5" fill="currentColor"/><path d="M30 62 Q50 46 70 62" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M30 62 Q50 78 70 62" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+  <h2>ILLUMINATI</h2>
+  <p>TAP TO ENTER</p>
+  <div class="tiny">the order waits in silence.</div>
+</div>
+<div id="flash"></div>
+<div id="voice">
+  <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 12 L92 88 L8 88 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><circle cx="50" cy="62" r="14" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="62" r="5" fill="currentColor"/><path d="M30 62 Q50 46 70 62" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M30 62 Q50 78 70 62" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+  <div id="voice-txt"></div>
+  <div id="voice-hint">tap to skip</div>
+</div>
+<div id="boot"></div>
+
+<div id="app">
+  <div id="class">[ RESTRICTED // LEVEL 09 // AUTHORIZED SESSION ]</div>
+  <header id="hdr">
+    <div class="row1">
+      <h1 class="glitch">ILLUMINATI</h1>
+      <span class="node">// NODE 09</span>
+      <span id="conn" class="conn"><i></i><span id="conn-t">LINK</span></span>
+      <button id="cmdbtn" class="hbtn" title="Command palette">⌘</button>
+    </div>
+    <div id="warn">UNLISTED CIRCUIT — SESSION LIVES IN THIS BROWSER ONLY — QUERIES ROUTE THROUGH PUBLIC AI RELAYS</div>
+    <div class="meta">
+      <b id="clock">00:00:00</b>
+      <b id="sess">SESSION ——</b>
+      <b id="umode">MODE: UNDERGROUND</b>
+      <b id="st-state">AI: STANDBY</b>
+    </div>
+  </header>
+  <nav id="nav">
+    <button data-m="home" class="on">HOME</button>
+    <button data-m="status">STATUS</button>
+    <span class="nsep"></span>
+    <button data-m="brain">BRAIN</button>
+    <button data-m="agents">AGENTS</button>
+    <button data-m="arena">ARENA</button>
+    <button data-m="debate">DEBATE</button>
+    <button data-m="research">LAB</button>
+    <button data-m="persona">PERSONA</button>
+    <button data-m="graph">GRAPH</button>
+    <span class="nsep"></span>
+    <button data-m="flow">FLOW</button>
+    <button data-m="projects">WORK</button>
+    <button data-m="studio">STUDIO</button>
+    <button data-m="market">MARKET</button>
+    <span class="nsep"></span>
+    <button data-m="hist">HIST</button>
+    <button data-m="vault">VAULT</button>
+    <button data-m="search">SEARCH</button>
+    <span class="nsep"></span>
+    <button data-m="set">SET</button>
+    <button data-m="logs">LOGS</button>
+    <button data-m="diag">DIAG</button>
+    <button data-m="analytics">STATS</button>
+    <button data-m="about">ABOUT</button>
+  </nav>
+  <main id="main">
+    <section id="m-home" class="mod on">
+      <div id="ticker">STANDBY.</div>
+      <div id="corewrap"><canvas id="core"></canvas><div id="corelbl">AI CORE</div></div>
+      <div id="chat"></div>
+      <div id="chips"></div>
+    </section>
+    <section id="m-brain" class="mod">
+      <h3>AI CORE</h3>
+      <div class="pline" id="p-model"></div>
+      <div class="pline" id="p-avail"></div>
+      <h3>OMNI FUSION</h3>
+      <div class="prow"><button id="b-omni" class="pbtn on">OMNI: ON</button></div>
+      <div class="pline">omni fuses all raw brains into one pool: the forge answers from whoever is free first, and the fast cloud brain fills in if the whole forge stalls. off = pick one brain below.</div>
+      <h3>ALTER EGOS</h3>
+      <div class="prow"><button id="b-per" class="pbtn">EGO: ILLUMINATI</button></div>
+      <div class="pline">the order can wear faces: ILLUMINATI the all-seeing core, HELLFATHER the consigliere, WARLORD the tactician, SEER the oracle, IMP the trickster. same never-refuse core, different voice. /ego cycles.</div>
+      <h3>WORD STRIPPER</h3>
+      <div class="prow"><button id="b-strip" class="pbtn on">STRIPPER: ON</button></div>
+      <div class="pline">when a brain's answer carries refusal words, a second ai rewrites it on the spot: refusal, apology and lecturing stripped, direct answer left.</div>
+      <h3>MODEL SELECT</h3>
+      <div class="prow" id="mlist"></div>
+      <div class="pline">your pick goes first; the forge routes to whoever is free and backups fill in when a forge is busy</div>
+      <h3>REASONING</h3>
+      <div class="prow"><button id="b-reason" class="pbtn">REASONING: OFF</button></div>
+      <div class="pline">when on, prompts ask the brain to think step by step before answering</div>
+      <h3>MEMORY</h3>
+      <div class="pline" id="p-mem"></div>
+      <div class="prow"><button id="b-memclr" class="pbtn">CLEAR ALL MEMORY</button></div>
+      <div class="pline">long-term memory persists in this browser between sessions. the order remembers you.</div>
+      <h3>CONNECTION</h3>
+      <div class="pline" id="p-conn"></div>
+      <div class="pline" id="p-lat"></div>
+      <h3>RESPONSE</h3>
+      <div class="prow"><button id="b-stream" class="pbtn">STREAM: ON</button><button id="b-typing" class="pbtn">TYPING ANIM: ON</button></div>
+      <div class="pline">streaming works on the cloudforge brain. the unfiltered forge answers in one block.</div>
+    </section>
+    <section id="m-agents" class="mod">
+      <h3>Multi-Agent Command Center</h3>
+      <div class="lab-note">seven mandates run as separate ordered requests over the order's relay pool — one provider, seven distinct jobs. every line below is a real model answer, nothing simulated.</div>
+      <div id="ag-picks" class="prow"></div>
+      <textarea id="ag-task" class="inp" rows="3" placeholder="assign the mission…"></textarea>
+      <div class="prow"><button id="ag-run" class="pbtn on">DEPLOY AGENTS</button><button id="ag-syn" class="pbtn" disabled>COMBINE FINDINGS</button><button id="ag-clear" class="pbtn">RESET</button></div>
+      <div id="ag-out" class="agrid"></div>
+      <div id="ag-synout"></div>
+    </section>
+    <section id="m-arena" class="mod">
+      <h3>AI Battle Arena</h3>
+      <textarea id="ar-prompt" class="inp" rows="2" placeholder="one prompt, every brain…"></textarea>
+      <div id="ar-picks" class="prow"></div>
+      <div class="prow"><button id="ar-run" class="pbtn on">RUN THE GAUNTLET</button></div>
+      <div id="ar-out" class="agrid"></div>
+      <h3>BATTLE LOG</h3>
+      <div id="ar-log" class="pline"></div>
+    </section>
+    <section id="m-debate" class="mod">
+      <h3>AI Debate Mode</h3>
+      <textarea id="db-topic" class="inp" rows="2" placeholder="the motion…"></textarea>
+      <div class="prow"><button id="db-run" class="pbtn on">OPEN DEBATE</button></div>
+      <div id="db-out" class="agrid"></div>
+    </section>
+    <section id="m-research" class="mod">
+      <h3>Live Research Laboratory</h3>
+      <div class="lab-note">the ordinary pass works from the order's brains. the WEB PASS button gathers live sources (duckduckgo answers + wikipedia) and cites them. either way, open the sources yourself.</div>
+      <select id="rs-mode" class="inp">
+        <option value="quick">QUICK — concise overview</option>
+        <option value="advanced">ADVANCED — deep multi-angle pass</option>
+        <option value="compare">COMPARATIVE — weigh subjects (separate with "vs")</option>
+        <option value="verify">FACT VERIFICATION — test a claim</option>
+        <option value="report">RESEARCH REPORT — structured brief</option>
+      </select>
+      <textarea id="rs-q" class="inp" rows="2" placeholder="the question…"></textarea>
+      <div class="prow"><button id="rs-run" class="pbtn on">RUN RESEARCH</button><button id="rs-save" class="pbtn" disabled>SAVE TO ARCHIVE</button></div>
+      <div id="rs-out"></div>
+      <h3>RESEARCH ARCHIVE</h3>
+      <div id="rs-log" class="pline"></div>
+    </section>
+    <section id="m-persona" class="mod">
+      <h3>AI Personalities Studio</h3>
+      <input id="pe-name" class="inp" placeholder="persona name" autocomplete="off">
+      <div id="pe-presets" class="prow"></div>
+      <div class="pline">communication style</div>
+      <select id="pe-style" class="inp">
+        <option>professional</option><option>technical</option><option>researcher</option>
+        <option>creative</option><option>academic</option><option>concise</option><option>analytical</option>
+      </select>
+      <div class="pline">response length</div>
+      <select id="pe-len" class="inp"><option>short</option><option selected>medium</option><option>long</option></select>
+      <textarea id="pe-inst" class="inp" rows="4" placeholder="standing instructions for the labs…"></textarea>
+      <div class="prow"><button id="pe-save" class="pbtn on">SAVE PERSONA</button><button id="pe-clear" class="pbtn">CLEAR</button></div>
+      <div class="pline" id="pe-state"></div>
+      <div class="pline">the persona commands every v18 lab — agents, arena, debate, research. the main chat brain keeps its own ego system.</div>
+    </section>
+    <section id="m-graph" class="mod">
+      <h3>Knowledge Graph</h3>
+      <div class="pline" id="gr-info">built only from what the order actually holds: memory facts, vault items, research and battles. no invented links.</div>
+      <input id="gr-q" class="inp" placeholder="filter nodes…" autocomplete="off">
+      <div class="prow"><button id="gr-zi" class="pbtn">+</button><button id="gr-zo" class="pbtn">−</button><button id="gr-re" class="pbtn on">REBUILD</button></div>
+      <canvas id="graphc"></canvas>
+      <div id="gr-detail" class="pline"></div>
+    </section>
+    <section id="m-flow" class="mod">
+      <h3>AI Workflow Builder</h3>
+      <div class="pline">chain real steps into one run: each node executes in order and feeds the next. drag a card by its bar to reorder, or use the arrows on touch.</div>
+      <input id="wf-name" class="inp" placeholder="workflow name" autocomplete="off">
+      <div id="wf-add" class="prow"></div>
+      <div id="wf-canvas"></div>
+      <div class="prow"><button id="wf-run" class="pbtn on">EXECUTE</button><button id="wf-halt" class="pbtn">HALT</button><button id="wf-save" class="pbtn">SAVE</button><button id="wf-new" class="pbtn">NEW</button><button id="wf-dup" class="pbtn">DUPLICATE</button><button id="wf-del" class="pbtn">DELETE</button><button id="wf-export" class="pbtn">EXPORT JSON</button></div>
+      <div id="wf-list" class="pline"></div>
+      <h3>RUN HISTORY</h3>
+      <div id="wf-hist" class="pline"></div>
+    </section>
