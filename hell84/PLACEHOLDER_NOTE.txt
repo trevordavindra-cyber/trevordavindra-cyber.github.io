@@ -1,0 +1,2 @@
+/* hell84 head scripts: network probe + RELAY GUARD (fetch-level) */
+<script-content-follows>
