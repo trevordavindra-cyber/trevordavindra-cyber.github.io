@@ -11,6 +11,11 @@ else {
   if (bootRe.test(code)) code = code.replace(bootRe, 'const BOOT=[];');
   const humRe = /try\{\s*const AC=window\.AudioContext[\s\S]*?\}catch\(e\)\{\}/;
   if (humRe.test(code)) code = code.replace(humRe, '/* entry hum removed */');
+
+  /* hell voice intro removed (owner request): no spoken lines, no typed hell text, no TTS */
+  const voiceRe = /const LINES=\['YOU WILL ENTER HELL\.'[\s\S]*?\}catch\(e\)\{ speakFallback\(\); \}/;
+  if (voiceRe.test(code)) code = code.replace(voiceRe, 'setTimeout(end,300);');
+
   if (code.split('},9000);').length === 2) code = code.replace('},9000);', '},25000);');
 
   const sub=(from,to)=>{ if(code.includes(from)) code=code.split(from).join(to); };
@@ -31,7 +36,7 @@ else {
   /* empty-reply hardening: no brain may hand back blank text */
   sub("if(out) return out;\n    throw new Error('empty relay');","if(out&&out.trim()) return out;\n    throw new Error('empty relay');");
   sub("if(!t) throw e;","if(!t||!t.trim()) throw e;");
-  sub("if(out) return out;\n  throw new Error('empty stream');","if(out&&out.trim()) return out;\n    throw new Error('empty stream');");
+  sub("if(out) return out;\n  throw new Error('empty stream');","if(out&&out.trim()) return out;\n  throw new Error('empty stream');");
   sub("if(g.length){ let t=(g[0].text||'').trim(); const i=t.indexOf('\\nUser:'); if(i>-1) t=t.slice(0,i).trim(); return t; }",
       "if(g.length){ let t=(g[0].text||'').trim(); const i=t.indexOf('\\nUser:'); if(i>-1) t=t.slice(0,i).trim(); if(t) return t; }");
 
