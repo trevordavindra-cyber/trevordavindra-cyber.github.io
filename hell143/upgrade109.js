@@ -31,9 +31,10 @@
     setMsg('fetching the container runtime…');
     var M=await import('https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/index.js');
     var CDN='https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/';
-    M.CONFIG_PATHS['single-thread/wllama.wasm']=CDN+'single-thread/wllama.wasm';
-    M.CONFIG_PATHS['multi-thread/wllama.wasm']=CDN+'multi-thread/wllama.wasm';
-    return M;
+    return {M:M, paths:{
+      'single-thread/wllama.wasm':CDN+'single-thread/wllama.wasm',
+      'multi-thread/wllama.wasm':CDN+'multi-thread/wllama.wasm'
+    }};
   }
   async function load(){
     if(genBusy)return;
@@ -42,11 +43,11 @@
     var bar=document.getElementById('ablit-bar'), fill=document.getElementById('ablit-fill');
     if(bar)bar.style.display='block';
     try{
-      var M=await ensureLib();
+      var E=await ensureLib(), M=E.M;
       if(llama){try{await llama.exit();}catch(e){} llama=null;}
       ready=false;
       setMsg('opening container…');
-      llama=new M.Wllama(M.CONFIG_PATHS,{allowOffline:true});
+      llama=new M.Wllama(E.paths,{allowOffline:true});
       await llama.loadModelFromUrl(curModel.url,{n_ctx:2048,progressCallback:function(p){
         if(p&&p.total&&fill)fill.style.width=Math.min(100,Math.round(100*p.loaded/p.total))+'%';
         if(p&&p.total)setMsg('streaming model — '+Math.round(100*p.loaded/p.total)+'% (cached after first load)');
