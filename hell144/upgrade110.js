@@ -144,6 +144,17 @@
   function panel(){
     var main=document.getElementById('main'); if(!main)return;
     var nav=document.getElementById('nav');
+    var haveSec=!!$('m-rea');
+    if(nav&&!nav.__hl110clean){
+      nav.__hl110clean=true;
+      nav.addEventListener('click',function(e){
+        var b=e.target; while(b&&b.tagName!=='BUTTON')b=b.parentElement;
+        if(!b||!b.dataset)return;
+        if(b.dataset.m==='rea'){ e.preventDefault(); e.stopPropagation(); switchTo(); }
+        else { var r=$('m-rea'); if(r)r.classList.remove('on'); }
+      },true);
+    }
+    if(!haveSec){
     if(nav&&!nav.querySelector('[data-m="rea"]')){
       var btn=el('button'); btn.dataset.m='rea'; btn.textContent='REA';
       btn.onclick=switchTo;
@@ -174,6 +185,10 @@
       '<div class="pline">install on a computer: <code style="font-family:monospace">npx rea-agents setup</code> — site: <a href="https://rea.tools" target="_blank" rel="noopener">rea.tools</a> · repo: <a href="https://github.com/morluto/rea" target="_blank" rel="noopener">github.com/morluto/rea</a> · mcp tool catalog: docs/reference/mcp-contracts.md</div>'+
       '<div id="rea-state" class="pline">idle — search or quick-open a repo</div>';
     main.appendChild(sec);
+    } else {
+      var nb=nav&&nav.querySelector('[data-m="rea"]');
+      if(nb)nb.onclick=switchTo;
+    }
     $('rea-go').onclick=search;
     $('rea-q').addEventListener('keydown',function(e){if(e.key==='Enter')search();});
     $('rea-fb').onclick=function(){renderTree($('rea-filt').value);};
