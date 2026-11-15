@@ -73,11 +73,10 @@ details li{margin:6px 0 6px 16px}
 </div>
 
 <script type="module">
-import { Wllama, CONFIG_PATHS } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/index.js';
+import { Wllama } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/index.js';
 
 const CDN='https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/';
-CONFIG_PATHS['single-thread/wllama.wasm']=CDN+'single-thread/wllama.wasm';
-CONFIG_PATHS['multi-thread/wllama.wasm']=CDN+'multi-thread/wllama.wasm';
+const WASM={'single-thread/wllama.wasm':CDN+'single-thread/wllama.wasm','multi-thread/wllama.wasm':CDN+'multi-thread/wllama.wasm'};
 
 const log=document.getElementById('log'), txt=document.getElementById('txt'),
       sendB=document.getElementById('send'), stopB=document.getElementById('stop'),
@@ -115,7 +114,7 @@ async function loadBrain(key){
  minfo.textContent='downloading '+b.label+' — 0%';
  sys('<b>downloading '+b.label+'</b> — one-time download, then it runs on your phone with no internet');
  try{
-   wllama=new Wllama(CONFIG_PATHS,{allowOffline:true});
+   wllama=new Wllama(WASM,{allowOffline:true});
    await wllama.loadModelFromUrl([b.url],{
      n_ctx:2048,
      progressCallback:(p)=>{
@@ -162,7 +161,7 @@ fileIn.onchange=async()=>{
  minfo.textContent='loading '+f.name+' ('+gb.toFixed(2)+' GB)… first load compiles the engine, give it a minute';
  sys('loading model…');
  try{
-   wllama=new Wllama(CONFIG_PATHS,{allowOffline:true});
+   wllama=new Wllama(WASM,{allowOffline:true});
    await wllama.loadModel([f],{n_ctx: gb>1?1024:2048});
    ready=true; hist=[];
    minfo.textContent='model: '+f.name+' ('+gb.toFixed(2)+' GB) — loaded, fully offline';
