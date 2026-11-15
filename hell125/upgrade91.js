@@ -1,24 +1,27 @@
-// ILLUMINATI upgrade #91: hl91-res-omen (v18.99)
-// A left-edge chip reading the vessel's true dimensions: "RES 390x844"
-// — the live viewport size from window.innerWidth/innerHeight,
-// refreshed every second and on resize/orientation change. Pure
-// display. __HL91 guard.
+// ILLUMINATI upgrade #91: hl91-awake-omen (v18.99)
+// A left-edge chip counting how many times this session woke back up:
+// "AWAKE 3" — starts at 1 on page load, +1 every time the tab returns
+// from hidden to visible (visibilitychange). Event-driven, no timers,
+// never blocks anything. __HL91 guard.
 (function(){
   try{
     if(window.__HL91) return; window.__HL91=1;
     var el=document.createElement('div');
-    el.id='hl91-res'; el.setAttribute('aria-hidden','true');
-    el.setAttribute('style','position:fixed;left:14px;bottom:538px;z-index:9000;pointer-events:none;font:10px/1 monospace;letter-spacing:2px;color:rgba(255,210,120,.4);text-shadow:0 0 6px rgba(255,180,90,.18);user-select:none;white-space:nowrap;opacity:0;transition:opacity .4s;');
+    el.id='hl91-awake'; el.setAttribute('aria-hidden','true');
+    el.setAttribute('style','position:fixed;left:14px;bottom:538px;z-index:9000;pointer-events:none;font:10px/1 monospace;letter-spacing:2px;color:rgba(140,255,180,.4);text-shadow:0 0 6px rgba(100,255,150,.18);user-select:none;white-space:nowrap;opacity:0;transition:opacity .4s;');
     (document.body||document.documentElement).appendChild(el);
-    function read(){
+    var n=1;
+    function show(){
       try{
-        el.textContent='RES '+window.innerWidth+'x'+window.innerHeight;
+        el.textContent='AWAKE '+n;
         el.style.opacity='1';
       }catch(e){}
     }
-    read();
-    setInterval(read,1000);
-    window.addEventListener('resize',read,{passive:true});
-    window.addEventListener('orientationchange',read,{passive:true});
+    show();
+    document.addEventListener('visibilitychange',function(){
+      try{
+        if(!document.hidden){ n=n+1; show(); }
+      }catch(e){}
+    },false);
   }catch(e){}
 })();
