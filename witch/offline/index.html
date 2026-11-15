@@ -47,6 +47,8 @@ details li{margin:6px 0 6px 16px}
 <div class="dlg">
   <button id="pick">📂 Load model file (.gguf)</button>
   <button id="unload" style="display:none">Unload model</button>
+  <button id="h1b" style="background:#f472b6;color:#2b0a1c">🔥 HERETIC 1B · uncensored</button>
+  <button id="h2b" style="background:#fbbf24;color:#2b1a02">🔥 HERETIC 2B · uncensored</button>
   <input type="file" id="file" accept=".gguf" hidden>
 </div>
 <div id="modelinfo">no model loaded — the model runs on your phone, nothing is sent anywhere</div>
@@ -57,6 +59,7 @@ details li{margin:6px 0 6px 16px}
     <li><b>Phone-friendly:</b> under ~2 GB quantized GGUFs (Q4 of 0.6B–1.7B models). Download one from Hugging Face in Safari, then pick it above.</li>
     <li><a href="https://huggingface.co/unsloth/Qwen3-0.6B-GGUF">Qwen3 0.6B GGUF (fastest)</a> · <a href="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF">Qwen3 1.7B GGUF (smarter)</a> · <a href="https://huggingface.co/huihui-ai/Huihui-Qwen3.8-Flash-Next-abliterated-v2-GGUF">abliterated 3B (uncensored, heavy — may not fit)</a></li>
     <li><b>The 27B you linked</b> (<a href="https://huggingface.co/douyamv/Qwen3.8-27B-abliterated-GGUF">douyamv/Qwen3.8-27B-abliterated-GGUF</a>) is 8–28 GB. No phone can run it in a browser — it needs a gaming PC.</li>
+    <li><b>HERETIC buttons:</b> one-tap uncensored brains, processed with p-e-w/heretic, loaded straight from Hugging Face.</li>
     <li>First ever load downloads the engine (~2 MB) once. After that the whole site works with no internet.</li>
   </ul>
 </details>
@@ -99,7 +102,49 @@ if('serviceWorker' in navigator){
 
 const SYS_PROMPT='You are WITCH, a helpful, direct AI assistant. Answer clearly and completely.';
 
+const BRAINS={
+ h1b:{btn:'h1b',label:'HERETIC 1B — gemma-3-1b, uncensored (0.8 GB)',url:'https://huggingface.co/mradermacher/gemma-3-1b-it-heretic-extreme-uncensored-abliterated-GGUF/resolve/main/gemma-3-1b-it-heretic-extreme-uncensored-abliterated.Q4_K_M.gguf',gb:0.81,tpl:'gemma'},
+ h2b:{btn:'h2b',label:'HERETIC 2B — qwen3.5-2b, uncensored thinking (1.2 GB)',url:'https://huggingface.co/mradermacher/Qwen3.5-2B-Claude-4.6-OS-Auto-Variable-HERETIC-UNCENSORED-THINKING-GGUF/resolve/main/Qwen3.5-2B-Claude-4.6-OS-Auto-Variable-HERETIC-UNCENSORED-THINKING.IQ4_XS.gguf',gb:1.2,tpl:'qwen'}
+};
+let curTpl='qwen';
+
+async function loadBrain(key){
+ const b=BRAINS[key]; if(!b) return;
+ if(wllama){try{await wllama.exit();}catch(e){} wllama=null; ready=false;}
+ curTpl=b.tpl; hist=[];
+ minfo.textContent='downloading '+b.label+' — 0%';
+ sys('<b>downloading '+b.label+'</b> — one-time download, then it runs on your phone with no internet');
+ try{
+   wllama=new Wllama(CONFIG_PATHS,{allowOffline:true});
+   await wllama.loadModelFromUrl([b.url],{
+     n_ctx:2048,
+     progressCallback:(p)=>{
+       const total=p.total||(b.gb*1e9);
+       const pc=Math.min(100,Math.round((p.loaded||0)/total*100));
+       minfo.textContent='downloading '+b.label+' — '+pc+'%';
+     }
+   });
+   ready=true; hist=[];
+   minfo.textContent='model: '+b.label+' — loaded, runs fully on this device';
+   sys('HERETIC brain loaded ✅ zero refusals baked into the weights — ask it anything');
+   pick.style.display='none'; unloadB.style.display='';
+ }catch(e){
+   sys('<b>could not load the heretic brain:</b> '+String(e).slice(0,200));
+   minfo.textContent='no model loaded'; ready=false;
+ }
+}
+Object.keys(BRAINS).forEach(k=>{const el=document.getElementById(BRAINS[k].btn); if(el) el.onclick=()=>loadBrain(k);});
+
 function chatPrompt(user){
+ if(curTpl==='gemma'){
+   let p='',first=true;
+   for(const m of hist){
+     if(m.role==='user'){p+='<start_of_turn>user\n'+(first?SYS_PROMPT+'\n':'')+m.text+'<end_of_turn>\n';first=false;}
+     else{p+='<start_of_turn>model\n'+m.text+'<end_of_turn>\n';first=false;}
+   }
+   p+='<start_of_turn>user\n'+(first?SYS_PROMPT+'\n':'')+user+'<end_of_turn>\n<start_of_turn>model\n';
+   return p;
+ }
  let p='';
  p+='<|im_start|>system\n'+SYS_PROMPT+'<|im_end|>\n';
  for(const m of hist) p+='<|im_start|>'+m.role+'\n'+m.text+'<|im_end|>\n';
@@ -111,6 +156,7 @@ pick.onclick=()=>fileIn.click();
 fileIn.onchange=async()=>{
  const f=fileIn.files[0]; if(!f) return;
  if(wllama){try{await wllama.exit();}catch(e){} wllama=null; ready=false;}
+ curTpl='qwen';
  const gb=f.size/1e9;
  if(gb>2.5) sys('<b>'+gb.toFixed(1)+' GB is too big for a phone browser</b> — this will probably run out of memory. Small models (under ~2 GB) work best. Trying anyway…');
  minfo.textContent='loading '+f.name+' ('+gb.toFixed(2)+' GB)… first load compiles the engine, give it a minute';
@@ -137,7 +183,7 @@ unloadB.onclick=async()=>{
  sys('model unloaded');
 };
 
-function cut(text){const i=text.indexOf('<|im_end|>');return i>=0?text.slice(0,i):text;}
+function cut(text){const stops=curTpl==='gemma'?['<end_of_turn>','<start_of_turn>']:['<|im_end|>'];let out=text;for(const st of stops){const i=out.indexOf(st);if(i>=0)out=out.slice(0,i);}return out;}
 
 async function sendMsg(){
  const user=txt.value.trim(); if(!user) return;
@@ -158,7 +204,7 @@ async function sendMsg(){
       b.textContent=clean;
       log.scrollTop=log.scrollHeight;
       if(clean.length>0) think.textContent='';
-      if(out.includes('<|im_end|>')){try{wllama.stopCompletion();}catch(e){}}
+      if(out.includes(curTpl==='gemma'?'<end_of_turn>':'<|im_end|>')){try{wllama.stopCompletion();}catch(e){}}
       if(abort){try{wllama.stopCompletion();}catch(e){}}
     }
   });
