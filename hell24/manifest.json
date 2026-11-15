@@ -4,7 +4,7 @@
   "description": "The Order. An unfiltered AI terminal.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f4f1ea",
-  "theme_color": "#f4f1ea",
-  "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [{ "src": "../hell85/emblem.svg", "sizes": "any", "type": "image/svg+xml" }]
 }
