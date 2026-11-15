@@ -1,0 +1,22 @@
+const CACHE='hell136-dw-v145';
+const ASSETS=[
+  '../hell83/upgrade.js','../hell83/upgrade2.js','../hell83/upgrade3.js','../hell83/upgrade4.js','../hell83/upgrade5.js','../hell83/upgrade6.js','../hell83/upgrade7.js','../hell83/upgrade8.js','../hell83/upgrade9.js','../hell83/upgrade10.js','../hell83/upgrade11.js','../hell83/upgrade12.js','../hell83/upgrade13.js','../hell83/upgrade14.js','../hell83/upgrade15.js','../hell83/upgrade16.js','../hell83/upgrade17.js','../hell83/upgrade18.js','../hell83/upgrade19.js','../hell83/upgrade20.js','../hell83/upgrade21.js','../hell83/upgrade22.js','../hell83/upgrade23.js','../hell83/upgrade24.js','../hell83/upgrade25.js','../hell83/upgrade26.js','../hell83/upgrade27.js','../hell83/upgrade28.js','../hell83/upgrade29.js','../hell83/upgrade30.js','../hell83/upgrade31.js','../hell83/upgrade32.js','../hell83/upgrade33.js','../hell83/upgrade34.js','../hell83/upgrade35.js','../hell83/upgrade36.js','../hell83/upgrade37.js','../hell83/upgrade38.js','../hell83/upgrade39.js','../hell83/upgrade40.js','../hell83/upgrade41.js','../hell83/upgrade42.js','../hell83/upgrade43.js','../hell83/upgrade44.js',
+  '../hell83/upgrade45.js',
+  '../hell83/upgrade46.js',
+  '../hell83/upgrade47.js','../hell83/upgrade48.js','../hell83/upgrade49.js','../hell83/upgrade50.js','../hell87/upgrade51.js','../hell87/upgrade52.js','../hell87/upgrade53.js','../hell88/upgrade54.js','../hell89/upgrade55.js','../hell90/upgrade56.js','../hell91/upgrade57.js','../hell92/upgrade58.js','../hell93/upgrade59.js','../hell94/upgrade60.js','../hell95/upgrade61.js','../hell96/upgrade62.js','../hell97/upgrade63.js','../hell98/upgrade64.js','../hell99/upgrade65.js','../hell100/upgrade66.js','../hell101/upgrade67.js','../hell102/upgrade68.js','../hell103/upgrade69.js','../hell104/upgrade70.js','../hell105/upgrade71.js','../hell106/upgrade72.js','../hell107/upgrade73.js','../hell108/upgrade74.js','../hell109/upgrade75.js','../hell110/upgrade76.js','../hell111/upgrade77.js','../hell112/upgrade78.js','../hell113/upgrade79.js','../hell114/upgrade80.js','../hell115/upgrade81.js','../hell116/upgrade82.js','../hell117/upgrade83.js','../hell118/upgrade84.js','../hell119/upgrade85.js','../hell120/upgrade86.js','../hell121/upgrade87.js','../hell122/upgrade88.js','../hell123/upgrade89.js','../hell125/upgrade90.js','../hell125/upgrade91.js','../hell126/upgrade92.js','../hell127/upgrade93.js','../hell128/upgrade94.js','../hell129/upgrade95.js','../hell130/upgrade96.js','../hell131/upgrade97.js','../hell132/upgrade98.js','../hell133/upgrade99.js','../hell134/upgrade100.js','../hell135/upgrade101.js','./upgrade102.js','./','./index.html','../hell84/guard.js','../hell83/mods3.js','../hell30/mods2.js','../hell83/cine.js','../hell83/phase2.css','../hell85/app.js','../hell29/mods.js','../hell83/extra.css','../hell83/style.css','../hell24/app.js','../hell24/manifest.json','../hell24/icon.svg'];
+self.addEventListener('install',e=>{
+ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
+});
+self.addEventListener('activate',e=>{
+ e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+});
+self.addEventListener('fetch',e=>{
+ if(e.request.method!=='GET') return;
+ const url=new URL(e.request.url);
+ if(url.hostname==='text.pollinations.ai') return;
+ if(url.hostname==='image.pollinations.ai') return;
+ if(url.hostname==='translate.google.com') return;
+ if(url.hostname==='api.duckduckgo.com') return;
+ if(url.hostname==='en.wikipedia.org') return;
+ e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(hit=>hit||fetch(e.request)));
+});
