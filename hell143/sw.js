@@ -18,5 +18,8 @@ self.addEventListener('fetch',e=>{
  if(url.hostname==='translate.google.com') return;
  if(url.hostname==='api.duckduckgo.com') return;
  if(url.hostname==='en.wikipedia.org') return;
+ if(url.hostname==='cdn.jsdelivr.net') return;
+ if(url.hostname==='huggingface.co') return;
+ if(url.hostname.endsWith('.hf.co')) return;
  e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(hit=>hit||fetch(e.request)));
 });
