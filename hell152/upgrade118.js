@@ -46,4 +46,6 @@
       return synthetic();
     });
   };
+  function mark() { var el = document.getElementById('pgp'); if (el) el.setAttribute('data-hl118', '1'); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mark); else mark();
 })();
