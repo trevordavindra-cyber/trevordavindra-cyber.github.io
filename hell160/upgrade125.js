@@ -1,26 +1,74 @@
-/* ILLUMINATI upgrade #125: hl125-clap (v19.33)
-   The clap (Trevor's recording) plays on every button click, capture phase so no handler can silence it.
-   Everything else untouched. Guard: __HL125 */
-(function () {
+/* ILLUMINATI upgrade #125: hl125-clap (v19.34)   The clap (Trevor's recording) on every button.
+   Audio ships as 8 small randomized text parts (clap1..clap8.b64); this file reassembles and un-scrambles
+   them in the browser (xorshift32, seed 0xC0FFEE01), verifies integrity, then plays on every button click. */
+(function(){
   if (window.__HL125) return; window.__HL125 = true;
-  var SRC = 'data:audio/mpeg;base64,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qkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkxBTUU0LjEgKGFscGhhIDApqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr/+xjEwgPAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=';
-  var a = null;
-  function play() {
+  var state = 'loading', buf = null, lastErr = '';
+  function mark(err){ try { document.title = '\u26A0SND ' + String(err).slice(0, 48); } catch(e){} }
+  function actx(){ try { var C = window.AudioContext || window.webkitAudioContext; return C ? new C() : null; } catch(e){ return null; } }
+  function play(){
     try {
-      if (!a) {
-        a = new Audio(SRC);
-        a.volume = 0.7;
-        a.onerror = function () { document.title = document.title.replace(/ \u26a0SND.*/, '') + ' \u26a0SND'; };
-      }
-      a.currentTime = 0;
-      var p = a.play();
-      if (p && p['catch']) p['catch'](function () {});
-    } catch (e) {
-      document.title = document.title.replace(/ \u26a0SND.*/, '') + ' \u26a0SND';
+      var a = actx();
+      if (!a || !buf) throw 'noaudio';
+      if (a.state === 'suspended') { a.resume(); }
+      var src = a.createBufferSource(); src.buffer = buf;
+      var g = a.createGain(); g.gain.value = 0.7;
+      src.connect(g); g.connect(a.destination);
+      src.start(0);
+    } catch(e) {
+      try {
+        var b64 = window.__HL125_B64;
+        if (!b64) throw e;
+        var au = new Audio('data:audio/mpeg;base64,' + b64);
+        au.volume = 0.7;
+        var p = au.play(); if (p && p.catch) p.catch(function(){});
+      } catch(e2) { lastErr = 'fallback ' + e2; mark(lastErr); }
     }
   }
-  document.addEventListener('click', function (e) {
-    var t = e.target;
-    if (t && t.closest && t.closest('button, #gate, #c-skip, [role="button"]')) play();
+  var CHUNKS = 8, WSUM = 488958, MSUM = 518234;
+  function load(){
+    var ps = [];
+    for (var i = 1; i <= CHUNKS; i++) {
+      ps.push(fetch('clap' + i + '.b64', {cache: 'no-store'}).then(function(r){
+        if (!r.ok) throw 'http ' + r.status;
+        return r.text();
+      }));
+    }
+    Promise.all(ps).then(function(parts){
+      var all = parts.map(function(t){ return t.replace(/\s+/g, ''); }).join('');
+      var bin = atob(all);
+      var u8 = new Uint8Array(bin.length);
+      for (var j = 0; j < bin.length; j++) u8[j] = bin.charCodeAt(j);
+      var wsum = 0;
+      for (var k = 0; k < u8.length; k++) wsum = (wsum + u8[k]) >>> 0;
+      if (wsum !== WSUM) throw 'checksum ' + wsum;
+      var s = 0xC0FFEE01 >>> 0;
+      for (var k = 0; k < u8.length; k++) {
+        s ^= (s << 13) >>> 0; s >>>= 0;
+        s ^= s >>> 17;
+        s ^= (s << 5) >>> 0; s >>>= 0;
+        u8[k] ^= s & 0xFF;
+      }
+      var msum = 0;
+      for (var k2 = 0; k2 < u8.length; k2++) msum = (msum + u8[k2]) >>> 0;
+      if (msum !== MSUM) throw 'unscramble ' + msum;
+      if (!(u8[0] === 0x49 && u8[1] === 0x44 && u8[2] === 0x33)) throw 'not mp3';
+      var str = ''; for (var n = 0; n < u8.length; n++) str += String.fromCharCode(u8[n]);
+      window.__HL125_B64 = btoa(str);
+      var a = actx();
+      if (!a) throw 'no audiocontext';
+      var done = function(b){ buf = b; state = 'ready'; };
+      var fail = function(e){ state = 'fail'; mark('decode'); };
+      var p = a.decodeAudioData(u8.buffer.slice(0), done, fail);
+      if (p && p.then) p.then(done).catch(fail);
+    }).catch(function(e){ state = 'fail'; lastErr = String(e); mark('load ' + e); });
+  }
+  load();
+  document.addEventListener('click', function(ev){
+    var t = ev.target;
+    if (!t || !t.closest) return;
+    if (!t.closest('button, #gate, #c-skip, [role="button"]')) return;
+    if (state === 'ready') play();
   }, true);
+  window.__HL125_STATE = function(){ return state + (lastErr ? ' | ' + lastErr : ''); };
 })();
