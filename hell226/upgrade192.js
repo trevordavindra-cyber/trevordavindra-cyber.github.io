@@ -11,13 +11,13 @@
     '/* THE UNVEILING: restore tonight\'s instruments (hl130-hl192) on phone viewports. hl126 re-showed only #hl124. */',
     '@media (max-width:820px){',
     '  :root body [id^="hl13"]:not(#hlthemes),:root body [id^="hl14"]:not(#hlthemes),:root body [id^="hl15"]:not(#hlthemes),:root body [id^="hl16"]:not(#hlthemes),:root body [id^="hl17"]:not(#hlthemes),:root body [id^="hl18"]:not(#hlthemes),:root body [id^="hl19"]:not(#hlthemes){display:revert !important;}',
-    '  :root body #hl191-vigil{display:flex !important;}',
-    '  :root body #hl188-drawer{display:flex !important;}',
+    '  :root body #hl191-vigil:not(#hlthemes){display:flex !important;}',
+    '  :root body #hl188-drawer:not(#hlthemes){display:flex !important;}',
     '  :root body #hl187-veil:not(.on),:root body #hl188-veil:not(.on){display:none !important;}',
     '}',
     ':root.hl111-mobile body [id^="hl13"]:not(#hlthemes),:root.hl111-mobile body [id^="hl14"]:not(#hlthemes),:root.hl111-mobile body [id^="hl15"]:not(#hlthemes),:root.hl111-mobile body [id^="hl16"]:not(#hlthemes),:root.hl111-mobile body [id^="hl17"]:not(#hlthemes),:root.hl111-mobile body [id^="hl18"]:not(#hlthemes),:root.hl111-mobile body [id^="hl19"]:not(#hlthemes){display:revert !important;}',
-    ':root.hl111-mobile body #hl191-vigil{display:flex !important;}',
-    ':root.hl111-mobile body #hl188-drawer{display:flex !important;}',
+    ':root.hl111-mobile body #hl191-vigil:not(#hlthemes){display:flex !important;}',
+    ':root.hl111-mobile body #hl188-drawer:not(#hlthemes){display:flex !important;}',
     ':root.hl111-mobile body #hl187-veil:not(.on),:root.hl111-mobile body #hl188-veil:not(.on){display:none !important;}'
   ].join('\n');
   var rail = null, inner = null, view = null, dirty = true, dragging = false, lastH = 0, lastCount = -1;
