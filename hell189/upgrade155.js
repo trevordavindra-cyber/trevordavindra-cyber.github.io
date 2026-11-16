@@ -5,12 +5,14 @@
   var st = document.createElement('style'); st.id = 'hl155-style'; st.textContent = css;
   (document.head || document.documentElement).appendChild(st);
   var chip, scrim, drawer, badge, listEl, open = false;
-  function positionChip() {
+  var lastMax = -1, stableN = 0, placed = false, lastApplied = -1;
+  function positionChip(force) {
+    if (!chip) return;
     var maxBottom = 0;
     var all = document.querySelectorAll('body > div, body > span');
     for (var i = 0; i < all.length; i++) {
       var el = all[i];
-      if (el === chip) continue;
+      if (el === chip || el === scrim || el === drawer) continue;
       var cs = getComputedStyle(el);
       if (cs.position !== 'fixed') continue;
       if (cs.display === 'none' || cs.visibility === 'hidden') continue;
@@ -21,7 +23,14 @@
         if (r.bottom > maxBottom) maxBottom = r.bottom;
       }
     }
-    chip.style.top = maxBottom > 0 ? Math.round(maxBottom + 14) + 'px' : '50%';
+    if (maxBottom <= 0) { chip.style.top = '50%'; return; }
+    var t = Math.round(maxBottom + 16);
+    if (force) { chip.style.top = t + 'px'; lastApplied = t; placed = true; stableN = 0; return; }
+    if (t === lastMax) stableN++; else { stableN = 0; lastMax = t; return; }
+    if (stableN < 2) return;
+    if (placed && Math.abs(t - lastApplied) < 6) return;
+    chip.style.top = t + 'px';
+    lastApplied = t; placed = true; stableN = 0;
   }
   function build() {
     if (chip || !document.body) return false;
@@ -43,7 +52,7 @@
     drawer.appendChild(listEl);
     document.body.appendChild(drawer);
     addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) closeD(); });
-    addEventListener('resize', positionChip);
+    addEventListener('resize', function(){ positionChip(true); });
     setInterval(positionChip, 2500);
     setTimeout(positionChip, 300);
     return true;
