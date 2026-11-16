@@ -1,4 +1,4 @@
-/* hl192-cartographer — THE CARTOGRAPHER: a slim gold minimap rail hugging the left edge that maps the whole record — one luminous segment per reply, their heights true to the record — with a viewport band that tracks the visible window; tap or drag anywhere on the rail to glide the record there. Hidden while the record fits the screen; purely additive */
+/* hl192-cartographer — THE CARTOGRAPHER + THE UNVEILING: (1) a slim gold minimap rail hugging the left edge mapping the whole record — one luminous segment per reply, heights true to the record — with a viewport band tracking the visible window; tap or drag to glide there. (2) THE UNVEILING: the hl111 phone rule ([id^="hl"]:not(#hlthemes){display:none !important}) hides every hl-prefixed instrument on phones, including everything the overnight run shipped (hl130-hl192); hl126 re-showed only #hl124. This restores tonight's instruments to phone viewports, mirrors hl126's dual gate (max-width:820px + :root.hl111-mobile), keeps the pre-night cleanup intact, guards the veils' open/close state, and mirrors the hl177 scribe chip's inline display with !important so it can show on phones too. Purely additive */
 (function () {
   if (window.__HL192) return; window.__HL192 = 1;
   var css = [
@@ -6,7 +6,19 @@
     '#hl192-rail.on{opacity:1;pointer-events:auto;cursor:pointer;}',
     '#hl192-railin{position:relative;width:100%;height:100%;background:rgba(18,14,7,.6);border-radius:4px;border:1px solid rgba(201,162,39,.2);overflow:hidden;}',
     '.hl192-seg{position:absolute;left:0;width:100%;background:linear-gradient(90deg,rgba(201,162,39,.8),rgba(201,162,39,.3));border-radius:2px;}',
-    '#hl192-view{position:absolute;left:0;width:100%;background:rgba(240,214,122,.26);border:1px solid rgba(240,214,122,.55);border-radius:2px;box-shadow:0 0 8px rgba(201,162,39,.35);}'
+    '#hl192-view{position:absolute;left:0;width:100%;background:rgba(240,214,122,.26);border:1px solid rgba(240,214,122,.55);border-radius:2px;box-shadow:0 0 8px rgba(201,162,39,.35);}',
+    '',
+    '/* THE UNVEILING: restore tonight\'s instruments (hl130-hl192) on phone viewports. hl126 re-showed only #hl124. */',
+    '@media (max-width:820px){',
+    '  :root body [id^="hl13"],:root body [id^="hl14"],:root body [id^="hl15"],:root body [id^="hl16"],:root body [id^="hl17"],:root body [id^="hl18"],:root body [id^="hl19"]{display:revert !important;}',
+    '  :root body #hl191-vigil{display:flex !important;}',
+    '  :root body #hl188-drawer{display:flex !important;}',
+    '  :root body #hl187-veil:not(.on),:root body #hl188-veil:not(.on){display:none !important;}',
+    '}',
+    ':root.hl111-mobile body [id^="hl13"],:root.hl111-mobile body [id^="hl14"],:root.hl111-mobile body [id^="hl15"],:root.hl111-mobile body [id^="hl16"],:root.hl111-mobile body [id^="hl17"],:root.hl111-mobile body [id^="hl18"],:root.hl111-mobile body [id^="hl19"]{display:revert !important;}',
+    ':root.hl111-mobile body #hl191-vigil{display:flex !important;}',
+    ':root.hl111-mobile body #hl188-drawer{display:flex !important;}',
+    ':root.hl111-mobile body #hl187-veil:not(.on),:root.hl111-mobile body #hl188-veil:not(.on){display:none !important;}'
   ].join('\n');
   var rail = null, inner = null, view = null, dirty = true, dragging = false, lastH = 0, lastCount = -1;
   function findScroller() {
@@ -99,6 +111,11 @@
     tick();
     return true;
   }
+  /* keep the hl177 scribe chip's JS-driven inline display authoritative on phones: mirror it with !important so the hl111 blanket cannot pin it hidden */
+  setInterval(function () {
+    var c = document.getElementById('hl177-scribe');
+    if (c && c.style.display) c.style.setProperty('display', c.style.display, 'important');
+  }, 800);
   window.__HL192_IV = setInterval(function () { if (boot()) clearInterval(window.__HL192_IV); }, 1800);
   setTimeout(function () { if (window.__HL192_IV) clearInterval(window.__HL192_IV); }, 120000);
 })();
