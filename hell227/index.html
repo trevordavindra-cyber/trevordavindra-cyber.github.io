@@ -8,7 +8,7 @@
 <script>
 (function () {
   fetch('../hell151/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
-    t = t.replace(/v19\\.25/g, 'v19.100');
+    t = t.split('v19.25').join('v19.100');
     t = t.replace('MIRROR hell151', 'MIRROR hell227');
     t = t.replace('src="./upgrade115.js"', 'src="../hell149/upgrade115.js"');
     t = t.replace('src="../hell85/app.js"', 'src="../hell85/app.js?v=2"');

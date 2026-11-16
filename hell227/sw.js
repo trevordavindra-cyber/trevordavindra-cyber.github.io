@@ -18,6 +18,6 @@ self.addEventListener('fetch',e=>{
  if(url.hostname==='translate.google.com') return;
  if(url.hostname==='api.duckduckgo.com') return;
  if(url.hostname==='en.wikipedia.org') return;
- if(/clap\\d\\.b64$/.test(url.pathname)){ var cn=url.pathname.split('/').pop(), cu=url.origin+'/hell163/'+cn; e.respondWith(caches.match(cu).then(function(h){ return h||fetch(cu); })); return; }
+ var _cn=url.pathname.split('/').pop(); if(_cn.slice(0,4)==='clap' && _cn.slice(-4)==='.b64'){ var cu=url.origin+'/hell163/'+_cn; e.respondWith(caches.match(cu).then(function(h){ return h||fetch(cu); })); return; }
  e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(hit=>hit||fetch(e.request)));
 });
