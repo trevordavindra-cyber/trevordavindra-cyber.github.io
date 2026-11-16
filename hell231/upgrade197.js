@@ -1,4 +1,4 @@
-/* ILLUMINATI upgrade #197: hl197-darkfix - fixes the dark council build.
+/* ILLUMINATI upgrade #197: hl197-darkfix v2 - fixes the dark council build (inline !important governor: wins over the hl192 display:revert cleanup rule).
    1) The council panel can no longer float over the nav drawer or show while closed: inline visibility governor (wins over any stylesheet), late !important rules, z-index 300 (below the drawer), and it closes itself whenever the drawer opens.
    2) The entry "tap to skip" voice layer can no longer eat every tap after entry: released as soon as no audio is actually playing (hard cap 45s).
    3) The council persona now applies to every brain: pollinations message bodies AND horde-style prompt bodies. */
@@ -47,10 +47,9 @@ function gov(){
  var on=pan.classList.contains('on');
  if(document.body.classList.contains('ord-nav')&&on){ pan.classList.remove('on'); on=false; }
  var d=on?'block':'none', pe=on?'auto':'none';
- if(pan.style.display!==d) pan.style.display=d;
- if(pan.style.pointerEvents!==pe) pan.style.pointerEvents=pe;
+ try{ pan.style.setProperty('display',d,'important'); pan.style.setProperty('pointer-events',pe,'important'); }catch(e){ pan.style.display=d; pan.style.pointerEvents=pe; }
 }
-setInterval(gov,700);
+setInterval(gov,300);
 document.addEventListener('click',function(){ setTimeout(gov,0); },true);
 var vN=0;
 setInterval(function(){
