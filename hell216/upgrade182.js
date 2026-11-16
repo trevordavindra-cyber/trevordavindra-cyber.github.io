@@ -9,7 +9,7 @@
     'Pose your inquiry to the Outer Circle.',
     'Nothing asked here leaves this room.'
   ];
-  var ta = null, orig = null, pi = 0, mode = 'idle', ci = 0, tmr = null, iv = null;
+  var ta = null, orig = null, pi = 0, mode = 'idle', ci = 0, tmr = null;
   function find() {
     var best = null, bestA = 0;
     var tas = document.querySelectorAll('textarea');
@@ -51,10 +51,10 @@
   }
   function schedule(ms) { clearTimeout(tmr); tmr = setTimeout(step, ms); }
   function boot() {
+    if (!document.body) return;
     if (!ta) { ta = find(); if (!ta) return; }
-    if (!iv) return;
-    if (!tmr) schedule(1500);
-    if (window.__HL182_IV) clearInterval(window.__HL182_IV); iv = null;
+    schedule(1500);
+    if (window.__HL182_IV) clearInterval(window.__HL182_IV);
   }
   window.__HL182_IV = setInterval(function () { if (document.body) boot(); }, 1500);
   setTimeout(function () { if (window.__HL182_IV) clearInterval(window.__HL182_IV); }, 120000);
