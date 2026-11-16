@@ -1,96 +1,74 @@
-/* ILLUMINATI upgrade #125: hl125-clap (v19.34)
-   The clap (Trevor's recording) on EVERY button click.
-   Sound ships as 8 whitened text parts (clap1..clap8.b64): each is the
-   base64 MP3 XOR'd with an xorshift32 keystream (seed 0xC0FFEE01), so the
-   transport can never corrupt or diff-compress it. JS reassembles,
-   un-whitens, checksums, decodes, plays at volume 0.7.
-   Guarded once per page by window.__HL125. */
-(function () {
+/* ILLUMINATI upgrade #125: hl125-clap (v19.34)   The clap (Trevor's recording) on every button.
+   Audio ships as 8 small randomized text parts (clap1..clap8.b64); this file reassembles and un-scrambles
+   them in the browser (xorshift32, seed 0xC0FFEE01), verifies integrity, then plays on every button click. */
+(function(){
   if (window.__HL125) return; window.__HL125 = true;
-
-  var WSUM = 488958;  // byte-sum of the whitened base64 text, all 8 parts joined
-  var MSUM = 518234;  // byte-sum of the raw MP3 after un-whitening
-  var TAG = 'hl125';
-
-  function log() { try { console.log.apply(console, ['[HL125]'].concat([].slice.call(arguments))); } catch (e) {} }
-
-  function xs32(seed) { var s = seed >>> 0; return function () { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s >>> 0; }; }
-
-  function unwhiten(str) {
-    var bytes = atob(str); // base64 chars -> still text, un-whiten the b64 chars first
-    var out = '';
-    var rng = xs32(0xC0FFEE01);
-    for (var i = 0; i < str.length; i++) {
-      out += String.fromCharCode(str.charCodeAt(i) ^ (rng() & 0xFF));
+  var state = 'loading', buf = null, lastErr = '';
+  function mark(err){ try { document.title = '\u26A0SND ' + String(err).slice(0, 48); } catch(e){} }
+  function actx(){ try { var C = window.AudioContext || window.webkitAudioContext; return C ? new C() : null; } catch(e){ return null; } }
+  function play(){
+    try {
+      var a = actx();
+      if (!a || !buf) throw 'noaudio';
+      if (a.state === 'suspended') { a.resume(); }
+      var src = a.createBufferSource(); src.buffer = buf;
+      var g = a.createGain(); g.gain.value = 0.7;
+      src.connect(g); g.connect(a.destination);
+      src.start(0);
+    } catch(e) {
+      try {
+        var b64 = window.__HL125_B64;
+        if (!b64) throw e;
+        var au = new Audio('data:audio/mpeg;base64,' + b64);
+        au.volume = 0.7;
+        var p = au.play(); if (p && p.catch) p.catch(function(){});
+      } catch(e2) { lastErr = 'fallback ' + e2; mark(lastErr); }
     }
-    // out is the original base64 text
-    var bin = atob(out);
-    var u8 = new Uint8Array(bin.length);
-    var s = 0;
-    for (var j = 0; j < bin.length; j++) { u8[j] = bin.charCodeAt(j); s = (s + u8[j]) >>> 0; }
-    return { u8: u8, sum: s };
   }
-
-  var bufPromise = null;
-  function ready() {
-    if (bufPromise) return bufPromise;
-    bufPromise = Promise.all([1,2,3,4,5,6,7,8].map(function (i) {
-      return fetch('clap' + i + '.b64', { cache: 'no-store' }).then(function (r) {
+  var CHUNKS = 8, WSUM = 488958, MSUM = 518234;
+  function load(){
+    var ps = [];
+    for (var i = 1; i <= CHUNKS; i++) {
+      ps.push(fetch('clap' + i + '.b64', {cache: 'no-store'}).then(function(r){
         if (!r.ok) throw 'http ' + r.status;
         return r.text();
-      });
-    })).then(function (parts) {
-      var joined = parts.join('');
-      var ws = 0;
-      for (var i = 0; i < joined.length; i++) ws = (ws + joined.charCodeAt(i)) >>> 0;
-      if (ws !== WSUM) throw 'whitened checksum ' + ws;
-      var uw = unwhiten(joined);
-      if (uw.sum !== MSUM) throw 'mp3 checksum ' + uw.sum;
-      var magic = String.fromCharCode(uw.u8[0], uw.u8[1], uw.u8[2]);
-      if (magic !== 'ID3' && uw.u8[0] !== 0xFF) throw 'bad magic ' + magic;
-      return uw.u8.buffer.slice(0);
-    }).then(function (ab) {
-      try {
-        var AC = window.AudioContext || window.webkitAudioContext;
-        var ctx = new AC();
-        return ctx.decodeAudioData(ab).then(function (buf) { log('ready'); return buf; });
-      } catch (e) { throw 'audio ctx ' + e; }
-    });
-    bufPromise['catch'](function (e) { log('load fail', e); document.title = '\u26a0SND ' + TAG; });
-    return bufPromise;
+      }));
+    }
+    Promise.all(ps).then(function(parts){
+      var all = parts.map(function(t){ return t.replace(/\s+/g, ''); }).join('');
+      var bin = atob(all);
+      var u8 = new Uint8Array(bin.length);
+      for (var j = 0; j < bin.length; j++) u8[j] = bin.charCodeAt(j);
+      var wsum = 0;
+      for (var k = 0; k < u8.length; k++) wsum = (wsum + u8[k]) >>> 0;
+      if (wsum !== WSUM) throw 'checksum ' + wsum;
+      var s = 0xC0FFEE01 >>> 0;
+      for (var k = 0; k < u8.length; k++) {
+        s ^= (s << 13) >>> 0; s >>>= 0;
+        s ^= s >>> 17;
+        s ^= (s << 5) >>> 0; s >>>= 0;
+        u8[k] ^= s & 0xFF;
+      }
+      var msum = 0;
+      for (var k2 = 0; k2 < u8.length; k2++) msum = (msum + u8[k2]) >>> 0;
+      if (msum !== MSUM) throw 'unscramble ' + msum;
+      if (!(u8[0] === 0x49 && u8[1] === 0x44 && u8[2] === 0x33)) throw 'not mp3';
+      var str = ''; for (var n = 0; n < u8.length; n++) str += String.fromCharCode(u8[n]);
+      window.__HL125_B64 = btoa(str);
+      var a = actx();
+      if (!a) throw 'no audiocontext';
+      var done = function(b){ buf = b; state = 'ready'; console.log('[HL125] ready'); };
+      var fail = function(e){ state = 'fail'; console.log('[HL125] decode fail', String(e)); mark('decode'); };
+      var p = a.decodeAudioData(u8.buffer.slice(0), done, fail);
+      if (p && p.then) p.then(done).catch(fail);
+    }).catch(function(e){ state = 'fail'; lastErr = String(e); console.log('[HL125] load fail', String(e)); mark('load ' + e); });
   }
-
-  function play() {
-    try {
-      ready().then(function (buf) {
-        try {
-          var AC = window.AudioContext || window.webkitAudioContext;
-          var ctx = new AC();
-          if (ctx.state === 'suspended') ctx.resume();
-          var src = ctx.createBufferSource(); src.buffer = buf;
-          var g = ctx.createGain(); g.gain.value = 0.7;
-          src.connect(g); g.connect(ctx.destination); src.start(0);
-          log('play');
-        } catch (e) { log('play fail', e); }
-      })['catch'](function (e) {
-        // HTMLAudio fallback with the raw base64 re-assembled on the fly
-        try {
-          var a = new Audio('data:audio/mpeg;base64,' + arguments.callee ? '' : '');
-        } catch (e2) {}
-        log('ctx fail', e);
-      });
-    } catch (e) { log('outer', e); }
-  }
-
-  ready(); // warm the parts as soon as the page loads
-
-  document.addEventListener('click', function (ev) {
+  load();
+  document.addEventListener('click', function(ev){
     var t = ev.target;
     if (!t || !t.closest) return;
-    if (t.closest('button, #gate, #c-skip, [role="button"]')) {
-      play();
-    }
-  }, true); // capture so nothing swallows it first
-
-  log('armed');
+    if (!t.closest('button, #gate, #c-skip, [role="button"]')) return;
+    if (state === 'ready') { console.log('[HL125] play'); play(); }
+  }, true);
+  window.__HL125_STATE = function(){ return state + (lastErr ? ' | ' + lastErr : ''); };
 })();
