@@ -10,8 +10,8 @@
   fetch('../hell163/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
     t = t.replace(/v19\.36/g, 'v19.37');
     t = t.replace('MIRROR hell163', 'MIRROR hell164');
-    var tag = 'ipt src="./upgrade129.js" defer></scr' + 'ipt>';
-    t = t.replace(tag, tag + '\n<scr' + 'ipt src="./upgrade130.js" defer></scr' + 'ipt>');
+    var anchor = "ipt src=\"./upgrade129.js\" defer></scr' + 'ipt>');";
+    t = t.replace(anchor, "ipt src=\"./upgrade129.js\" defer></scr' + 'ipt>\n<scr' + 'ipt src=\"./upgrade130.js\" defer></scr' + 'ipt>');
     document.open(); document.write(t); document.close();
   })['catch'](function () { location.replace('../hell162/'); });
 })();
