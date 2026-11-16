@@ -1,15 +1,14 @@
 /* ILLUMINATI upgrade #207: hl207-dock (v19.115)
    Makes the bottom command dock look 10x better: the composer bar becomes a
    frosted gold-glass panel with a glowing border and a soft drop shadow, the
-   message box gets a real inset well with a gold caret and a focus halo, and
-   every dock button becomes an even pill in the same glass language - with
-   SEND promoted to a solid gold gradient gem. The quick-ask chips above get
-   the same treatment so the whole dock reads as one instrument. The message
-   box flexes to fill the free space; every control keeps its minimum width
-   and nothing functional changes - every button, the mic, the model pill,
-   purge and the chips all keep doing exactly what they did. The look is
-   re-asserted every beat, so later upgrades that repaint the dock lose.
-   Guard: __HL207 */
+   message box gets a real inset well with a gold caret and a focus halo and
+   takes every bit of free space in the dock, and every dock button becomes an
+   even pill in the same glass language - with SEND promoted to a solid gold
+   gradient gem. The quick-ask chips above get the same treatment so the whole
+   dock reads as one instrument. Nothing functional changes - every button,
+   the mic, the model pill, purge and the chips all keep doing exactly what
+   they did. The look is re-asserted every beat, so later upgrades that
+   repaint the dock lose. Guard: __HL207 */
 (function () {
   if (window.__HL207) return; window.__HL207 = true;
 
@@ -52,8 +51,8 @@
     }
     var txt = document.getElementById('txt');
     if (txt) {
-      set(txt, 'flex', '1 1 0%');
-      set(txt, 'width', 'auto');
+      set(txt, 'flex', '0 0 auto');
+      set(txt, 'width', 'calc(100% - 276px)');
       set(txt, 'min-width', '0');
       set(txt, 'height', '44px');
       set(txt, 'background', 'rgba(8,9,8,.74)');
