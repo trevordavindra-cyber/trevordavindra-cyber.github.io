@@ -18,8 +18,8 @@
 
   var css = document.createElement('style'); css.id = 'hl199-style';
   css.textContent = [
-    '#hl199-panel{position:fixed;inset:0;z-index:2147483001;display:none;background:rgba(4,3,2,.88);}',
-    '#hl199-panel.on{display:flex;align-items:center;justify-content:center;}',
+    '#hl199-panel{position:fixed;inset:0;z-index:2147483001;background:rgba(4,3,2,.88);}',
+    '#hl199-panel.on{display:flex!important;align-items:center;justify-content:center;}',
     '#hl199-card{width:min(92vw,420px);max-height:80vh;overflow:auto;background:linear-gradient(160deg,#14100a,#0c0a06);border:1px solid rgba(198,166,77,.55);border-radius:4px;padding:16px 16px 14px;color:#c6a64d;font:12px/1.5 Georgia,"Times New Roman",serif;letter-spacing:.06em;box-shadow:0 0 30px rgba(0,0,0,.8);}',
     '#hl199-card h2{margin:0 0 4px;font-size:14px;letter-spacing:.2em;color:#e0c268;font-weight:600;}',
     '#hl199-card p{margin:2px 0 10px;color:rgba(198,166,77,.7);font-size:10.5px;}',
@@ -137,6 +137,7 @@
       '<div id="hl199-foot">relay is the order\u2019s own voice, pitched down. device uses your phone\u2019s voices. settings \u00b7 abyss voice turns it off entirely.</div>' +
       '</div>';
     document.body.appendChild(pan);
+    try { pan.style.setProperty('display', 'none', 'important'); } catch (e) { }
     $id('hl199-src-relay').addEventListener('click', function () { S.src = 'relay'; paint(); });
     $id('hl199-src-device').addEventListener('click', function () { S.src = 'device'; paint(); });
     $id('hl199-voices').addEventListener('change', function () { S.voice = this.value; });
@@ -167,8 +168,19 @@
     paint();
     return true;
   }
-  function open() { if (buildPanel()) { $id('hl199-panel').classList.add('on'); } }
-  function close() { var p = $id('hl199-panel'); if (p) p.classList.remove('on'); }
+  function open() {
+    if (buildPanel()) {
+      var p = $id('hl199-panel');
+      try { p.style.setProperty('display', 'flex', 'important'); } catch (e) { }
+      p.classList.add('on');
+    }
+  }
+  function close() {
+    var p = $id('hl199-panel');
+    if (!p) return;
+    try { p.style.setProperty('display', 'none', 'important'); } catch (e) { }
+    p.classList.remove('on');
+  }
   window.__hl199.open = open; window.__hl199.close = close;
   function buildBar() {
     var bs = $id('b-speak');
