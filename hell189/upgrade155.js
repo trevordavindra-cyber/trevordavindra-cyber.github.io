@@ -7,7 +7,7 @@
   var chip, scrim, drawer, badge, listEl, open = false;
   function scanMaxBottom() {
     var maxBottom = 0;
-    var all = document.querySelectorAll('body > div, body > span');
+    var all = document.querySelectorAll('body > div, body > span, body > button');
     for (var i = 0; i < all.length; i++) {
       var el = all[i];
       if (el === chip || el === scrim || el === drawer) continue;
