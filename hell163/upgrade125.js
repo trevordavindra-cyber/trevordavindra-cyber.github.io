@@ -29,7 +29,7 @@
   function load(){
     var ps = [];
     for (var i = 1; i <= CHUNKS; i++) {
-      ps.push(fetch('clap' + i + '.b64', {cache: 'no-store'}).then(function(r){
+      ps.push(fetch('/hell163/clap' + i + '.b64', {cache: 'no-store'}).then(function(r){
         if (!r.ok) throw 'http ' + r.status;
         return r.text();
       }));
