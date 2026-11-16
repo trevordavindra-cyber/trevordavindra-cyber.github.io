@@ -18,7 +18,7 @@
   btn.textContent = '\u25bc live feed';
   try { (document.body || document.documentElement).appendChild(btn); } catch (e) {}
   function feed() {
-    try { return document.getElementById('feed') || document.querySelector('[id$="feed"], .feed'); } catch (e) { return null; }
+    try { return document.getElementById('chat') || document.getElementById('feedlist') || document.getElementById('feed') || document.querySelector('[id$="feed"], .feed'); } catch (e) { return null; }
   }
   function scroller() {
     var f = feed(); if (!f) return null;
