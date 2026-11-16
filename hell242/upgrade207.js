@@ -47,7 +47,8 @@
       set(foot, 'box-shadow', '0 12px 34px rgba(0,0,0,.6),0 0 26px rgba(201,162,39,.14),inset 0 1px 0 rgba(255,236,180,.10)');
       set(foot, 'backdrop-filter', 'blur(16px) saturate(140%)');
       set(foot, '-webkit-backdrop-filter', 'blur(16px) saturate(140%)');
-      set(foot, 'padding', '10px 12px');
+      set(foot, 'padding', '10px 10px');
+      set(foot, 'gap', '4px');
     }
     var txt = document.getElementById('txt');
     if (txt) {
@@ -75,7 +76,7 @@
     function pill(b) {
       set(b, 'height', '44px');
       set(b, 'min-width', '46px');
-      set(b, 'padding', '0 13px');
+      set(b, 'padding', '0 9px');
       set(b, 'border-radius', '999px');
       set(b, 'background', 'linear-gradient(180deg,rgba(32,30,21,.92),rgba(14,14,12,.94))');
       set(b, 'border', '1px solid rgba(201,162,39,.30)');
@@ -90,11 +91,12 @@
       var bs = foot.querySelectorAll('button');
       for (var i = 0; i < bs.length; i++) {
         pill(bs[i]);
-        if (bs[i].id === 'mic') set(bs[i], 'min-width', '58px');
-        if (bs[i].id === 'ordclip') set(bs[i], 'min-width', '40px');
-        if (bs[i].id === 'ordmodel') { set(bs[i], 'min-width', '46px'); set(bs[i], 'padding', '0 8px'); }
+        if (bs[i].id === 'mic') set(bs[i], 'min-width', '50px');
+        if (bs[i].id === 'ordclip') set(bs[i], 'min-width', '34px');
+        if (bs[i].id === 'ordmodel') { set(bs[i], 'min-width', '42px'); set(bs[i], 'padding', '0 6px'); }
         if (bs[i].id === 'send') {
-          set(bs[i], 'min-width', '62px');
+          set(bs[i], 'min-width', '56px');
+          set(bs[i], 'padding', '0 10px');
           set(bs[i], 'background', 'linear-gradient(135deg,#ecd27a,#c9a232 55%,#8f6f1e)');
           set(bs[i], 'color', '#1a1405');
           set(bs[i], 'font-weight', '800');
