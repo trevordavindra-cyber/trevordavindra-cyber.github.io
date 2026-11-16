@@ -15,7 +15,6 @@ self.addEventListener('fetch',e=>{
  const url=new URL(e.request.url);
  if(url.hostname==='text.pollinations.ai') return;
  if(url.hostname==='image.pollinations.ai') return;
- if(url.hostname==='image.pollinations.ai') return;
  if(url.hostname==='translate.google.com') return;
  if(url.hostname==='api.duckduckgo.com') return;
  if(url.hostname==='en.wikipedia.org') return;
