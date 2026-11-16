@@ -57,18 +57,18 @@
       window.__HL125_B64 = btoa(str);
       var a = actx();
       if (!a) throw 'no audiocontext';
-      var done = function(b){ buf = b; state = 'ready'; };
-      var fail = function(e){ state = 'fail'; mark('decode'); };
+      var done = function(b){ buf = b; state = 'ready'; console.log('[HL125] ready'); };
+      var fail = function(e){ state = 'fail'; console.log('[HL125] decode fail', String(e)); mark('decode'); };
       var p = a.decodeAudioData(u8.buffer.slice(0), done, fail);
       if (p && p.then) p.then(done).catch(fail);
-    }).catch(function(e){ state = 'fail'; lastErr = String(e); mark('load ' + e); });
+    }).catch(function(e){ state = 'fail'; lastErr = String(e); console.log('[HL125] load fail', String(e)); mark('load ' + e); });
   }
   load();
   document.addEventListener('click', function(ev){
     var t = ev.target;
     if (!t || !t.closest) return;
     if (!t.closest('button, #gate, #c-skip, [role="button"]')) return;
-    if (state === 'ready') play();
+    if (state === 'ready') { console.log('[HL125] play'); play(); }
   }, true);
   window.__HL125_STATE = function(){ return state + (lastErr ? ' | ' + lastErr : ''); };
 })();
