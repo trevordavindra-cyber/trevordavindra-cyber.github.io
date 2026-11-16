@@ -5,9 +5,7 @@
   var st = document.createElement('style'); st.id = 'hl155-style'; st.textContent = css;
   (document.head || document.documentElement).appendChild(st);
   var chip, scrim, drawer, badge, listEl, open = false;
-  var lastApplied = -1;
-  function positionChip(force) {
-    if (!chip) return;
+  function scanMaxBottom() {
     var maxBottom = 0;
     var all = document.querySelectorAll('body > div, body > span');
     for (var i = 0; i < all.length; i++) {
@@ -23,10 +21,19 @@
         if (r.bottom > maxBottom) maxBottom = r.bottom;
       }
     }
-    if (maxBottom <= 0) { chip.style.top = '50%'; return; }
-    var t = Math.round(maxBottom + 18);
-    chip.style.top = t + 'px';
-    lastApplied = t;
+    return maxBottom;
+  }
+  function place() {
+    if (!chip) return;
+    var mb = scanMaxBottom();
+    if (mb <= 0) { chip.style.top = '50%'; return; }
+    chip.style.top = Math.round(mb + 18) + 'px';
+  }
+  function recheck() {
+    if (!chip) return;
+    var myTop = chip.getBoundingClientRect().top;
+    var mb = scanMaxBottom();
+    if (mb > myTop) place();
   }
   function build() {
     if (chip || !document.body) return false;
@@ -48,8 +55,9 @@
     drawer.appendChild(listEl);
     document.body.appendChild(drawer);
     addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) closeD(); });
-    addEventListener('resize', function(){ positionChip(true); });
-    setTimeout(function(){ positionChip(true); }, 5000);
+    addEventListener('resize', function () { place(); });
+    setTimeout(place, 5000);
+    setTimeout(recheck, 13000);
     return true;
   }
   function userLines() {
