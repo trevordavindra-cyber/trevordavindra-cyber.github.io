@@ -22,7 +22,7 @@
     var s=document.createElement('style'); s.id='hl129-style'; s.textContent=css;
     (document.head||document.documentElement).appendChild(s);
 
-    var TEL=['hl105','hl104','hl103','hl102','hl101','hl100','hl106','hl99','hl97','hl98','hl96','hl78','hl64','hl66','hl65','hl108','hl89','hl70','hl94','hl91','hl90','hl36','hl71','hl92','hl93','hl84','hl74','hl82','hl86','hl55','hl80','hl79','hl77','hl76','hl88','hl40','hl75','hl81','hl41','hl49','hl83','hl85','hl87','hl69','hl73','hl67','hl68','hl47','hl39','hl48','hl45','hl52','hl53','hl63','hl31','hl54','hl8','hl60','hl62','hl43','illuminati-quote-widget','hl37','hl27','hl56','hl57','hl58','hl59','hl61','hl72'];
+    var TEL=['hl105-online','hl104-dark','hl103-touch','hl102-lang','hl101-core','hl100-gpu','hl106-dpr','hl99-dpr','hl97-scr','hl98-paste','hl96-batt','hl78-power','hl64-core','hl66-heap','hl65-view','hl108-view','hl107-ram','hl89-fps','hl70-fps','hl94-idle','hl91-awake','hl90-up','hl36-uptime','hl71-vigil','hl92-keys','hl93-clicks','hl84-keys','hl74-watch','hl82-scroll','hl86-void','hl55-count','hl80-zodiac','hl79-season','hl77-tarot','hl76-lunar','hl88-moon','hl40-moon-chip','hl45-moon','hl75-orbit','hl81-rune','hl41-rune','hl49-rune','hl83-numer','hl85-epoch','hl87-hex','hl69-witch','hl73-dawn','hl67-year','hl68-tongue','hl47-date','hl39-clock-chip','hl48-clock','hl52-link','hl53-latency','hl63-pulse','hl31-synapse','hl54-batt','hl8-session-chip','hl60-visit','hl62-hoard','hl43-whisper','illuminati-quote-widget','hl37-key-hints-bar','hl27-fps-chip','hl56-offline','hl57-idle','hl58-focus','hl59-echo','hl61-forge','hl72-rite'];
     function ensure(){
       var nav=document.getElementById('nav'); if(!nav) return false;
       var box=document.getElementById('ordtele');
@@ -48,7 +48,7 @@
       tries++;
       var moved=0;
       try{ moved=ensure()||0; }catch(e){}
-      if(tries>40||(moved===0&&tries>12)){ clearInterval(iv); }
+      if(tries>60||(moved===0&&tries>16)){ clearInterval(iv); }
     },1500);
   }catch(e){ try{console.log('[HL129]',e);}catch(_){} }
 })();
