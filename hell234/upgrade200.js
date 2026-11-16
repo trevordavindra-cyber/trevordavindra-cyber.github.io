@@ -1,8 +1,8 @@
 /* ILLUMINATI upgrade #200: hl200-gateveil (v19.107)
    While the invitation gate (#hl124) is up, nothing else shows: side rail chips,
    bottom tools, plaques, overlays and the seal hide until the user taps YES.
-   Enforced every 250ms with inline !important so no later script can pop them
-   back; the gate itself is raised above every layer. After YES everything
+   Enforced every 250ms with inline !important, re-asserted against scripts that
+   clear it; the gate itself is raised above every layer. After YES everything
    returns untouched. Guard: __HL200 */
 (function () {
   if (window.__HL200) return; window.__HL200 = true;
@@ -20,7 +20,12 @@
   var hidden = [];
   function hide(el) {
     if (!el || el.id === 'hl124' || el.id === 'hl200-veil') return;
-    for (var i = 0; i < hidden.length; i++) if (hidden[i][0] === el) return;
+    for (var i = 0; i < hidden.length; i++) {
+      if (hidden[i][0] === el) {
+        if (el.style.display !== 'none' || el.style.getPropertyPriority('display') !== 'important') el.style.setProperty('display', 'none', 'important');
+        return;
+      }
+    }
     hidden.push([el, el.style.display]);
     el.style.setProperty('display', 'none', 'important');
   }
