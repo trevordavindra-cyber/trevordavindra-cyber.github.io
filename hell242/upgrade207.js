@@ -52,7 +52,7 @@
     }
     var txt = document.getElementById('txt');
     if (txt) {
-      set(txt, 'flex', '1 1 auto');
+      set(txt, 'flex', '1 1 0%');
       set(txt, 'width', 'auto');
       set(txt, 'min-width', '0');
       set(txt, 'height', '44px');
