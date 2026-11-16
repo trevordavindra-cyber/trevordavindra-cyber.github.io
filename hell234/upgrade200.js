@@ -1,58 +1,67 @@
 /* ILLUMINATI upgrade #200: hl200-gateveil (v19.107)
    While the invitation gate (#hl124) is up, nothing else shows: side rail chips,
    bottom tools, plaques, overlays and the seal hide until the user taps YES.
-   The gate itself is raised above every layer so nothing can bleed through.
-   After YES everything returns untouched. Guard: __HL200 */
+   Enforced every 250ms with inline !important so no later script can pop them
+   back; the gate itself is raised above every layer. After YES everything
+   returns untouched. Guard: __HL200 */
 (function () {
   if (window.__HL200) return; window.__HL200 = true;
 
   var CSS = [
-    '#hl124{z-index:2147483000!important;background:#050505!important}',
-    'body.hl200-gated .hl134-jump,body.hl200-gated .hl139-chip,body.hl200-gated .hl140-chip,body.hl200-gated .hl143-zbtn,body.hl200-gated .hl146-chip,body.hl200-gated .hl149-chip,body.hl200-gated .hl150-chip,body.hl200-gated .hl151-chip,body.hl200-gated .hl152-rail,body.hl200-gated .hl153-orbit,body.hl200-gated .hl156-frame,body.hl200-gated .hl158-depth,body.hl200-gated .hl159-whisper,body.hl200-gated .hl194-plaque,body.hl200-gated #hl188-tab,body.hl200-gated #hl193-btn,body.hl200-gated #hl194-btn,body.hl200-gated #hl132-seal{display:none!important}'
+    '#hl124{z-index:2147483000!important;background:#050505!important}'
   ].join('\n');
   var st = document.createElement('style');
   st.id = 'hl200-veil';
   st.textContent = CSS;
   document.head.appendChild(st);
 
+  var SELS = ['.hl134-jump','.hl139-chip','.hl140-chip','.hl143-zbtn','.hl146-chip','.hl149-chip','.hl150-chip','.hl151-chip','.hl152-rail','.hl153-orbit','.hl156-frame','.hl158-depth','.hl159-whisper','.hl194-plaque','#hl188-tab','#hl193-btn','#hl194-btn','#hl132-seal'];
+
   var hidden = [];
-  function sweep(on) {
+  function hide(el) {
+    if (!el || el.id === 'hl124' || el.id === 'hl200-veil') return;
+    for (var i = 0; i < hidden.length; i++) if (hidden[i][0] === el) return;
+    hidden.push([el, el.style.display]);
+    el.style.setProperty('display', 'none', 'important');
+  }
+  function restoreAll() {
+    for (var i = 0; i < hidden.length; i++) {
+      try { hidden[i][0].style.display = hidden[i][1]; } catch (err) {}
+    }
+    hidden = [];
+  }
+  function enforce(on) {
+    if (!on) { restoreAll(); return; }
+    for (var i = 0; i < SELS.length; i++) {
+      var list = document.querySelectorAll(SELS[i]);
+      for (var j = 0; j < list.length; j++) hide(list[j]);
+    }
     var kids = document.body ? document.body.children : [];
-    for (var i = 0; i < kids.length; i++) {
-      var e = kids[i];
-      if (!e || e.id === 'hl124' || e.id === 'hl200-veil') continue;
+    for (var k = 0; k < kids.length; k++) {
+      var e = kids[k];
       var tag = e.tagName;
       if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'NOSCRIPT' || tag === 'AUDIO' || tag === 'VIDEO') continue;
-      if (!on) {
-        for (var j = 0; j < hidden.length; j++) {
-          if (hidden[j][0] === e) { e.style.display = hidden[j][1]; hidden.splice(j, 1); break; }
-        }
-        continue;
-      }
       var cs;
       try { cs = getComputedStyle(e); } catch (err) { continue; }
       if (cs.position !== 'fixed' && cs.position !== 'absolute') continue;
       var z = parseInt(cs.zIndex, 10);
       if (isNaN(z) || z < 400) continue;
       if (cs.display === 'none') continue;
-      hidden.push([e, e.style.display]);
-      e.style.display = 'none';
+      hide(e);
     }
   }
 
   var last = null;
   function sync() {
     var gated = !!document.getElementById('hl124');
-    if (gated === last) return;
-    last = gated;
     if (gated) {
-      document.body.classList.add('hl200-gated');
-      sweep(true);
-    } else {
+      if (!document.body.classList.contains('hl200-gated')) document.body.classList.add('hl200-gated');
+      enforce(true);
+    } else if (last) {
       document.body.classList.remove('hl200-gated');
-      sweep(false);
-      hidden = [];
+      enforce(false);
     }
+    last = gated;
   }
 
   if (document.body) sync();
