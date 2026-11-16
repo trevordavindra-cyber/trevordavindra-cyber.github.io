@@ -7,11 +7,14 @@
 <title>ILLUMINATI</title>
 <script>
 (function () {
-  fetch('../hell163/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
-    t = t.replace(/v19\.36/g, 'v19.37');
-    t = t.replace('MIRROR hell163', 'MIRROR hell164');
-    var anchor = "ipt src=\"./upgrade129.js\" defer></scr' + 'ipt>');";
-    t = t.replace(anchor, "ipt src=\"./upgrade129.js\" defer></scr' + 'ipt>\n<scr' + 'ipt src=\"./upgrade130.js\" defer></scr' + 'ipt>');
+  fetch('../hell151/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+    t = t.replace(/v19\.25/g, 'v19.37');
+    t = t.replace('MIRROR hell151', 'MIRROR hell164');
+    t = t.replace('src="./upgrade115.js"', 'src="../hell149/upgrade115.js"');
+    t = t.replace('src="../hell85/app.js"', 'src="../hell85/app.js?v=2"');
+    t = t.replace('src="./upgrade117.js"', 'src="../hell151/upgrade117.js"');
+    var tag = '<scr' + 'ipt src="../hell151/upgrade117.js" defer></scr' + 'ipt>';
+    t = t.replace(tag, tag + '\n<scr' + 'ipt src="../hell152/upgrade118.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="../hell153/upgrade119.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="../hell154/upgrade120.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="../hell157/upgrade121.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="../hell157/upgrade122.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="../hell158/upgrade123.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="../hell159/upgrade124.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="./upgrade125.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="./upgrade126.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="./upgrade127.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="./upgrade128.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="./upgrade129.js" defer></scr' + 'ipt>\n<scr' + 'ipt src="./upgrade130.js" defer></scr' + 'ipt>');
     document.open(); document.write(t); document.close();
   })['catch'](function () { location.replace('../hell162/'); });
 })();
