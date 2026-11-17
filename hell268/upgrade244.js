@@ -1,4 +1,4 @@
-/* ILLUMINATI upgrade #244: hl244-siteforge (v19.146)
+/* ILLUMINATI upgrade #244: hl244-siteforge (v19.147)
    THE ASK: like Arena, when the AI builds a website the site itself should
    show up in the chat, viewable, with a download that saves the whole file.
    How it works: every relay request carries a site-forge rule, so build asks
@@ -12,8 +12,11 @@
    controls away, and PREVIEW opens a full-screen frame. The panel only arms
    once the carved site code settles across scans (a GLOBAL counter, since
    the chat restyles messages every couple of seconds and replaces the line
-   nodes). Truncated replies are still forged (the tail is closed gently so
-   the preview renders). Nothing removed, all existing paths keep working.
+   nodes). v19.147 adds SELF-CHECK: the preview frame reports its own errors,
+   and the first error inside 6s triggers ONE automatic fix round through the
+   app's own chat (the AI gets the error and returns the corrected file).
+   Truncated replies are still forged (the tail is closed gently so the
+   preview renders). Nothing removed, all existing paths keep working.
    Guard: __HL244 */
 (function () {
   if (window.__HL244) return; window.__HL244 = true;
@@ -43,6 +46,30 @@
   function $(id) { return document.getElementById(id); }
 
   var JUNK = /^(COPY|REGEN|SPEAK|PIN|EDIT|WRAP|SAVE|RUN|CLOSE|\[COPY\]|\[REGN\])\s*$/i;
+
+  /* SELF-CHECK: the preview frame reports its own errors back; the first one
+     inside 6s of opening triggers ONE automatic fix round through the app's
+     own chat (the AI gets the error and returns the corrected file) */
+  var GUARD = '<scr' + 'ipt>window.addEventListener("error",function(e){try{parent.postMessage({__hl244err:String((e&&e.message)||e)+" @ "+((e&&e.lineno)||0)},"*")}catch(_){}},true);window.addEventListener("unhandledrejection",function(e){try{parent.postMessage({__hl244err:"promise: "+String((e&&e.reason)||"")},"*")}catch(_){}});</scr' + 'ipt>';
+  var fixSent = {};
+  window.addEventListener('message', function (e) {
+    try {
+      var d = e.data; if (!d || !d.__hl244err) return;
+      var c = window.__HL244LIVE; if (!c || !c.code) return;
+      if (Date.now() - c.at > 6000) return;
+      if (fixSent[c.code]) return;
+      fixSent[c.code] = true;
+      try { if (c.label) c.label.textContent = 'SITE ERROR - FIXING'; } catch (e2) {}
+      var msg = 'the site you built throws this error: "' + String(d.__hl244err).slice(0, 160) + '". reply with the complete corrected single-file html in one ```html block (same compact rules), then one short sentence on what you fixed.';
+      window.__HL241SENDING = true;
+      try {
+        var t = document.getElementById('txt'), sb = document.getElementById('send');
+        if (t && sb) { t.value = msg; sb.click(); }
+      } catch (e3) {}
+      setTimeout(function () { window.__HL241SENDING = false; }, 800);
+      console.log('[hl244] site error caught, fix requested: ' + String(d.__hl244err).slice(0, 80));
+    } catch (e4) {}
+  });
 
   function finish(code) {
     try {
@@ -147,8 +174,9 @@
         overlay._fr = fr;
       }
       if (overlay._fr.getAttribute('data-code-len') !== String(code.length)) {
-        overlay._fr.srcdoc = code;
+        overlay._fr.srcdoc = GUARD + code;
         overlay._fr.setAttribute('data-code-len', String(code.length));
+        window.__HL244LIVE = { code: code, at: Date.now(), label: null };
       }
       overlay.style.display = 'flex';
     } catch (e4) {}
@@ -175,7 +203,7 @@
       open.addEventListener('click', function () {
         if (fw.style.display === 'none') {
           fw.style.display = 'block';
-          if (!loaded) { frame.srcdoc = code; loaded = true; }
+          if (!loaded) { frame.srcdoc = GUARD + code; loaded = true; window.__HL244LIVE = { code: code, at: Date.now(), label: label }; }
           open.textContent = 'HIDE';
           try { fw.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e2) {}
         } else { fw.style.display = 'none'; open.textContent = 'PREVIEW'; }
@@ -230,5 +258,5 @@
   arm(); setInterval(arm, 2000);
   setInterval(scanChat, 2500);
 
-  console.log('[hl244] online: site forge live (ai-built websites render in chat, preview + full-file download)');
+  console.log('[hl244] online: site forge live (ai-built websites render in chat, preview + full-file download + self-check)');
 })();
