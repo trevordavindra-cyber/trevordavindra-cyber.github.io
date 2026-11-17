@@ -1,1 +1,20 @@
-IH262INDEXPLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>ILLUMINATI</title>
+<script>
+(function () {
+  fetch('../hell261/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+    t = t.split('v19.134').join('v19.135');
+    t = t.split('MIRROR hell261').join('MIRROR hell262');
+    t = t.replace("></scr' + 'ipt>');", "></scr' + 'ipt>' + '\\n<scr' + 'ipt src="./upgrade238.js" defer></scr' + 'ipt>');");
+    document.open(); document.write(t); document.close();
+  })['catch'](function () { location.replace('../hell261/'); });
+})();
+</script>
+</head>
+<body></body>
+</html>
