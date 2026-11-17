@@ -1,5 +1,5 @@
-const CACHE='hell265-dw-v289';
-const ASSETS=['./','./index.html','./upgrade240.js','./upgrade241.js','../hell151/index.html','../hell24/app.js'];
+const CACHE='hell265-dw-v290';
+const ASSETS=['./','./index.html','../hell264/upgrade240.js','./upgrade241.js','../hell151/index.html','../hell24/app.js'];
 self.addEventListener('install',function(e){
  e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(ASSETS)}).then(function(){return self.skipWaiting()}));
 });
