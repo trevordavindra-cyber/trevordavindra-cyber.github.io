@@ -1,9 +1,12 @@
 /* ILLUMINATI upgrade #217: hl217-clicks (v19.124)
    THE ORDER ANSWERS THE HAND. Every touch and every keystroke on the interface
    plays a crisp mechanical click: the eye is never silent when it is touched.
-   Synthesized live in the browser (WebAudio), so there is nothing to download
-   and it fires the instant a finger lands. Purely additive: it listens on the
-   capture phase and changes no existing handler. Guard __HL217. */
+   Also stops the phone zooming the screen when the typing box is touched:
+   iOS zooms in on focus whenever the box text is under 16px, so the composer
+   is pinned at 16px on touch devices. Synthesized live in the browser
+   (WebAudio), so there is nothing to download and it fires the instant a
+   finger lands. Purely additive: it listens on the capture phase and changes
+   no existing handler. Guard __HL217. */
 (function () {
   if (window.__HL217) return; window.__HL217 = 1;
   var TAG = '[hl217] ';
@@ -39,11 +42,28 @@
     }catch(e){}
   }
 
+  /* stop the phone zooming the screen when the typing box is touched:
+     iOS zooms in on focus whenever the box text is under 16px, so the
+     composer is pinned at 16px on touch devices. */
+  function nozoom(){
+    try{
+      if(!/iP(hone|ad|od)/.test(navigator.userAgent)) return;
+      var t=document.getElementById('txt');
+      if(t && t.style.fontSize!=='16px'){ t.style.fontSize='16px'; }
+    }catch(e){}
+  }
+  var nz=0;
+  function nzwatch(){
+    nozoom();
+    if(++nz<15) setTimeout(nzwatch,1000);
+  }
   function arm(){
     if(armed) return; armed=true;
     document.addEventListener('touchstart',function(){ click(); },{capture:true,passive:true});
     document.addEventListener('mousedown',function(){ click(); },{capture:true});
     document.addEventListener('keydown',function(){ click(); },{capture:true});
+    document.addEventListener('focusin',function(){ nozoom(); },{capture:true});
+    nzwatch();
     try{ console.log(TAG+'clicks online'); }catch(e){}
   }
 
