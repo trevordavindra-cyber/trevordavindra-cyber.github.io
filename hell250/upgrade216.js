@@ -3,6 +3,7 @@
    when it needs the Order, the Inner Circle agents are consulted in the
    background (their counsel lands in the record) and the module rooms that
    serve the question open on their own with the question loaded.
+   Hooked on the main chat's own send path, so module runs never trigger it.
    Purely additive: no existing handler, panel or feature changes. Guard __HL216. */
 (function () {
   if (window.__HL216) return; window.__HL216 = 1;
@@ -41,10 +42,6 @@
     ['flow',    'THE FLOW',     null,      null,     false, /workflow|automate|pipeline|\bprocess\b/]
   ];
 
-  /* the main-chat brain's own voice (ego cores) — only those calls convene the circle */
-  var EGOS=['You are ILLUMINATI, a sharp underground','You are HELLFATHER, the consigliere',
-    'You are WARLORD, the tactician','You are SEER, the oracle','You are IMP, the trickster'];
-
   var last=0, modAt={}, agentAt={};
   function chatEl(){ return document.getElementById('chat'); }
   function scrollEnd(){ var c=chatEl(); if(c){ try{ c.scrollTop=c.scrollHeight; }catch(e){} } }
@@ -66,25 +63,12 @@
     var b=document.createElement('div'); b.className='hl216-body'; b.textContent=text;
     d.appendChild(w); d.appendChild(b); c.appendChild(d); scrollEnd(); }
 
-  function isMainChat(b){
-    try{
-      if(!b || !b.messages || !b.messages.length) return false;
-      var s0=b.messages[0]; if(!s0 || s0.role!=='system') return false;
-      var sys=String(s0.content||'');
-      if(sys.indexOf(MARK)===0) return false;
-      if(/^You rewrite/.test(sys)) return false;
-      if(sys.indexOf('Extract durable facts')>-1) return false;
-      for(var i=0;i<EGOS.length;i++) if(sys.indexOf(EGOS[i])===0) return true;
-      return false;
-    }catch(e){ return false; }
-  }
+  function waking(t){ t=String(t||'').toLowerCase();
+    return t.indexOf('still waking')>-1 || t.indexOf('loads once')>-1 || t.length<25; }
 
-  function consult(agent,q){
-    var now=Date.now();
-    if(agentAt[agent[0]] && now-agentAt[agent[0]]<45000) return;
-    agentAt[agent[0]]=now;
+  function ask(agent,q,attempt){
     var body={model:'openai-fast',private:true,messages:[
-      {role:'system',content:MARK+' (CODE FORGE EXEMPT: counsel only, plain prose, no code unless asked) '+agent[2]},
+      {role:'system',content:MARK+' (counsel only, plain prose, no code unless asked) '+agent[2]},
       {role:'user',content:'THE QUESTION: '+q+'\nCounsel in at most three short sentences: one concrete recommendation and one thing to avoid. Plain text, no preamble, no greeting.'}
     ]};
     fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
@@ -92,8 +76,9 @@
       .then(function(d){
         var t=d&&d.choices&&d.choices[0]&&d.choices[0].message?d.choices[0].message.content:'';
         t=String(t||'').trim().slice(0,700);
-        if(t) counsel(agent[0],t);
-      })['catch'](function(){});
+        if(t && !waking(t)){ counsel(agent[0],t); return; }
+        if((attempt||0)<1) setTimeout(function(){ ask(agent,q,1); },4000);
+      })['catch'](function(){ if((attempt||0)<1) setTimeout(function(){ ask(agent,q,1); },4000); });
   }
 
   function engage(mod,q){
@@ -111,32 +96,50 @@
     }catch(e){}
   }
 
-  var of=window.fetch;
-  window.fetch=function(input,init){
+  function convene(q){
     try{
-      if(init && init.method==='POST' && typeof init.body==='string' &&
-         String(input).indexOf('text.pollinations.ai/openai')>=0){
-        var b=JSON.parse(init.body);
-        if(isMainChat(b)){
-          var q=''; for(var i=b.messages.length-1;i>=0;i--){
-            if(b.messages[i] && b.messages[i].role==='user'){ q=String(b.messages[i].content||'').trim(); break; } }
-          var now=Date.now();
-          if(q && q.length>=12 && q.charAt(0)!=='/' && now-last>4000){
-            last=now; var low=q.toLowerCase();
-            var picked=[], mods=[];
-            for(var a=0;a<AGENTS.length&&picked.length<2;a++) if(AGENTS[a][1].test(low)) picked.push(AGENTS[a]);
-            for(var m=0;m<MODS.length&&mods.length<2;m++) if(MODS[m][5].test(low)) mods.push(MODS[m]);
-            if(picked.length||mods.length){
-              var names=[]; for(var p=0;p<picked.length;p++) names.push(picked[p][0]);
-              if(names.length) note('\u27E1 THE CIRCLE CONVENES \u2014 '+names.join(' \u00B7 '));
-              setTimeout(function(){ for(var p=0;p<picked.length;p++) consult(picked[p],q); },150);
-              setTimeout(function(){ for(var mm=0;mm<mods.length;mm++) engage(mods[mm],q); },260);
-            }
-          }
+      var now=Date.now();
+      if(q && q.length>=12 && q.charAt(0)!=='/' && now-last>4000){
+        last=now; var low=q.toLowerCase();
+        var picked=[], mods=[];
+        for(var a=0;a<AGENTS.length&&picked.length<2;a++) if(AGENTS[a][1].test(low)) picked.push(AGENTS[a]);
+        for(var m=0;m<MODS.length&&mods.length<2;m++) if(MODS[m][5].test(low)) mods.push(MODS[m]);
+        if(picked.length||mods.length){
+          var names=[]; for(var p=0;p<picked.length;p++) names.push(picked[p][0]);
+          if(names.length) note('\u27E1 THE CIRCLE CONVENES \u2014 '+names.join(' \u00B7 '));
+          setTimeout(function(){ for(var p=0;p<picked.length;p++){
+            var ag=picked[p], at=agentAt[ag[0]];
+            if(at && Date.now()-at<45000) continue;
+            agentAt[ag[0]]=Date.now();
+            setTimeout(function(a){ return function(){ ask(a,q,0); }; }(ag), 2200+p*1800);
+          } },0);
+          setTimeout(function(){ for(var mm=0;mm<mods.length;mm++) engage(mods[mm],q); },260);
         }
       }
     }catch(e){}
-    return of.call(this,input,init);
-  };
+  }
+
+  /* the main chat's own send path: the SEND button and the composer's Enter key.
+   Captured on the way down, so module runs never trigger the council. */
+  function hookSend(){
+    var txt=document.getElementById('txt'), send=document.getElementById('send');
+    if(!txt||!send) return false;
+    document.addEventListener('click',function(e){
+      try{
+        var t=e.target;
+        while(t && t!==document){
+          if(t.id==='send'){ convene(String(txt.value||'').trim()); break; }
+          t=t.parentNode;
+        }
+      }catch(e){}
+    },true);
+    txt.addEventListener('keydown',function(e){
+      try{ if(e.key==='Enter' && !e.shiftKey) convene(String(txt.value||'').trim()); }catch(err){}
+    },true);
+    return true;
+  }
+
+  var tries=0;
+  (function arm(){ if(hookSend()) return; if(++tries>40) return; setTimeout(arm,250); })();
   try{ console.log(TAG+'council online'); }catch(e){}
 })();
