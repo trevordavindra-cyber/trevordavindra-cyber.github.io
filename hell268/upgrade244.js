@@ -1,4 +1,4 @@
-/* ILLUMINATI upgrade #244: hl244-siteforge (v19.145)
+/* ILLUMINATI upgrade #244: hl244-siteforge (v19.146)
    THE ASK: like Arena, when the AI builds a website the site itself should
    show up in the chat, viewable, with a download that saves the whole file.
    How it works: every relay request carries a site-forge rule, so build asks
@@ -7,11 +7,14 @@
    token floor is raised on forge requests). The chat watches replies, and any
    message carrying a website gets a SITE FORGED panel after it: PREVIEW
    renders it live in a sandboxed frame, DOWNLOAD saves the full file, named
-   after the site's title. The panel is a sibling of the message, so the
-   message's own restyling never wipes it, and it only arms once the carved
-   site code settles across scans. Truncated replies are still forged (the
-   tail is closed gently so the preview renders). Nothing removed, all
-   existing paths keep working. Guard: __HL244 */
+   after the site's title. A persistent dock above the composer holds the
+   latest forged site too, so restyle churn in the stream can never take the
+   controls away, and PREVIEW opens a full-screen frame. The panel only arms
+   once the carved site code settles across scans (a GLOBAL counter, since
+   the chat restyles messages every couple of seconds and replaces the line
+   nodes). Truncated replies are still forged (the tail is closed gently so
+   the preview renders). Nothing removed, all existing paths keep working.
+   Guard: __HL244 */
 (function () {
   if (window.__HL244) return; window.__HL244 = true;
 
@@ -85,6 +88,72 @@
     return 'website.html';
   }
 
+  /* persistent dock: one bar above the composer holding the latest forged
+     site - it lives outside the chat stream so restyles can never wipe it */
+  var dock = null, dockCode = null, overlay = null;
+
+  function setDock(code) {
+    try {
+      if (dockCode === code) return;
+      dockCode = code;
+      if (!dock) {
+        dock = document.createElement('div');
+        dock.style.cssText = 'position:fixed;left:10px;right:10px;bottom:58px;z-index:2147483000;display:none;align-items:center;gap:8px;padding:8px 10px;background:rgba(10,10,10,.96);border:1px solid rgba(212,175,55,.45);border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.6);';
+        var lbl = document.createElement('span'); lbl.textContent = 'SITE FORGED';
+        lbl.style.cssText = 'font-size:10px;letter-spacing:.12em;color:#c9b458;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+        var bs = 'padding:7px 12px;font-size:11px;letter-spacing:.05em;border:1px solid rgba(212,175,55,.55);border-radius:6px;background:#141414;color:#e8cf7a;cursor:pointer;flex-shrink:0;';
+        var pv = document.createElement('button'); pv.textContent = 'PREVIEW'; pv.style.cssText = bs;
+        var d2 = document.createElement('button'); d2.textContent = 'DOWNLOAD'; d2.style.cssText = bs;
+        pv.addEventListener('click', function () { showOverlay(dockCode); });
+        d2.addEventListener('click', function () { saveSite(dockCode); });
+        dock.appendChild(lbl); dock.appendChild(pv); dock.appendChild(d2);
+        (document.body || document.documentElement).appendChild(dock);
+      }
+      dock.style.display = 'flex';
+    } catch (e) {}
+  }
+
+  function saveSite(code) {
+    try {
+      var blob = new Blob([code], { type: 'text/html' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = fileName(code);
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { try { document.body.removeChild(a); URL.revokeObjectURL(a.href); } catch (e2) {} }, 400);
+    } catch (e3) {}
+  }
+
+  function showOverlay(code) {
+    try {
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483400;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;';
+        var box = document.createElement('div');
+        box.style.cssText = 'width:94vw;max-width:900px;height:88vh;display:flex;flex-direction:column;';
+        var ob = document.createElement('div');
+        ob.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px 0;';
+        var ot = document.createElement('span'); ot.textContent = 'PREVIEW';
+        ot.style.cssText = 'font-size:10px;letter-spacing:.12em;color:#c9b458;flex:1;';
+        var cl = document.createElement('button'); cl.textContent = 'CLOSE';
+        cl.style.cssText = 'padding:7px 14px;font-size:11px;letter-spacing:.05em;border:1px solid rgba(212,175,55,.55);border-radius:6px;background:#141414;color:#e8cf7a;cursor:pointer;';
+        cl.addEventListener('click', function () { overlay.style.display = 'none'; });
+        var fr = document.createElement('iframe');
+        fr.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
+        fr.style.cssText = 'flex:1;width:100%;border:1px solid rgba(212,175,55,.35);border-radius:8px;background:#fff;';
+        ob.appendChild(ot); ob.appendChild(cl);
+        box.appendChild(ob); box.appendChild(fr);
+        overlay.appendChild(box);
+        (document.body || document.documentElement).appendChild(overlay);
+        overlay._fr = fr;
+      }
+      if (overlay._fr.getAttribute('data-code-len') !== String(code.length)) {
+        overlay._fr.srcdoc = code;
+        overlay._fr.setAttribute('data-code-len', String(code.length));
+      }
+      overlay.style.display = 'flex';
+    } catch (e4) {}
+  }
+
   function addPanel(host, code) {
     try {
       var wrap = document.createElement('div');
@@ -111,15 +180,7 @@
           try { fw.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e2) {}
         } else { fw.style.display = 'none'; open.textContent = 'PREVIEW'; }
       });
-      dl.addEventListener('click', function () {
-        try {
-          var blob = new Blob([code], { type: 'text/html' });
-          var a = document.createElement('a');
-          a.href = URL.createObjectURL(blob); a.download = fileName(code);
-          document.body.appendChild(a); a.click();
-          setTimeout(function () { try { document.body.removeChild(a); URL.revokeObjectURL(a.href); } catch (e2) {} }, 400);
-        } catch (e3) {}
-      });
+      dl.addEventListener('click', function () { saveSite(code); });
       fw.appendChild(frame); wrap.appendChild(bar); wrap.appendChild(fw);
       if (host.parentNode) host.parentNode.insertBefore(wrap, host.nextSibling);
       else host.appendChild(wrap);
@@ -127,6 +188,8 @@
       console.log('[hl244] site forged: preview + download panel added (' + code.length + ' chars)');
     } catch (e) {}
   }
+
+  var st = { code: null, miss: 0 };
 
   function scanChat() {
     try {
@@ -144,13 +207,14 @@
         var nx = n.nextElementSibling;
         if (nx && nx.classList && nx.classList.contains('hl244forge')) { n._hl244sib = nx; continue; }
         /* arm only when the carved code has settled across scans, so a
-           streaming reply never forges half-built (button restyles churn the
-           text but not the carved code) */
+           streaming reply never forges half-built. The counter is GLOBAL:
+           the chat restyles messages every couple of seconds, which replaces
+           the line nodes and would reset a per-node counter forever */
         var need = code.indexOf('</html>') >= 0 ? 1 : 3;
-        if (n._hl244code === code) {
-          n._hl244miss = (n._hl244miss || 0) + 1;
-          if (n._hl244miss >= need) addPanel(n, code);
-        } else { n._hl244code = code; n._hl244miss = 0; }
+        if (st.code === code) {
+          st.miss++;
+          if (st.miss >= need) { addPanel(n, code); setDock(code); }
+        } else { st.code = code; st.miss = 0; }
       }
     } catch (e3) {}
   }
