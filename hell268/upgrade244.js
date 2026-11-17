@@ -1,12 +1,14 @@
-/* ILLUMINATI upgrade #244: hl244-siteforge (v19.141)
+/* ILLUMINATI upgrade #244: hl244-siteforge (v19.142)
    THE ASK: like Arena, when the AI builds a website the site itself should
    show up in the chat, viewable, with a download that saves the whole file.
    How it works: every relay request now carries a site-forge rule, so build
    asks are answered with ONE complete single-file HTML document in a ```html
    code block. The chat watches replies, and any message carrying a website
    gets a panel under it: PREVIEW renders it live in a sandboxed frame inside
-   the chat, DOWNLOAD saves the full file (site.html). Nothing removed, all
-   existing paths keep working. Guard: __HL244 */
+   the chat, DOWNLOAD saves the full file (website.html). Works on fenced code
+   and on the styled code blocks the code casement renders (v19.142: reads the
+   site straight out of the rendered block, so the panel survives the casement
+   rebuild). Nothing removed, all existing paths keep working. Guard: __HL244 */
 (function () {
   if (window.__HL244) return; window.__HL244 = true;
 
@@ -38,6 +40,15 @@
       t = String(t || '');
       var m = /```html\s*\n?([\s\S]*?)```/i.exec(t) || /```\s*\n?(<!DOCTYPE[\s\S]*?)```/i.exec(t) || /```\s*\n?(<html[\s\S]*?)```/i.exec(t);
       if (m && m[1] && /<html|<!DOCTYPE|<body|<div|<canvas|<script/i.test(m[1])) return m[1].trim();
+      /* rendered code blocks: the fences are gone, so carve the document out
+         of the line text, from the first doctype/html tag to the last close */
+      var i = t.indexOf('<!DOCTYPE');
+      if (i < 0) i = t.search(/<html[\s>]/i);
+      var j = t.lastIndexOf('</html>');
+      if (i >= 0 && j > i) {
+        var code = t.slice(i, j + 7);
+        if (code.length > 150) return code;
+      }
       var r = /^[\s\n]*<!DOCTYPE html[\s\S]*<\/html>\s*$/i.exec(t);
       if (r) return r[0].trim();
     } catch (e) {}
@@ -48,6 +59,7 @@
     if (host._hl244panel) return; host._hl244panel = true;
     try {
       var wrap = document.createElement('div');
+      wrap.className = 'hl244forge';
       wrap.style.cssText = 'margin:8px 0 4px 0;border:1px solid rgba(212,175,55,.35);border-radius:10px;overflow:hidden;background:#0a0a0a;';
       var bar = document.createElement('div');
       bar.style.cssText = 'display:flex;gap:8px;align-items:center;padding:7px 9px;background:rgba(212,175,55,.08);';
@@ -81,6 +93,7 @@
       });
       fw.appendChild(frame); wrap.appendChild(bar); wrap.appendChild(fw);
       host.appendChild(wrap);
+      console.log('[hl244] site forged: preview + download panel added (' + code.length + ' chars)');
     } catch (e) {}
   }
 
@@ -90,13 +103,12 @@
       var kids = chat.children;
       for (var i = 0; i < kids.length; i++) {
         var n = kids[i];
-        if (n._hl244done) continue;
+        if (n.querySelector && n.querySelector('.hl244forge')) continue;
         var txt = '';
         try { txt = n.textContent || ''; } catch (e2) {}
         if (txt.indexOf('```') < 0 && txt.indexOf('<!DOCTYPE') < 0 && txt.indexOf('<html') < 0) continue;
         var code = extract(txt);
         if (!code) continue;
-        n._hl244done = true;
         addPanel(n, code);
       }
     } catch (e3) {}
@@ -111,7 +123,7 @@
     if (c && !arm.done) { arm.done = true; mo.observe(c, { childList: true, subtree: true, characterData: true }); }
   }
   arm(); setInterval(arm, 2000);
-  setInterval(scanChat, 3000);
+  setInterval(scanChat, 2500);
 
   console.log('[hl244] online: site forge live (ai-built websites render in chat, preview + full-file download)');
 })();
