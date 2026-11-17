@@ -1,4 +1,4 @@
-/* ILLUMINATI upgrade #244: hl244-siteforge (v19.144)
+/* ILLUMINATI upgrade #244: hl244-siteforge (v19.145)
    THE ASK: like Arena, when the AI builds a website the site itself should
    show up in the chat, viewable, with a download that saves the whole file.
    How it works: every relay request carries a site-forge rule, so build asks
@@ -8,10 +8,10 @@
    message carrying a website gets a SITE FORGED panel after it: PREVIEW
    renders it live in a sandboxed frame, DOWNLOAD saves the full file, named
    after the site's title. The panel is a sibling of the message, so the
-   message's own restyling never wipes it, and it only arms once the reply has
-   stopped growing. Truncated replies are still forged (the tail is closed
-   gently so the preview renders). Nothing removed, all existing paths keep
-   working. Guard: __HL244 */
+   message's own restyling never wipes it, and it only arms once the carved
+   site code settles across scans. Truncated replies are still forged (the
+   tail is closed gently so the preview renders). Nothing removed, all
+   existing paths keep working. Guard: __HL244 */
 (function () {
   if (window.__HL244) return; window.__HL244 = true;
 
@@ -130,7 +130,7 @@
 
   function scanChat() {
     try {
-      var chat = $('chat'); if (!chat) return;
+      var chat = $('chat') || document.querySelector('main') || document.body;
       var kids = chat.children;
       for (var i = 0; i < kids.length; i++) {
         var n = kids[i];
@@ -140,11 +140,17 @@
         if (txt.indexOf('```') < 0 && txt.indexOf('<!DOCTYPE') < 0 && txt.indexOf('<html') < 0) continue;
         var code = extract(txt);
         if (!code) continue;
-        /* only arm once the reply has stopped growing */
-        if (n._hl244txt !== txt) { n._hl244txt = txt; continue; }
-        var p = n._hl244sib;
-        if (p && p.parentNode) continue;
-        addPanel(n, code);
+        /* panel already sitting right after this line? (survives restyle churn) */
+        var nx = n.nextElementSibling;
+        if (nx && nx.classList && nx.classList.contains('hl244forge')) { n._hl244sib = nx; continue; }
+        /* arm only when the carved code has settled across scans, so a
+           streaming reply never forges half-built (button restyles churn the
+           text but not the carved code) */
+        var need = code.indexOf('</html>') >= 0 ? 1 : 3;
+        if (n._hl244code === code) {
+          n._hl244miss = (n._hl244miss || 0) + 1;
+          if (n._hl244miss >= need) addPanel(n, code);
+        } else { n._hl244code = code; n._hl244miss = 0; }
       }
     } catch (e3) {}
   }
@@ -154,7 +160,7 @@
 
   var mo = new MutationObserver(kick);
   function arm() {
-    var c = $('chat');
+    var c = $('chat') || document.querySelector('main');
     if (c && !arm.done) { arm.done = true; mo.observe(c, { childList: true, subtree: true, characterData: true }); }
   }
   arm(); setInterval(arm, 2000);
