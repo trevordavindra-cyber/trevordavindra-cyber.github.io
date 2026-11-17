@@ -21,7 +21,7 @@
   function hi(code, lang) {
     var e = esc(code);
     var hashOk = HASH_C.split('|').indexOf(lang) > -1;
-    e = e.replace(/(&lt;![\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|(?:^|\n)\/\/[^\n]*)/g, '\u0001$1\u0002');
+    e = e.replace(/(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|(?:^|\n)\/\/[^\n]*)/g, '\u0001$1\u0002');
     if (hashOk) e = e.replace(/(^|\n)(#[^\n]*)/g, '$1\u0001$2\u0002');
     e = e.replace(/("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/g, '\u0003$1\u0004');
     e = e.replace(new RegExp('\\b(' + KW + ')\\b', 'g'), '\u0005$1\u0006');
