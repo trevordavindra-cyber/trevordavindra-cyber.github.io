@@ -1,4 +1,4 @@
-/* ILLUMINATI upgrade #244: hl244-siteforge (v19.142)
+/* ILLUMINATI upgrade #244: hl244-siteforge (v19.143)
    THE ASK: like Arena, when the AI builds a website the site itself should
    show up in the chat, viewable, with a download that saves the whole file.
    How it works: every relay request now carries a site-forge rule, so build
@@ -6,9 +6,9 @@
    code block. The chat watches replies, and any message carrying a website
    gets a panel under it: PREVIEW renders it live in a sandboxed frame inside
    the chat, DOWNLOAD saves the full file (website.html). Works on fenced code
-   and on the styled code blocks the code casement renders (v19.142: reads the
-   site straight out of the rendered block, so the panel survives the casement
-   rebuild). Nothing removed, all existing paths keep working. Guard: __HL244 */
+   and on the styled code blocks the code casement renders; the panel re-arms
+   itself after any rebuild of the message (v19.143). Nothing removed, all
+   existing paths keep working. Guard: __HL244 */
 (function () {
   if (window.__HL244) return; window.__HL244 = true;
 
@@ -56,7 +56,6 @@
   }
 
   function addPanel(host, code) {
-    if (host._hl244panel) return; host._hl244panel = true;
     try {
       var wrap = document.createElement('div');
       wrap.className = 'hl244forge';
