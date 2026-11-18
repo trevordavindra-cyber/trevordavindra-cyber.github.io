@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Prompt Guide — Forge</title>
+<meta name="description" content="How to write prompts that generate great Roblox assets with Forge.">
+<meta name="theme-color" content="#0d0b10">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d0b10'/%3E%3Cpath d='M18 44 L32 12 L46 44 L38 44 L32 28 L26 44 Z' fill='%23ff6a1a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">▲</span><span class="brand-name">Forge<span class="brand-sub">GUI</span></span></div>
+  <nav class="topnav"><a href="index.html">← back to Forge</a></nav>
+</header>
+<main>
+<section class="section">
+  <div class="section-head"><h2>Prompt guide</h2><p>How to type ideas that come out looking right the first time.</p></div>
+
+  <h3 class="guide-h">The formula</h3>
+  <p class="guide-p">subject + style + lighting + color. "fiery dragon boss, 3D render, dramatic backlight, red and black" beats "dragon".</p>
+
+  <h3 class="guide-h">Asset types</h3>
+  <p class="guide-p">Pick the right preset so the size and framing are right:</p>
+  <ul class="guide-list">
+    <li><strong>Game icon</strong> — one subject, centered. Roblox crops icon slots, so keep the subject in the middle third.</li>
+    <li><strong>Thumbnail</strong> — wide 16:9 scene. Put your hero on the left, action on the right.</li>
+    <li><strong>UI button / panel</strong> — say "flat UI design, straight-on view" so it doesn't render as a 3D scene.</li>
+    <li><strong>Skill icon</strong> — tight crop, one object, glowing rim reads best at 48px.</li>
+    <li><strong>Texture</strong> — use the texture recipes tab; they already say "seamless tileable".</li>
+  </ul>
+
+  <h3 class="guide-h">Style reference</h3>
+  <p class="guide-p">Upload a screenshot of UI you like. Forge pulls its five dominant colors and locks them into every generation, so a whole set matches. This is the fastest way to a consistent look.</p>
+
+  <h3 class="guide-h">Words that work</h3>
+  <ul class="guide-list">
+    <li>Composition: centered composition, rule of thirds, close-up, top-down</li>
+    <li>Light: golden hour, neon glow, rim light, volumetric fog</li>
+    <li>Mood: dark and moody, playful, epic, cozy, eerie</li>
+    <li>Roblox flavor: blocky character, voxel style, low poly</li>
+  </ul>
+
+  <h3 class="guide-h">Words that hurt</h3>
+  <p class="guide-p">Skip "high quality", "4k", "masterpiece" spam. One quality tier is already built in. Avoid asking for text in the image; models misspell, and Roblox overlays its own text anyway.</p>
+
+  <h3 class="guide-h">Seeds</h3>
+  <p class="guide-p">Same prompt + same seed = same image. Found one you love? Note the seed (advanced options) and vary the prompt slightly to iterate on it. New seed = fresh variation.</p>
+
+  <h3 class="guide-h">Roblox upload rules</h3>
+  <ul class="guide-list">
+    <li>PNG or JPG, under 8 MB, longest side under 8000px. Every Forge preset already qualifies.</li>
+    <li>Game icons: 512×512. Thumbnails: 1280×720 or 1920×1080.</li>
+    <li>Upload via Roblox Studio Asset Manager, then use the asset ID in your ImageLabels.</li>
+  </ul>
+</section>
+</main>
+<footer class="footer"><p>Forge — built for Roblox creators. Not affiliated with Roblox Corporation.</p></footer>
+</body>
+</html>
