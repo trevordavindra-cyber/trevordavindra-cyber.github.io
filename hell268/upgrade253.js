@@ -19,7 +19,7 @@
        * an npm package target -> the package's registry record plus its
          real published files read through unpkg (registry + unpkg, both
          keyless and free).
-   - The evidence lands in the call as [REA RUN - LIVE EVIDENCE] and the
+   - The evidence lands in the call as [REA RUN — LIVE EVIDENCE] and the
      engine is instructed to walk the REA chain: artifact -> observation ->
      conclusion, marking every inference as an inference. If a target can't
      be reached, REA discipline still engages and the engine says what it
@@ -48,9 +48,12 @@
       ['catch'](function () { return t || ''; });
   }
 
+  function withTimeout(p, ms) {
+    return Promise.race([p, new Promise(function (res) { setTimeout(function () { res(null); }, ms || 9000); })]);
+  }
   function fetchText(url, max) {
-    return fetch(url).then(function (r) { if (!r.ok) throw 0; return r.text(); })
-      .then(function (t) { return clip(t, max); })['catch'](function () { return null; });
+    return withTimeout(fetch(url).then(function (r) { if (!r.ok) throw 0; return r.text(); }), 9000)
+      .then(function (t) { return t === null ? null : clip(t, max); })['catch'](function () { return null; });
   }
 
   function reconSite(u) {
@@ -101,10 +104,10 @@
   function run(q) {
     return Promise.all([skillText(), evidence(q)]).then(function (r) {
       var skill = r[0] || '', ev = r[1];
-      var block = '\n\n[REA RUN - Reverse Engineer Anything, github.com/morluto/rea, MIT]';
+      var block = '\n\n[REA RUN — Reverse Engineer Anything, github.com/morluto/rea, MIT]';
       if (skill) block += '\n\nREA FULL METHOD (live skill, follow its routes for this target type):\n' + skill.slice(0, 13000);
-      if (ev) block += '\n\nREA RUN - LIVE EVIDENCE (fetched right now from the target; treat as shipped-artifact evidence, cite it, and mark every inference as an inference):\n' + ev;
-      else block += '\n\nREA RUN - TARGET EVIDENCE COULD NOT BE FETCHED from the browser. Apply REA discipline anyway: state your assumptions plainly and label what is unverified.';
+      if (ev) block += '\n\nREA RUN — LIVE EVIDENCE (fetched right now from the target; treat as shipped-artifact evidence, cite it, and mark every inference as an inference):\n' + ev;
+      else block += '\n\nREA RUN — TARGET EVIDENCE COULD NOT BE FETCHED from the browser. Apply REA discipline anyway: state your assumptions plainly and label what is unverified.';
       block += '\nEnd of REA run.';
       return block;
     });
@@ -112,6 +115,7 @@
 
   var of = window.fetch;
   window.fetch = function (input, init) {
+    var self = this, args = arguments;
     try {
       var url = typeof input === 'string' ? input : (input && input.url) || '';
       var isRelay = /pollinations\.ai|textdb\.online|aihorde\.net|openrouter|deepinfra|groq|huggingface\.co/.test(url);
@@ -124,8 +128,8 @@
         if (q && REA_RE.test(q) && q.indexOf('[REA RUN') === -1 && q.indexOf('CODEX VAULT') === -1) {
           return run(q).then(function (block) {
             try { lastUser.content += block; b.messages = msgs; init.body = JSON.stringify(b); console.log('[hl253] REA hands: evidence run attached'); } catch (e3) {}
-            return of.apply(this, arguments);
-          })['catch'](function () { try { console.log('[hl253] REA hands: run failed, passing through'); } catch (e4) {} return of.apply(this, arguments); });
+            return of.apply(self, args);
+          })['catch'](function () { try { console.log('[hl253] REA hands: run failed, passing through'); } catch (e4) {} return of.apply(self, args); });
         }
       }
     } catch (e) {}
