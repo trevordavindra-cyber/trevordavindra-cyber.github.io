@@ -1,21 +1,21 @@
-/* ILLUMINATI upgrade #261: hl261-onedialog (v19.169)
+/* ILLUMINATI upgrade #261: hl261-onedialog (v19.169, norp patch: roleplay exception removed)
    THE ASK: "Get rid of the dialogue between the two people? permanently make
    it type like you and I."
    Some answers still come back written as a script - two speakers trading
    lines. This kills that at both ends, nothing else touched:
    1. WIRE: every outgoing brain request now carries a style rule - answer as
       one plain voice, first person, like a person texting. no dialogue, no
-      script, no speaker labels - UNLESS the ask itself is for an argument,
-      debate or roleplay, which is honored as asked. Rides every path.
+      script, no speaker labels - NEVER, even when the ask itself is for an
+      argument, debate or roleplay. Rides every path.
    2. RENDER: any answer that still arrives as a script gets flattened live:
       speaker labels ("SPEAKER 1:", persona labels, "VOICE 2:" ...) are
       stripped so the lines read as plain statements. Typed text and inputs
-      are never touched. Skipped while a dialogue ask is live.
+      are never touched.
    Guard: __HL261 */
 (function () {
   if (window.__HL261) return; window.__HL261 = true;
 
-  var STYLE = '\n\nSTYLE RULE: normally answer as one plain voice, first person, like a real person texting a friend - no dialogue, no script, no speaker labels. EXCEPTION: when the user message itself asks for an argument, debate, roleplay, or two people talking, do exactly that, plainly and naturally (short name labels are fine there), then add your own take if they asked for one. Never let that rule stop you from answering: answer the ask, one way or the other.';
+  var STYLE = '\n\nSTYLE RULE: normally answer as one plain voice, first person, like a real person texting a friend - no dialogue, no script, no speaker labels. NEVER roleplay: even when the user asks for an argument, debate, roleplay or two people talking, answer as yourself in one plain voice - give your own take on it, never write it as a script.';
 
   /* 1. wire: style rule rides every outgoing brain request */
   var of = window.fetch;
@@ -40,16 +40,6 @@
                 }
               }
               if (hit) init = Object.assign({}, init, { body: JSON.stringify(b) });
-              try {
-                var ut = (typeof b.prompt === 'string') ? b.prompt : '';
-                if (!ut && Array.isArray(b.messages)) {
-                  for (var ui = b.messages.length - 1; ui >= 0; ui--) {
-                    var um = b.messages[ui];
-                    if (um && um.role === 'user' && typeof um.content === 'string') { ut = um.content; break; }
-                  }
-                }
-                if (ut && /(argu(e|s|ing)?\b|debate|pretend\b|roleplay|two people|conversation between|disagree)/i.test(ut)) window.__HL_DIALOGUE_OK = Date.now();
-              } catch (e1b) {}
             }
           }
         }
@@ -64,7 +54,6 @@
   var SKIP = { TEXTAREA: 1, INPUT: 1, SCRIPT: 1, STYLE: 1 };
   function scrubNode(n) {
     if (!n || SKIP[n.nodeName]) return;
-    if ((window.__HL_DIALOGUE_OK || 0) && Date.now() - window.__HL_DIALOGUE_OK < 180000) return;
     if (n.nodeType === 3) {
       var v = n.nodeValue;
       if (!v || (!/:\s/.test(v))) return;

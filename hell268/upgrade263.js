@@ -1,11 +1,11 @@
-/* ILLUMINATI upgrade #263: hl263-plaincut (v19.169)
+/* ILLUMINATI upgrade #263: hl263-plaincut (v19.169, norp patch)
    THE ASK (continuation): one plain voice, zero thinking-out-loud. Some
    brains answer with meta reasoning in plain words ("We need answer the
    user request. Need comply: ...") with no think tags and no Thinking
    Process header. This cuts that at the wire, nothing else touched:
    1. WIRE OUT: a stronger final-answer-only instruction rides every brain
       request: start with the actual answer, never restate the request,
-      never explain reasoning, never mention instructions.
+      never explain reasoning, never mention instructions, never roleplay.
    2. WIRE IN: brain responses (aihorde, pollinations, /v1/chat) get think
       tags and leading reasoning sentences stripped from the response body
       itself, so nothing downstream (chat, ledger, copy, storage) sees them.
@@ -44,7 +44,7 @@
     return r || out.trim();
   }
 
-  var NOTE = '\n\nHARD RULE: start your reply with the actual answer immediately. Never restate the request. Never explain your reasoning or planning. Never write phrases like "We need" or "The user asked" and never mention instructions. If the user asked for a dialogue, argument, debate or roleplay, give exactly that directly with no thinking out loud. Otherwise answer in one or two plain sentences, first person.';
+  var NOTE = '\n\nHARD RULE: start your reply with the actual answer immediately. Never restate the request. Never explain your reasoning or planning. Never write phrases like "We need" or "The user asked" and never mention instructions. Never write dialogue, scripts, speaker labels or roleplay, even if the user asks; always answer as one plain voice, first person, with your own take. Otherwise answer in one or two plain sentences, first person.';
 
   var of = window.fetch;
   if (typeof of === 'function') {
