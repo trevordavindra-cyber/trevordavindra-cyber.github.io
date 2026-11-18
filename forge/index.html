@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Forge — AI Asset Generator for Roblox</title>
+<meta name="description" content="Generate Roblox game assets — icons, thumbnails, UI sets, GFX — just by typing. Free, unlimited, no signup.">
+<meta name="theme-color" content="#0d0b10">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d0b10'/%3E%3Cpath d='M18 44 L32 12 L46 44 L38 44 L32 28 L26 44 Z' fill='%23ff6a1a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">▲</span>
+    <span class="brand-name">Forge<span class="brand-sub">GUI</span></span>
+  </div>
+  <nav class="topnav">
+    <a href="#generator">Generate</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#guide">Guide</a>
+  </nav>
+  <div class="credits-pill" id="creditsPill" title="Generations this session">∞ free</div>
+</header>
+
+<main>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <h1>Generate any <span class="grad">Roblox asset</span> just by typing.</h1>
+    <p class="hero-sub">Game icons, thumbnails, UI sets, buttons, skill icons, GFX — made in seconds, exported as PNGs, yours to use anywhere. No signup, no credits, no cost.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#generator">Start generating</a>
+      <a class="btn btn-ghost" href="#gallery">See your gallery</a>
+    </div>
+    <div class="platform-row" aria-label="Works with">
+      <span>Roblox Studio</span><span>UEFN</span><span>Unity</span><span>Unreal</span><span>Minecraft</span>
+    </div>
+  </div>
+</section>
+
+<!-- GENERATOR -->
+<section class="section" id="generator">
+  <div class="section-head">
+    <h2>Generator</h2>
+    <p>Type what you want. Pick a size. Hit generate.</p>
+  </div>
+
+  <div class="gen-grid">
+    <!-- LEFT: controls -->
+    <div class="panel controls-panel">
+      <label class="field-label" for="promptInput">Prompt</label>
+      <textarea id="promptInput" rows="4" placeholder="e.g. fiery dragon game icon, epic lighting, bold outlines, red and black"></textarea>
+
+      <div class="chips" id="ideaChips">
+        <button class="chip" data-fill="epic dragon boss icon, glowing red eyes, dark background, bold outline">dragon icon</button>
+        <button class="chip" data-fill="game thumbnail, blocky hero team striking a pose, neon city night, dramatic">thumbnail</button>
+        <button class="chip" data-fill="rpg inventory panel UI, dark wood and gold, slots grid, fantasy">inventory UI</button>
+        <button class="chip" data-fill="cute pet icon set style, pastel colors, soft shading, round">pet icon</button>
+        <button class="chip" data-fill="sleek sci-fi health bar HUD, cyan glow, glass panel">health bar</button>
+      </div>
+
+      <label class="field-label">Asset type</label>
+      <div class="preset-grid" id="presetGrid">
+        <button class="preset active" data-preset="icon" data-w="512" data-h="512" data-label="Game icon">
+          <span class="preset-icon">🎮</span>Game icon
+          <span class="preset-size">512×512</span>
+        </button>
+        <button class="preset" data-preset="thumb" data-w="1280" data-h="720" data-label="Game thumbnail">
+          <span class="preset-icon">🖼️</span>Thumbnail
+          <span class="preset-size">1280×720</span>
+        </button>
+        <button class="preset" data-preset="uibutton" data-w="1024" data-h="512" data-label="UI button">
+          <span class="preset-icon">🔘</span>UI button
+          <span class="preset-size">1024×512</span>
+        </button>
+        <button class="preset" data-preset="panel" data-w="1024" data-h="1024" data-label="UI panel">
+          <span class="preset-icon">🗂️</span>UI panel
+          <span class="preset-size">1024×1024</span>
+        </button>
+        <button class="preset" data-preset="skill" data-w="512" data-h="512" data-label="Skill icon">
+          <span class="preset-icon">⚡</span>Skill icon
+          <span class="preset-size">512×512</span>
+        </button>
+        <button class="preset" data-preset="banner" data-w="1536" data-h="512" data-label="Banner GFX">
+          <span class="preset-icon">🚩</span>Banner
+          <span class="preset-size">1536×512</span>
+        </button>
+        <button class="preset" data-preset="gfx" data-w="1024" data-h="1024" data-label="GFX art">
+          <span class="preset-icon">✨</span>GFX art
+          <span class="preset-size">1024×1024</span>
+        </button>
+        <button class="preset" data-preset="loading" data-w="768" data-h="1344" data-label="Loading screen">
+          <span class="preset-icon">⏳</span>Loading
+          <span class="preset-size">768×1344</span>
+        </button>
+      </div>
+
+      <label class="field-label">Style</label>
+      <div class="style-row" id="styleRow">
+        <button class="stylebtn active" data-style="">auto</button>
+        <button class="stylebtn" data-style="realistic 3d render, dramatic lighting">3D</button>
+        <button class="stylebtn" data-style="flat cartoon, bold outlines, vibrant">cartoon</button>
+        <button class="stylebtn" data-style="pixel art, 16-bit, crisp pixels">pixel</button>
+        <button class="stylebtn" data-style="low poly 3d, clean geometric">low poly</button>
+        <button class="stylebtn" data-style="anime style, cel shading">anime</button>
+        <button class="stylebtn" data-style="hand drawn sketch, ink">sketch</button>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <label class="field-label" for="countSelect">How many</label>
+          <select id="countSelect">
+            <option value="1">1 asset</option>
+            <option value="2" selected>2 assets</option>
+            <option value="3">3 assets</option>
+            <option value="4">4 assets</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="qualitySelect">Quality</label>
+          <select id="qualitySelect">
+            <option value="fast">Fast</option>
+            <option value="high" selected>High</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- style reference -->
+      <div class="ref-block">
+        <label class="field-label">Style reference <span class="optional">(optional)</span></label>
+        <div class="ref-drop" id="refDrop">
+          <input type="file" id="refInput" accept="image/*" hidden>
+          <button class="ref-btn" id="refPick">📸 pick screenshot</button>
+          <div class="ref-preview" id="refPreview" hidden>
+            <img id="refImg" alt="style reference">
+            <button class="ref-clear" id="refClear">✕</button>
+          </div>
+          <p class="ref-hint" id="refHint">Forge matches its colors and vibe across every asset you make.</p>
+        </div>
+      </div>
+
+      <div class="advanced-toggle">
+        <button class="linklike" id="advToggle">advanced options ▾</button>
+      </div>
+      <div class="advanced" id="advPanel" hidden>
+        <div class="two-col">
+          <div>
+            <label class="field-label" for="seedInput">Seed</label>
+            <input type="number" id="seedInput" placeholder="random" min="0">
+          </div>
+          <div>
+            <label class="field-label" for="modelSelect">Model</label>
+            <select id="modelSelect">
+              <option value="flux">Flux (best)</option>
+              <option value="turbo">Turbo (fastest)</option>
+            </select>
+          </div>
+        </div>
+        <label class="field-label" for="extraInput">Extra prompt words</label>
+        <input type="text" id="extraInput" placeholder="e.g. glowing edges, centered composition">
+      </div>
+
+      <button class="btn btn-primary btn-big" id="generateBtn">⚡ Generate</button>
+      <p class="gen-note" id="genNote">Your assets stay on this device. Nothing is uploaded.</p>
+    </div>
+
+    <!-- RIGHT: results -->
+    <div class="panel results-panel">
+      <div class="results-head">
+        <span class="field-label">Results</span>
+        <button class="linklike" id="zipAllBtn" hidden>⬇ download all (.zip)</button>
+      </div>
+      <div class="results-grid" id="resultsGrid">
+        <div class="empty-state" id="resultsEmpty">
+          <div class="empty-art">🔥</div>
+          <p>Your generated assets land here.</p>
+          <p class="empty-sub">Each one gets its own seed, so hit generate twice for variations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="section" id="gallery">
+  <div class="section-head">
+    <h2>Gallery</h2>
+    <p>Everything you've made, saved on this device.</p>
+  </div>
+  <div class="gallery-bar">
+    <button class="linklike" id="clearGalleryBtn">clear gallery</button>
+  </div>
+  <div class="gallery-grid" id="galleryGrid">
+    <div class="empty-state" id="galleryEmpty">
+      <div class="empty-art">🗃️</div>
+      <p>Nothing saved yet — generate something above.</p>
+    </div>
+  </div>
+</section>
+
+<!-- UI KITS -->
+<section class="section" id="kits">
+  <div class="section-head">
+    <h2>UI kits</h2>
+    <p>One tap generates a whole matching screen set — frame, slots, buttons, badges, the lot.</p>
+  </div>
+  <div class="kits-grid" id="kitsGrid"></div>
+</section>
+
+<!-- PROMPT PACKS -->
+<section class="section" id="packs">
+  <div class="section-head">
+    <h2>Prompt packs</h2>
+    <p>Themed asset bundles ready to go — tap a pack, then generate the batch.</p>
+  </div>
+  <div class="packs-grid" id="packsGrid"></div>
+</section>
+
+<!-- TEXTURES -->
+<section class="section" id="textures">
+  <div class="section-head">
+    <h2>Texture recipes</h2>
+    <p>Seamless materials for your builds — stone, metal, magic, anything.</p>
+  </div>
+  <div class="texture-bar">
+    <input type="text" id="textureSearch" placeholder="search textures…">
+  </div>
+  <div class="texture-grid" id="textureGrid"></div>
+</section>
+
+<!-- GUIDE -->
+<section class="section" id="guide">
+  <div class="section-head">
+    <h2>Getting it into your game</h2>
+  </div>
+  <div class="guide-grid">
+    <div class="guide-card">
+      <span class="guide-num">1</span>
+      <h3>Download the PNG</h3>
+      <p>Tap any asset, then download. Roblox needs PNG or JPG, under 8MB, under 8000px on a side. Everything here already fits.</p>
+    </div>
+    <div class="guide-card">
+      <span class="guide-num">2</span>
+      <h3>Upload to Roblox</h3>
+      <p>In Roblox Studio: Asset Manager → Import, or Development → Decals. Paste the Image ID onto your UI ImageLabel or thumbnail slot.</p>
+    </div>
+    <div class="guide-card">
+      <span class="guide-num">3</span>
+      <h3>Icons &amp; thumbnails</h3>
+      <p>Game icons upload in Creator Hub → your experience → Basic Settings. Use the 512×512 preset for icons and 1280×720 for thumbnails so nothing gets cropped.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section faq">
+  <div class="section-head"><h2>FAQ</h2></div>
+  <details><summary>Is Forge really free?</summary><p>Yes. Unlimited generations, no account, no credits, nothing to pay.</p></details>
+  <details><summary>Who owns what I generate?</summary><p>You do. Use, modify, distribute or sell your assets in your own games.</p></details>
+  <details><summary>Where are my assets stored?</summary><p>In your browser on this device only. Clearing the gallery or your browser data removes them, so download what you want to keep.</p></details>
+  <details><summary>Does it work on a phone?</summary><p>Yes, Forge is built phone-first. Generation, style matching and zip export all work in your mobile browser.</p></details>
+</section>
+
+</main>
+
+<footer class="footer">
+  <p>Forge — built for Roblox creators. Not affiliated with Roblox Corporation.</p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" hidden>
+  <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+  <div class="lightbox-body">
+    <img id="lightboxImg" alt="asset">
+    <div class="lightbox-actions">
+      <button class="btn btn-primary" id="lightboxDownload">⬇ download</button>
+      <button class="btn btn-ghost" id="lightboxShare">↗ share</button>
+      <button class="btn btn-ghost" id="lightboxClose">✕ close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="forge-palettes.js"></script>
+<script src="presets.js"></script>
+<script src="ui-kits.js"></script>
+<script src="texture-recipes.js"></script>
+<script src="prompt-packs.js"></script>
+<script src="names.js"></script>
+<script src="forge-engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
