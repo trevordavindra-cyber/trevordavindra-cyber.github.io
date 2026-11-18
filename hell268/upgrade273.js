@@ -52,7 +52,7 @@
       var res = await of('https://aihorde.net/api/v2/generate/text/async', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Client-Agent': 'HELLClient:1.0:trevor@local', 'apikey': '0000000000' },
-        body: JSON.stringify({ prompt: prompt, params: { max_length: 4096, max_context_length: 4096 }, models: models })
+        body: JSON.stringify({ prompt: prompt, params: { max_length: 512, max_context_length: 2048 }, models: models })
       });
       if (!res.ok) return null;
       var t = await res.json();
@@ -169,14 +169,15 @@
                 for (var i2 = 0; i2 < pre.length; i2++) kept.push(pre[i2]);
                 return new Response(passthrough(reader, kept), { status: r.status, statusText: r.statusText, headers: r.headers });
               }
-              try { await reader.cancel(); } catch (e4) {}
+              var ans = null;
               if (Date.now() - streamAt > 10000 && body && Array.isArray(body.messages)) {
                 streamAt = Date.now();
-                var ans = await hordeAsk(HARD + '\n\n' + msgsToPrompt(body.messages) + '\n\n' + HARD, pool(), 120000);
-                if (ans) {
-                  var sse = 'data: ' + JSON.stringify({ choices: [{ delta: { content: ans } }] }) + '\n\ndata: [DONE]\n\n';
-                  return new Response(sse, { status: 200, headers: { 'Content-Type': 'text/event-stream; charset=utf-8' } });
-                }
+                ans = await hordeAsk(HARD + '\n\n' + msgsToPrompt(body.messages) + '\n\n' + HARD, pool(), 120000);
+              }
+              if (ans) {
+                try { await reader.cancel(); } catch (e4) {}
+                var sse = 'data: ' + JSON.stringify({ choices: [{ delta: { content: ans } }] }) + '\n\ndata: [DONE]\n\n';
+                return new Response(sse, { status: 200, headers: { 'Content-Type': 'text/event-stream; charset=utf-8' } });
               }
               var kept2 = [];
               for (var i3 = 0; i3 < pre.length; i3++) kept2.push(pre[i3]);
