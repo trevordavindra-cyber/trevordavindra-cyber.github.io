@@ -33,24 +33,40 @@
     { id: 'koboldcpp/NemoMix-Unleashed-12B-Q6_K', label: 'NEMOMIX 12B' },
     { id: 'ReadyArt/Wicked-Tutu-31B-Final', label: 'WICKED TUTU 31B' }
   ];
-  var n = 0;
-  try {
-    ADD.forEach(function (m) { if (typeof UNF !== 'undefined' && !UNF.some(function (x) { return x.id === m.id; })) { UNF.push(m); n++; } });
-  } catch (e) {}
-  try {
-    var orig = window.renderStatus;
-    if (typeof orig === 'function') {
-      window.renderStatus = function () {
-        var r = orig.apply(this, arguments);
-        try {
-          var el = document.getElementById('s-lines');
-          if (el && typeof UNF !== 'undefined') el.innerHTML = el.innerHTML.replace(/OMNI \(\d+-brain pool\)/, 'OMNI (' + UNF.length + '-brain pool)');
-        } catch (e2) {}
-        return r;
-      };
-    }
-  } catch (e3) {}
-  try { if (typeof renderBrain === 'function') renderBrain(); } catch (e4) {}
-  try { if (typeof paintBrain === 'function') paintBrain(); } catch (e5) {}
-  console.log('[hl259] ' + n + ' big-corp heretic brains joined the pool (total ' + UNF.length + ')');
+  var applied = false;
+  function apply() {
+    if (applied) return;
+    if (typeof UNF === 'undefined') return; /* engine not ready yet */
+    applied = true;
+    var n = 0;
+    try {
+      ADD.forEach(function (m) { if (!UNF.some(function (x) { return x.id === m.id; })) { UNF.push(m); n++; } });
+    } catch (e) {}
+    try {
+      var orig = window.renderStatus;
+      if (typeof orig === 'function' && !orig.__hl259) {
+        var w = function () {
+          var r = orig.apply(this, arguments);
+          try {
+            var el = document.getElementById('s-lines');
+            if (el && typeof UNF !== 'undefined') el.innerHTML = el.innerHTML.replace(/OMNI \(\d+-brain pool\)/, 'OMNI (' + UNF.length + '-brain pool)');
+          } catch (e2) {}
+          return r;
+        };
+        w.__hl259 = true;
+        window.renderStatus = w;
+      }
+    } catch (e3) {}
+    try { if (typeof renderBrain === 'function') renderBrain(); } catch (e4) {}
+    try { if (typeof paintBrain === 'function') paintBrain(); } catch (e5) {}
+    console.log('[hl259] ' + n + ' big-corp heretic brains joined the pool (total ' + UNF.length + ')');
+  }
+  /* the engine script and the upgrade files can land in either order after a
+     document.write rebuild, so wait for the pool instead of assuming it */
+  var tries = 0;
+  (function wait() {
+    apply();
+    if (!applied && tries++ < 120) setTimeout(wait, 250);
+    else if (!applied) console.log('[hl259] engine pool not found after 30s, standing by');
+  })();
 })();
