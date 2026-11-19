@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>ILLUMINATI</title>
+<script>
+(function () {
+  fetch('../hell316/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+    t = t.replace("join('v19.190')", "join('v19.191')");
+    t = t.replace("'MIRROR hell316'", "'MIRROR hell317'");
+    t = t.replace("'284']", "'284', '285']");
+    document.open(); document.write(t); document.close();
+  })['catch'](function () { location.replace('../hell315/'); });
+})();
+</script>
+</head>
+<body></body>
+</html>
