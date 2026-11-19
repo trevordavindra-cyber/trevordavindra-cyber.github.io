@@ -1,8 +1,20 @@
 {
   "v": "0.6-server",
-  "cycle": 35,
+  "cycle": 36,
   "startedAt": 1794228560595,
   "events": [
+    {
+      "t": 1795116729222,
+      "type": "act",
+      "src": "server",
+      "text": "STRATEGIST → server proposal #6 queued"
+    },
+    {
+      "t": 1795116729222,
+      "type": "think",
+      "src": "server",
+      "text": "STRATEGIST (server) — file a mission report"
+    },
     {
       "t": 1795087103216,
       "type": "act",
@@ -529,9 +541,17 @@
       "text": "server mission report: 27 tasks done, 2 failed (93% success) across 30 cycles",
       "tool": "none",
       "arg": {}
+    },
+    {
+      "id": 6,
+      "t": 1795116729222,
+      "src": "server",
+      "text": "server mission report: 33 tasks done, 2 failed (94% success) across 36 cycles",
+      "tool": "none",
+      "arg": {}
     }
   ],
-  "nextDecisionId": 6,
+  "nextDecisionId": 7,
   "cards": [],
   "theme": "synapse",
   "researched": [
@@ -547,7 +567,7 @@
     "Mixture of experts"
   ],
   "metrics": {
-    "done": 33,
+    "done": 34,
     "failed": 2,
     "toolStats": {}
   },
