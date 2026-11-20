@@ -14,6 +14,14 @@
   function save(a) { try { localStorage.setItem(KEY, JSON.stringify(a.slice(-40))); } catch (e) {} }
   function norm(s) { return String(s).toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim(); }
 
+  function clean(s) {
+    s = String(s || '');
+    s = s.replace(/^(YOU|ILLUMINATI)\b[\s\S]*?\d{1,2}:\d{2}:\d{2}\]?\s*/, '');
+    var cut = s.search(/\b(?:COPY|EDIT|SPEAK|REGEN|PIN|COPIED)\b/);
+    if (cut > -1) s = s.slice(0, cut);
+    return s.trim();
+  }
+
   function remember(txt) {
     var m = /^\s*remember\s+(?:that\s+)?(.+)$/i.exec(txt);
     if (!m) return null;
@@ -102,7 +110,8 @@
     x.style.cssText = 'padding:5px 10px;font-size:10px;border:1px solid rgba(212,175,55,.5);border-radius:6px;background:#141414;color:#e8cf7a;cursor:pointer;';
     x.addEventListener('click', function () { wrap.remove(); });
     bar.appendChild(lab); bar.appendChild(x); wrap.appendChild(bar);
-    var body = document.createElement('div'); body.style.cssText = 'padding:6px 10px 10px 10px;';
+    var body = document.createElement('div');
+    body.style.cssText = 'padding:6px 10px 10px 10px;';
     wrap.appendChild(body);
     if (!rows.length) {
       var e = document.createElement('div'); e.textContent = 'the bank is empty. say "remember that ..." to save your first fact.';
@@ -135,19 +144,21 @@
         var txt = ''; try { txt = (n.textContent || '').trim(); } catch (e2) {}
         if (!txt || txt.length > 600 || seen[txt]) continue;
         seen[txt] = 1;
-        if (!/^(remember|forget|what do you remember|show (my |the )?memor|memory bank|clear memory|wipe memory)\b/i.test(txt)) continue;
-        if (/^remember\b/i.test(txt)) {
-          var r = remember(txt);
+        if (!/^YOU\b/.test(txt)) continue;
+        var msg = clean(txt);
+        if (!/^(remember|forget|what do you remember|show (my |the )?memor|memory bank|clear memory|wipe memory)\b/i.test(msg)) continue;
+        if (/^remember\b/i.test(msg)) {
+          var r = remember(msg);
           if (r && r.saved) { try { console.log('[hl508] saved: ' + r.v + ' (' + r.n + ' facts)'); } catch (e3) {} }
           else if (r && r.dup) { try { console.log('[hl508] already saved: ' + r.v); } catch (e4) {} }
-        } else if (/^forget\b/i.test(txt)) {
-          var k = forget(txt);
+        } else if (/^forget\b/i.test(msg)) {
+          var k = forget(msg);
           try { console.log('[hl508] forget "' + txt.slice(0, 60) + '" dropped ' + k); } catch (e5) {}
-        } else if (/^(clear memory|wipe memory)\b/i.test(txt)) {
+        } else if (/^(clear memory|wipe memory)\b/i.test(msg)) {
           save([]);
           try { console.log('[hl508] memory cleared'); } catch (e6) {}
         }
-        if (/what do you remember|show (my |the )?memor|memory bank/i.test(txt)) panel('MEMORY BANK \u2014 ' + load().length + ' facts', load());
+        if (/what do you remember|show (my |the )?memor|memory bank/i.test(msg)) panel('MEMORY BANK \u2014 ' + load().length + ' facts', load());
       }
     } catch (e7) {}
   }
