@@ -7,9 +7,9 @@
 <script>
 (function () {
   fetch('../hell387/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
-    t = t.replace("join('v19.260')", "join('v19.262')");
-    t = t.replace("'MIRROR hell386'", "'MIRROR hell388'");
-    t = t.replace("'486']", "'486', '487', '488', '489', '490', '491', '492']");
+    t = t.replace("join('v19.261')", "join('v19.262')");
+    t = t.replace("'MIRROR hell387'", "'MIRROR hell388'");
+    t = t.replace("'489']", "'489', '490', '491', '492']");
     document.open(); document.write(t); document.close();
   })['catch'](function () { location.replace('../hell386/'); });
 })();
