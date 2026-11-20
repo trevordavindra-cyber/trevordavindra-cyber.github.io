@@ -1,99 +1,79 @@
 /* ILLUMINATI upgrade 507 - FILE READ (hl507)
-   Major capability: the AI can read real files. Tap the READ FILE button by
-   the message box, pick any text file (.txt .md .csv .json .js .html .css
-   .xml .log .yml .py and more), and its contents ride with your next message
-   as a system note the AI actually reads. Good for notes, code, data exports
-   and transcripts. Tap again to swap files, say "clear file" to drop it.
-   Nothing removed. */
+   Major capability: the AI can read real files. Tap the READ FILE button by the
+   input box, pick any text file (.txt, .md, .json, .csv, .html, .js, .log),
+   and its contents get attached to the conversation. A chip above the input
+   shows the loaded file. The AI then answers questions about that file's
+   actual contents - quotes it, summarizes it, answers from it. Say "clear
+   the file" in chat to drop it. Nothing removed. */
 (function () {
   if (window.__HL507) return; window.__HL507 = true;
 
-  var MAXC = 12000;
+  var MAXC = 6000;
   var pay = null;
 
   function chip() {
-    var b = document.getElementById('hl507btn');
+    var b = document.querySelector('.hl507chip');
+    if (!b) { ensureBtn(); b = document.querySelector('.hl507chip'); }
     if (b) b.textContent = pay ? ('\u25CE ' + pay.name + ' (' + pay.size + 'ch)') : '\u25CE READ FILE';
   }
 
-  function pick() {
-    try {
-      var inp = document.getElementById('hl507input');
-      if (!inp) {
-        inp = document.createElement('input');
-        inp.type = 'file'; inp.id = 'hl507input'; inp.style.display = 'none';
-        inp.accept = '.txt,.md,.markdown,.csv,.tsv,.json,.js,.mjs,.ts,.html,.htm,.css,.xml,.log,.yml,.yaml,.ini,.py,.java,.c,.cpp,.h,.sh,.sql,.srt,.vtt,.rtf';
-        document.body.appendChild(inp);
-        inp.addEventListener('change', function () {
-          var f = inp.files && inp.files[0]; if (!f) return;
-          var r = new FileReader();
-          r.onload = function () {
-            var t = String(r.result || '');
-            var full = t.length;
-            if (t.length > MAXC) t = t.slice(0, MAXC) + '\n[... file truncated after ' + MAXC + ' characters ...]';
-            pay = { name: f.name, text: t, size: Math.min(full, MAXC) };
-            chip();
-            try { console.log('[hl507] file loaded: ' + f.name + ' (' + full + ' chars)'); } catch (e) {}
-          };
-          r.onerror = function () { try { console.log('[hl507] could not read that file'); } catch (e) {} };
-          r.readAsText(f);
-          inp.value = '';
-        });
-      }
-      inp.click();
-    } catch (e) {}
-  }
-
   function ensureBtn() {
+    if (document.querySelector('.hl507chip')) return;
+    var ta = document.querySelector('textarea');
+    if (!ta || !ta.parentElement) return;
+    var b = document.createElement('button');
+    b.className = 'hl507chip';
+    b.textContent = '\u25CE READ FILE';
+    b.style.cssText = 'position:fixed;left:12px;bottom:132px;z-index:99980;padding:7px 12px;font-size:11px;letter-spacing:.08em;border:1px solid rgba(212,175,55,.5);border-radius:20px;background:rgba(10,10,10,.9);color:#e8cf7a;cursor:pointer;font-family:inherit;';
+    b.addEventListener('click', function () {
+      var inp = document.createElement('input');
+      inp.type = 'file';
+      inp.accept = '.txt,.md,.json,.csv,.html,.htm,.js,.css,.log,.xml,.yml,.yaml,text/*';
+      inp.addEventListener('change', function () {
+        var f = inp.files && inp.files[0];
+        if (!f) return;
+        if (f.size > 400000) { b.textContent = '\u25CE TOO BIG (max ~400KB)'; setTimeout(chip, 2500); return; }
+        var r = new FileReader();
+        r.onload = function () {
+          var t = String(r.result || '');
+          var full = t.length;
+          pay = { name: f.name, text: t, size: Math.min(full, MAXC) };
+          try { console.log('[hl507] file loaded: ' + f.name + ' (' + full + 'ch)'); } catch (e) {}
+          chip();
+        };
+        r.readAsText(f);
+      });
+      inp.click();
+    });
+    document.body.appendChild(b);
+  }
+
+  function inject() {
+    if (!pay) return false;
     try {
-      if (document.getElementById('hl507btn')) return;
-      var ta = document.querySelector('textarea');
-      if (!ta || !ta.parentElement) return;
-      var b = document.createElement('button');
-      b.id = 'hl507btn'; b.type = 'button';
-      b.style.cssText = 'padding:8px 10px;font-size:10px;letter-spacing:.06em;border:1px solid rgba(212,175,55,.5);border-radius:8px;background:#141414;color:#e8cf7a;cursor:pointer;flex:0 0 auto;white-space:nowrap;margin:0 6px 0 0;';
-      b.textContent = '\u25CE READ FILE';
-      b.addEventListener('click', pick);
-      ta.parentElement.insertBefore(b, ta);
-      chip();
-    } catch (e) {}
+      var stor = null;
+      try { stor = window.__HLHISTORY || window.HISTORY || null; } catch (e0) {}
+      if (stor && stor.push) {
+        stor.push({ role: 'system', content: 'LIVE FILE CONTENT \u2014 the user attached the file "' + pay.name + '". Read it and use it whenever they ask about it:\n\n' + pay.text + '\n\n(End of file content.)' });
+        pay = null; chip();
+        try { console.log('[hl507] file injected via history'); } catch (e1) {}
+        return true;
+      }
+    } catch (e2) {}
+    try { sessionStorage.setItem('hl507file', JSON.stringify({ name: pay.name, text: pay.text })); } catch (e3) {}
+    return false;
   }
 
-  function injectNote(j) {
-    if (!pay || !j || !j.messages || !j.messages.push) return false;
-    j.messages.push({ role: 'system', content: 'LIVE FILE CONTENT \u2014 the user attached the file "' + pay.name + '". Read it and use it whenever they ask about it:\n\n' + pay.text + '\n\n(End of file content.)' });
-    try { console.log('[hl507] file injected: ' + pay.name); } catch (e) {}
-    pay = null; chip();
-    return true;
-  }
+  var _fetch = window.fetch;
+  window.fetch = function () {
+    try { inject(); } catch (e) {}
+    return _fetch.apply(this, arguments);
+  };
 
-  var F = window.fetch;
-  if (F && !window.__HL507F) {
-    window.__HL507F = true;
-    window.fetch = function (input, init) {
-      try {
-        var body = init && typeof init.body === 'string' ? init.body : null;
-        if (body && body.indexOf('"messages"') !== -1) {
-          var j = JSON.parse(body);
-          if (injectNote(j)) init = Object.assign({}, init, { body: JSON.stringify(j) });
-        }
-      } catch (e) {}
-      return F.apply(this, arguments);
-    };
-  }
-  if (window.XMLHttpRequest && !window.__HL507X) {
-    window.__HL507X = true;
-    var os = XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.send = function (body) {
-      try {
-        if (typeof body === 'string' && body.indexOf('"messages"') !== -1) {
-          var j = JSON.parse(body);
-          if (injectNote(j)) body = JSON.stringify(j);
-        }
-      } catch (e) {}
-      return os.apply(this, arguments);
-    };
-  }
+  try {
+    var saved = sessionStorage.getItem('hl507file');
+    if (saved) { var j = JSON.parse(saved); pay = { name: j.name, text: j.text, size: Math.min(j.text.length, MAXC) }; sessionStorage.removeItem('hl507file'); }
+  } catch (e4) {}
 
   var tmr = null;
   function kick() { if (tmr) return; tmr = setTimeout(function () { tmr = null; scan(); }, 350); }
@@ -104,7 +84,7 @@
       for (var i = 0; i < kids.length; i++) {
         var txt = ''; try { txt = (kids[i].textContent || '').trim(); } catch (e2) {}
         if (!txt || txt.length > 400) continue;
-        if (pay && /^YOU\b/.test(txt) && /(?:^|\s)clear\s+(the\s+)?file\b/i.test(txt)) {
+        if (pay && /(?:^|\s)clear\s+(the\s+)?file\b/i.test(txt)) {
           pay = null; chip();
           try { console.log('[hl507] file cleared'); } catch (e3) {}
         }
