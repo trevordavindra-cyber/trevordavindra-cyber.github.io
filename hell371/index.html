@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>ILLUMINATI</title>
+<script>
+(function () {
+  fetch('../hell370/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+    t = t.replace("join('v19.244')", "join('v19.245')");
+    t = t.replace("'MIRROR hell370'", "'MIRROR hell371'");
+    t = t.replace("'438']", "'438', '439', '440', '441']");
+    document.open(); document.write(t); document.close();
+  })['catch'](function () { location.replace('../hell369/'); });
+})();
+</script>
+</head><body></body>
+</html>
