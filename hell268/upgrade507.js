@@ -104,7 +104,7 @@
       for (var i = 0; i < kids.length; i++) {
         var txt = ''; try { txt = (kids[i].textContent || '').trim(); } catch (e2) {}
         if (!txt || txt.length > 400) continue;
-        if (/^\s*clear\s+(the\s+)?file\b/i.test(txt) && pay) {
+        if (pay && /^YOU\b/.test(txt) && /(?:^|\s)clear\s+(the\s+)?file\b/i.test(txt)) {
           pay = null; chip();
           try { console.log('[hl507] file cleared'); } catch (e3) {}
         }
