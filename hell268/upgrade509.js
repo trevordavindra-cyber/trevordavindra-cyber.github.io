@@ -9,6 +9,14 @@
 
   var L = { 'spanish':'es','french':'fr','german':'de','italian':'it','portuguese':'pt','russian':'ru','japanese':'ja','korean':'ko','chinese':'zh-CN','mandarin':'zh-CN','cantonese':'zh-TW','arabic':'ar','hindi':'hi','bengali':'bn','urdu':'ur','turkish':'tr','dutch':'nl','polish':'pl','swedish':'sv','norwegian':'no','danish':'da','finnish':'fi','greek':'el','hebrew':'he','thai':'th','vietnamese':'vi','indonesian':'id','malay':'ms','filipino':'tl','tagalog':'tl','swahili':'sw','yoruba':'yo','igbo':'ig','hausa':'ha','zulu':'zu','afrikaans':'af','romanian':'ro','ukrainian':'uk','czech':'cs','slovak':'sk','hungarian':'hu','bulgarian':'bg','serbian':'sr','croatian':'hr','albanian':'sq','persian':'fa','farsi':'fa','punjabi':'pa','tamil':'ta','telugu':'te','kannada':'kn','malayalam':'ml','marathi':'mr','gujarati':'gu','nepali':'ne','sinhala':'si','latin':'la','esperanto':'eo','icelandic':'is','irish':'ga','welsh':'cy','catalan':'ca','galician':'gl','basque':'eu','estonian':'et','latvian':'lv','lithuanian':'lt','slovenian':'sl','macedonian':'mk','somali':'so','amharic':'am' };
 
+
+  function clean(s) {
+    s = String(s || '');
+    s = s.replace(/^(YOU|ILLUMINATI)\b[\s\S]*?\d{1,2}:\d{2}:\d{2}\]?\s*/, '');
+    var cut = s.search(/\b(?:COPY|EDIT|SPEAK|REGEN|PIN|COPIED)\b/);
+    if (cut > -1) s = s.slice(0, cut);
+    return s.trim();
+  }
   function parse(txt) {
     var m = /^\s*translate\b(.*)$/i.exec(txt);
     if (!m) return null;
@@ -101,12 +109,12 @@
         var txt = ''; try { txt = (n.textContent || '').trim(); } catch (e2) {}
         if (!txt) continue;
         if (txt.length > 600) {
-          if (!/^(remember|forget|translate|what do you remember|memory bank|clear memory|wipe memory)\b/i.test(txt)) window.__HL509LAST = txt.slice(0, 500);
+          if (!/^(remember|forget|translate|what do you remember|memory bank|clear memory|wipe memory)\b/i.test(txt)) window.__HL509LAST = clean(txt).slice(0, 500);
           continue;
         }
-        if (seen[txt]) continue;
+        if (!/^YOU\b/.test(txt) || seen[txt]) continue;
         seen[txt] = 1;
-        var hit = parse(txt);
+        var hit = parse(clean(txt));
         if (hit) { try { console.log('[hl509] translate: ' + (hit.text || '(last reply)') + ' -> ' + (hit.tgt || '?')); } catch (e3) {} go(hit); }
       }
     } catch (e4) {}
