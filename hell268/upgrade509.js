@@ -12,9 +12,11 @@
   function clean(s) {
     s = String(s || '');
     s = s.replace(/^(YOU|ILLUMINATI)\b[\s\S]*?\d{1,2}:\d{2}:\d{2}]?\s*/, '');
-    var cut = s.search(/\b(?:COPY|EDIT|SPEAK|REGEN|PIN|COPIED)\b/);
+    s = s.replace(/\[[^\]]*\]/g, ' ');
+    var cut = s.search(/(?:COPY|EDIT|SPEAK|REGEN|PIN|COPIED)\s*(?:(?:COPY|EDIT|SPEAK|REGEN|PIN|COPIED)\s*)+|\b(?:COPY|EDIT|SPEAK|REGEN|PIN|COPIED)\b/);
     if (cut > -1) s = s.slice(0, cut);
-    return s.trim();
+    s = s.replace(/\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?\s*$/i, '');
+    return s.replace(/\s+/g, ' ').trim();
   }
 
   function parse(txt) {
@@ -76,7 +78,7 @@
 
   function go(hit) {
     if (!hit.tgt) {
-      panel('TRANSLATE', hit.text || '', 'unknown language' + (hit.tgtName ? ' "' + hit.tgtName + '"' : '') + '. try: spanish, french, japanese, yoruba, swahili, hindi...');
+      panel('TRANSLATE', hit.text || '', 'unknown language' + (hit.tgtName ? '"' + hit.tgtName + '"' : '') + '. try: spanish, french, japanese, yoruba, swahili, hindi...');
       return;
     }
     if (!hit.text) {
