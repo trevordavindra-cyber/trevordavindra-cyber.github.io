@@ -1,8 +1,20 @@
 {
   "v": "0.6-server",
-  "cycle": 38,
+  "cycle": 39,
   "startedAt": 1794228560595,
   "events": [
+    {
+      "t": 1795197215276,
+      "type": "act",
+      "src": "server",
+      "text": "SCOUT → Mixture of experts: Mixture of experts (MoE) is a machine learning technique where multiple expert networks (learners) are used to divide a problem space into homogeneous regions. MoE repres"
+    },
+    {
+      "t": 1795197215174,
+      "type": "think",
+      "src": "server",
+      "text": "SCOUT (server) — verify one new research topic and file it"
+    },
     {
       "t": 1795165816098,
       "type": "act",
@@ -463,6 +475,11 @@
   "memory": {
     "long": [
       {
+        "t": 1795197215276,
+        "text": "research: Mixture of experts — Mixture of experts (MoE) is a machine learning technique where multiple expert networks (learners) are used to divide a problem space into homogeneous regions. MoE represents a form of ensemble learning",
+        "kind": "fact"
+      },
+      {
         "t": 1795165816098,
         "text": "research: Artificial general intelligence — Artificial general intelligence (AGI) is a hypothetical type of artificial intelligence that matches or surpasses human capabilities across most or all cognitive tasks. Unlike artificial narrow intelligence (ANI), whose competence is confined to well‑defin",
         "kind": "fact"
@@ -495,11 +512,6 @@
       {
         "t": 1794807213763,
         "text": "research: Neural architecture search — Neural architecture search (NAS) is a technique for automating the design of artificial neural networks (ANN), a widely used model in the field of machine learning. NAS has been used to design networks that are on par with or outperform hand-designed architectu",
-        "kind": "fact"
-      },
-      {
-        "t": 1794700739168,
-        "text": "research: Mixture of experts — Mixture of experts (MoE) is a machine learning technique where multiple expert networks (learners) are used to divide a problem space into homogeneous regions. MoE represents a form of ensemble learning",
         "kind": "fact"
       },
       {
@@ -591,7 +603,7 @@
     "Mixture of experts"
   ],
   "metrics": {
-    "done": 36,
+    "done": 37,
     "failed": 2,
     "toolStats": {}
   },
