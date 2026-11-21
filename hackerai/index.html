@@ -160,8 +160,17 @@ try{
 const r=await fetch('https://cve.circl.lu/api/cve/'+encodeURIComponent(id.toUpperCase()));
 if(!r.ok)throw 0;
 const j=await r.json();
+const md=j.cveMetadata||{};const cna=(j.containers&&j.containers.cna)||{};
+const cid=md.cveId||j.id||id.toUpperCase();
+const pub=(md.datePublished||'').slice(0,10)||'?';
+const desc=((cna.descriptions||[]).find(d=>d&&d.value)||{}).value||'no summary on file';
+let sev='?';
+for(const mt of (cna.metrics||[])){const k=Object.keys(mt)[0];const v=mt[k];
+ if(v&&typeof v==='object'){if(typeof v.baseScore==='number'){sev=v.baseScore+(v.baseSeverity?' '+v.baseSeverity:'');break}
+ const c=v.content||{};if(c&&c.other){sev=String(c.other);break}}}
+const aff=((cna.affected||[])[0]||{});const prod=[aff.vendor,aff.product].filter(Boolean).join(' ');
 m.remove();
-add('sys','[ CVE DATABASE ]\n'+(j.id||id)+' | CVSS '+(j.cvss!=null?j.cvss:'?')+' | published '+(j.published||'?')+'\n\n'+String(j.summary||'no summary on file').slice(0,700));
+add('sys','[ CVE DATABASE ]\n'+cid+' | severity '+(sev==='?'?'unrated':sev)+' | published '+pub+(prod?'\nproduct: '+prod:'')+'\n\n'+String(desc).slice(0,700));
 }catch(e){m.classList.remove('think');m.innerHTML='<span class="who">HACKERAI</span>[cve lookup failed or id not found. try /search instead]'}
 }
 async function ipInfo(t){
