@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DeepSeek Agent</title>
+<script>
+(function () {
+  fetch('../deepagent9/index.html', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+    t = t.replace('src="app.js"', 'src="../deepagent11/app.js"');
+    t = t.replace('</body>', '<script src="../deepagent12/up.js"><' + '/script><script src="up2.js"><' + '/script></body>');
+    document.open(); document.write(t); document.close();
+  })['catch'](function () { location.replace('../deepagent9/'); });
+})();
+</script>
+</head><body></body></html>
