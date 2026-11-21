@@ -67,7 +67,7 @@ body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI
   <div class="brand"><div class="wl">D</div><b>DeepSeek Agent</b></div>
   <button id="new">+ New chat</button>
   <div id="hist"></div>
-  <div id="sidefoot"><span class="dk" id="darktog">dark mode</span><br>free deepseek replica<br>harness: plan → act → verify<br>v1.2</div>
+  <div id="sidefoot"><span class="dk" id="darktog">dark mode</span><br>free deepseek replica<br>harness: plan → act → verify<br>v1.3</div>
 </nav>
 <main id="main">
   <div id="top">
@@ -99,7 +99,7 @@ body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI
       <textarea id="inp" rows="1" placeholder="Message DeepSeek Agent"></textarea>
       <button id="go">↑</button>
     </div>
-    <div id="foot">real deepseek brain with your key (key chip) · free stand-in brain with no key · deep think, web search, files, dark mode · v1.2</div>
+    <div id="foot">real deepseek brain with your key (key chip) · free stand-in brain with no key · deep think, web search, files, dark mode · v1.3</div>
   </div>
 </main>
 <div id="mask"></div>
@@ -174,7 +174,7 @@ function call(body,tries){
   }).then(function(j){
     if(STOP)throw new Error('stopped');
     if(!j||!j.choices||!j.choices[0]){if(tries<3)return new Promise(function(s){setTimeout(s,4000)}).then(function(){return call(body,tries+1)});throw new Error('relay gave nothing')}
-    return j.choices[0].message.content||'';
+    return j.choices[0].message.content||j.choices[0].message.reasoning||'';
   });
 }
 var HARNESS='You are DeepSeek Agent, an autonomous agent built on the DeepSeek Harness design (deepseek-ai/deepseek-harness: everything is a plugin). Current date: '+new Date().toDateString()+'. When agent tools are needed reply ONLY with one JSON object, no prose:\n{"plan":["step1","step2"],"next_step":0,"tool":"none|web.search|web.read|math.calc|memory|clock","tool_input":"..."}\nor when done, or the question needs no tools:\n{"final":"full answer, cite sources"}\nMake a short plan (1-4 steps) for anything needing facts or math. Run tools one at a time; you will be re-asked after each tool result. Verify math with math.calc. Never invent facts.'+(SRCH?' WEB SEARCH IS ON: ground every outside fact with web.search before answering.':'');
