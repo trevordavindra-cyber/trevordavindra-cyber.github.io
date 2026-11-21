@@ -29,6 +29,9 @@
       var inp = document.createElement('input');
       inp.type = 'file';
       inp.accept = '.txt,.md,.json,.csv,.html,.htm,.js,.css,.log,.xml,.yml,.yaml,text/*';
+      inp.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px;opacity:0;';
+      inp.setAttribute('data-hl507', '1');
+      document.body.appendChild(inp);
       inp.addEventListener('change', function () {
         var f = inp.files && inp.files[0];
         if (!f) return;
@@ -44,36 +47,38 @@
         r.readAsText(f);
       });
       inp.click();
+      setTimeout(function () { try { inp.parentNode && inp.parentNode.removeChild(inp); } catch (e6) {} }, 30000);
     });
     document.body.appendChild(b);
   }
 
-  function inject() {
-    if (!pay) return false;
+  function inject(args) {
+    if (!pay) return;
     try {
-      var stor = null;
-      try { stor = window.__HLHISTORY || window.HISTORY || null; } catch (e0) {}
-      if (stor && stor.push) {
-        stor.push({ role: 'system', content: 'LIVE FILE CONTENT \u2014 the user attached the file "' + pay.name + '". Read it and use it whenever they ask about it:\n\n' + pay.text + '\n\n(End of file content.)' });
-        pay = null; chip();
-        try { console.log('[hl507] file injected via history'); } catch (e1) {}
-        return true;
+      var url = String(args[0] || '');
+      if (url.indexOf('text.pollinations.ai/openai') === -1) return;
+      var init = args[1] || null;
+      if (!init || init.method !== 'POST' || !init.body) return;
+      var b = JSON.parse(init.body);
+      if (!b || !b.messages || !b.messages.length) return;
+      var dup = false;
+      for (var i = 0; i < b.messages.length; i++) {
+        var m = b.messages[i];
+        if (m && m.role === 'system' && String(m.content || '').indexOf('LIVE FILE CONTENT') === 0) { dup = true; break; }
       }
-    } catch (e2) {}
-    try { sessionStorage.setItem('hl507file', JSON.stringify({ name: pay.name, text: pay.text })); } catch (e3) {}
-    return false;
+      if (dup) return;
+      b.messages.unshift({ role: 'system', content: 'LIVE FILE CONTENT \u2014 the user attached the file "' + pay.name + '". Read it and use it whenever they ask about it:\n\n' + pay.text + '\n\n(End of file content.)' });
+      init.body = JSON.stringify(b);
+      pay = null; chip();
+      try { console.log('[hl507] file injected into request'); } catch (e1) {}
+    } catch (e) {}
   }
 
   var _fetch = window.fetch;
   window.fetch = function () {
-    try { inject(); } catch (e) {}
+    try { inject(arguments); } catch (e) {}
     return _fetch.apply(this, arguments);
   };
-
-  try {
-    var saved = sessionStorage.getItem('hl507file');
-    if (saved) { var j = JSON.parse(saved); pay = { name: j.name, text: j.text, size: Math.min(j.text.length, MAXC) }; sessionStorage.removeItem('hl507file'); }
-  } catch (e4) {}
 
   var tmr = null;
   function kick() { if (tmr) return; tmr = setTimeout(function () { tmr = null; scan(); }, 350); }
