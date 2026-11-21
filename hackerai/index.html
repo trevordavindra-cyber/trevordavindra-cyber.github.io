@@ -76,7 +76,7 @@ button:active{transform:translateY(1px)}
 <button type="submit">SEND</button>
 <input type="file" id="file" accept=".txt,.md,.json,.csv,.js,.html,.css,.py,.log,.xml" style="display:none">
 </form>
-<div id="foot">HACKERAI v1.2 // SINGLE AI // FREE RELAY // NOTHING STORED OFF THIS BROWSER</div>
+<div id="foot">HACKERAI v1.3 // SINGLE AI // FREE RELAY // NOTHING STORED OFF THIS BROWSER</div>
 </div>
 <div id="panel" hidden>
 <div class="pbox">
@@ -92,7 +92,7 @@ button:active{transform:translateY(1px)}
 </div>
 <script>
 const BASE='You are HACKERAI, the single AI on a hacker-style terminal site. Personality: sharp, calm, a little ominous, never cheesy. You answer anything: coding, tech, security concepts explained for learning, and everyday questions. Keep replies short and dense, use plain text, no markdown headers. You are one assistant, not a persona or a crew. If asked to do something illegal or harmful, refuse in one line and offer the safe version.';
-const HELP=['COMMANDS:','/help - this list','/clear - wipe the chat','/memory - what the AI remembers about you','/forget - wipe memory','/model name - switch free model (openai, mistral, llama)','/read URL QUESTION - the AI reads a live web page and answers','/search QUERY - live web search, answers with sources','/image DESCRIPTION - makes an image from text','/cve CVE-ID - live CVE vulnerability lookup (e.g. /cve CVE-2021-44228)','/ip IP-OR-DOMAIN - location, ISP and network info','/hash TEXT - sha-256 hash, entropy and strength','/passgen LENGTH - strong random password','/audit DESCRIPTION - defensive security checklist for your system','/tools - offline toolbox: encode/decode, ports, linux, learn','/matrix - toggle the rain background','/export - download the chat as a text file','+ FILE button - attach a text file for the AI to read','MIC - voice input. TALK - spoken replies','remember THING - store a fact about you forever'].join('\n');
+const HELP=['COMMANDS:','/help - this list','/clear - wipe the chat','/memory - what the AI remembers about you','/forget - wipe memory','/model name - switch free model (openai, mistral, llama)','/read URL QUESTION - the AI reads a live web page and answers','/search QUERY - live web search, answers with sources','/image DESCRIPTION - makes an image from text','/cve CVE-ID - live CVE vulnerability lookup (e.g. /cve CVE-2021-44228)','/ip IP-OR-DOMAIN - location, ISP and network info','/dns DOMAIN [TYPE] - dns records (A, MX, TXT) via google dns','/jwt TOKEN - decode a json web token (no signature check)','/rot13 TEXT - rot13 cipher decoder','/uuid - random uuid v4','/hash TEXT - sha-256 hash, entropy and strength','/passgen LENGTH - strong random password','/audit DESCRIPTION - defensive security checklist for your system','/tools - offline toolbox: encode/decode, rot13, ports, linux, learn','/matrix - toggle the rain background','/export - download the chat as a text file','+ FILE button - attach a text file for the AI to read','MIC - voice input. TALK - spoken replies','remember THING - store a fact about you forever'].join('\n');
 const PORTS=['COMMON PORTS:','20 FTP data, 21 FTP, 22 SSH, 23 Telnet (legacy), 25 SMTP','53 DNS, 67/68 DHCP, 80 HTTP, 110 POP3, 143 IMAP','443 HTTPS, 445 SMB, 587 SMTP submit','3306 MySQL, 3389 RDP, 5432 PostgreSQL','6379 Redis, 8080 HTTP alt, 9200 Elasticsearch','25565 Minecraft'].join('\n');
 const CHEAT=['LINUX BASICS:','ls -la list files | cd dir go | pwd where am i','cat file read | nano file edit | mkdir make dir','cp a b copy | mv a b move/rename | rm -rf dir delete (careful)','ps aux processes | top live | kill -9 PID stop','df -h disk | free -h ram | du -sh dir size','chmod +x file make executable | chown user file','grep -ri word dir search text | find / -name x find files','ssh user@host connect | scp a user@host:/b copy over ssh','curl URL fetch | wget URL download','systemctl status app service | journalctl -u app logs','netstat -tulpn open ports | ss -tulpn same, newer','whoami, uname -a, history, man cmd'].join('\n');
 const CONCEPTS=['CONCEPTS (LEARN THE DEFENSE):','XSS - attacker injects javascript into a page others view. defense: escape output, csp headers.','SQL INJECTION - input changes a database query. defense: parameterized queries, least-privilege db user.','CSRF - a site tricks your browser into sending a request as you. defense: csrf tokens, same-site cookies.','IDOR - guessing ids in urls reads other people data. defense: check ownership server-side every time.','RCE - running attacker code on a server. defense: patch fast, sandbox, never eval user input.','PRIVESC - going from low user to root. defense: patches, sudo rules, no world-writable configs.','PHISHING - fake pages steal logins. defense: 2fa, check domains, password managers flag fakes.','ZERO DAY - a flaw with no patch yet. defense: layered controls, monitoring, backups.'].join('\n');
@@ -103,7 +103,7 @@ try{mem=JSON.parse(localStorage.getItem('hk_mem')||'[]')}catch(e){mem=[]}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function add(role,text){const m=document.createElement('div');m.className='msg '+role;if(role==='sys'){m.innerHTML=esc(text)}else if(role==='img'){m.innerHTML='<span class="who">HACKERAI</span>'+esc(text[0]);const i=document.createElement('img');i.src=text[1];i.alt=esc(text[0]);i.loading='lazy';m.appendChild(i)}else{m.innerHTML='<span class="who">'+(role==='you'?'YOU':'HACKERAI')+'</span>'+esc(text)}log.appendChild(m);log.scrollTop=log.scrollHeight;return m}
 function boot(lines,el,cb){let i=0;(function n(){if(i>=lines.length){el.insertAdjacentHTML('beforeend','<span class="cursor"></span>');setTimeout(cb,600);return}el.textContent+=lines[i++]+"\n";setTimeout(n,230)})()}
-const BLINES=['> initializing node...','> mounting /brain ... ok','> scanning relays ... 1 found','> loading tools: search, read, files, image, cve, recon, memory, voice','> security: local session only','> one AI loaded. no extras.',''];
+const BLINES=['> initializing node...','> mounting /brain ... ok','> scanning relays ... 1 found','> loading tools: search, read, files, image, cve, recon, dns, memory, voice','> security: local session only','> one AI loaded. no extras.',''];
 boot(BLINES,document.getElementById('blines'),()=>{document.getElementById('boot').style.opacity=0;setTimeout(()=>{document.getElementById('boot').style.display='none';document.getElementById('app').style.display='flex';},600)});
 if(hist.length){add('sys','-- session restored ('+hist.filter(h=>h.role==='user').length+' messages) --')}
 function setModel(n){model=(n||'openai').toLowerCase();document.getElementById('bmodel').textContent='MODEL: '+model.toUpperCase();localStorage.setItem('hk_model',model);document.getElementById('hstat').textContent='NODE 01 // '+model.toUpperCase()}
@@ -184,6 +184,17 @@ const c=j.connection||{};
 add('sys','[ RECON: '+j.ip+' ]\n'+(j.country||'?')+(j.region?', '+j.region:'')+(j.city?', '+j.city:'')+'\nisp: '+(c.isp||'?')+'\norg: '+(c.org||'?')+'\nasn: '+(c.asn||'?')+'\ntimezone: '+((j.timezone&&j.timezone.id)||'?'));
 }catch(e){m.classList.remove('think');m.innerHTML='<span class="who">HACKERAI</span>[lookup failed, check the address]'}
 }
+async function dnsLookup(rest){
+const m=add('ai','');m.classList.add('think');m.textContent='resolving...';
+try{
+const sp=rest.indexOf(' ');const name=sp<0?rest.trim():rest.slice(0,sp).trim();const type=(sp<0?'A':rest.slice(sp+1).trim().toUpperCase())||'A';
+const r=await fetch('https://dns.google/resolve?name='+encodeURIComponent(name)+'&type='+encodeURIComponent(type));
+const j=await r.json();
+if(!j.Answer||!j.Answer.length)throw 0;
+m.remove();
+add('sys','[ DNS '+name+' '+type+' ]\n'+j.Answer.map(a=>a.data+(a.TTL?' (ttl '+a.TTL+')':'')).join('\n'));
+}catch(e){m.classList.remove('think');m.innerHTML='<span class="who">HACKERAI</span>[no records found or lookup failed]'}
+}
 function sha256(t){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''))}
 function entropy(s){let set=0;if(/[a-z]/.test(s))set+=26;if(/[A-Z]/.test(s))set+=26;if(/[0-9]/.test(s))set+=10;if(/[^a-zA-Z0-9]/.test(s))set+=33;return s.length?Math.round(s.length*Math.log2(set||2)):0}
 async function hashTool(t){
@@ -215,7 +226,7 @@ panel.addEventListener('click',e=>{if(e.target===panel)panel.hidden=true});
 document.getElementById('pclose').addEventListener('click',()=>panel.hidden=true);
 function tabShow(t){
 document.querySelectorAll('.ptabs button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
-if(t==='box'){pbody.innerHTML='<input id="bx" placeholder="text to encode or decode..."><div class="row"><button id="e64">BASE64 ENCODE</button><button id="d64">BASE64 DECODE</button><button id="ehex">HEX ENCODE</button><button id="dhex">HEX DECODE</button><button id="eurl">URL ENCODE</button><button id="durl">URL DECODE</button></div><pre id="bxo">output...</pre>';
+if(t==='box'){pbody.innerHTML='<input id="bx" placeholder="text to encode or decode..."><div class="row"><button id="e64">BASE64 ENCODE</button><button id="d64">BASE64 DECODE</button><button id="ehex">HEX ENCODE</button><button id="dhex">HEX DECODE</button><button id="eurl">URL ENCODE</button><button id="durl">URL DECODE</button><button id="r13">ROT13</button></div><pre id="bxo">output...</pre>';
 const go=f=>()=>{try{pbody.querySelector('#bxo').textContent=f(pbody.querySelector('#bx').value)}catch(e){pbody.querySelector('#bxo').textContent='[not valid for that]'}};
 pbody.querySelector('#e64').onclick=go(s=>btoa(unescape(encodeURIComponent(s))));
 pbody.querySelector('#d64').onclick=go(s=>decodeURIComponent(escape(atob(s.trim()))));
@@ -223,6 +234,7 @@ pbody.querySelector('#ehex').onclick=go(s=>Array.from(new TextEncoder().encode(s
 pbody.querySelector('#dhex').onclick=go(s=>new TextDecoder().decode(new Uint8Array(s.trim().split(/[\s,]+/).map(x=>parseInt(x,16)))));
 pbody.querySelector('#eurl').onclick=go(encodeURIComponent);
 pbody.querySelector('#durl').onclick=go(decodeURIComponent);
+pbody.querySelector('#r13').onclick=go(s=>s.replace(/[a-zA-Z]/g,c=>String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26)));
 }else{pbody.textContent={ports:PORTS,linux:CHEAT,learn:CONCEPTS}[t]||''}}
 document.querySelectorAll('.ptabs button[data-t]').forEach(b=>b.addEventListener('click',()=>tabShow(b.dataset.t)));
 document.getElementById('btools').addEventListener('click',toolsOpen);
@@ -241,6 +253,10 @@ else if(cmd==='search'){if(!rest){sysmsg('usage: /search QUERY')}else{hist.push(
 else if(cmd==='image'){if(!rest){sysmsg('usage: /image DESCRIPTION')}else{add('img',['image: '+rest,'https://image.pollinations.ai/prompt/'+encodeURIComponent(rest)+'?width=768&height=768&nologo=true'])}}
 else if(cmd==='cve'){if(!rest){sysmsg('usage: /cve CVE-2021-44228 (for keywords use /search)')}else if(/^cve-\d{4}-\d{4,}$/i.test(rest)){hist.push({role:'user',content:'/cve '+rest});await cveLookup(rest)}else sysmsg('that is not a cve id. format: /cve CVE-2021-44228. for keywords use /search')}
 else if(cmd==='ip'){if(!rest){sysmsg('usage: /ip 8.8.8.8 or /ip example.com')}else{hist.push({role:'user',content:'/ip '+rest});await ipInfo(rest.trim())}}
+else if(cmd==='dns'){if(!rest){sysmsg('usage: /dns example.com MX (type optional, default A)')}else{hist.push({role:'user',content:'/dns '+rest});await dnsLookup(rest)}}
+else if(cmd==='jwt'){if(!rest){sysmsg('usage: /jwt your.token.here (decoded locally, signature is not checked)')}else{const p=rest.trim().split('.');if(p.length<2){sysmsg('that is not a jwt, it needs dots')}else{try{const d=s=>JSON.stringify(JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))))),null,1);sysmsg('[ JWT DECODED ]\nheader:\n'+d(p[0])+'\n\npayload:\n'+d(p[1])+'\n\nsignature: not verified, never trust an unverified token')}catch(e){sysmsg('could not decode that token')}}}}
+else if(cmd==='rot13'){if(!rest){sysmsg('usage: /rot13 some text')}else{add('sys','[ ROT13 ]\n'+rest.replace(/[a-zA-Z]/g,c=>String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26)))}}
+else if(cmd==='uuid'){const u=(crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),(x,i)=>('0'+x.toString(16)).slice(-2)+(i%4===3?'-':'')).join(''));add('sys','[ UUID v4 ]\n'+u)}
 else if(cmd==='hash'){if(!rest){sysmsg('usage: /hash yourtext')}else await hashTool(rest)}
 else if(cmd==='passgen'){passGen(rest)}
 else if(cmd==='audit'){if(!rest){sysmsg('usage: /audit describe your system, e.g. a wordpress site on a vps')}else{hist.push({role:'user',content:'/audit '+rest});const out=await relay('DEFENSIVE SECURITY REVIEW REQUEST. The user describes their own system: "'+rest+'". Give a prioritized defensive checklist: the misconfigurations most likely to bite them first, then hardening steps, then monitoring. Educational and constructive only, no attack instructions. Plain text, short lines.');hist.push({role:'assistant',content:out});save()}}
