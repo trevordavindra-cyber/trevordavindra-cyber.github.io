@@ -1,8 +1,20 @@
 {
   "v": "0.6-server",
-  "cycle": 40,
+  "cycle": 41,
   "startedAt": 1794228560595,
   "events": [
+    {
+      "t": 1795241768089,
+      "type": "error",
+      "src": "server",
+      "text": "SCOUT failed: HTTP 429"
+    },
+    {
+      "t": 1795241768031,
+      "type": "think",
+      "src": "server",
+      "text": "SCOUT (server) — verify one new research topic and file it"
+    },
     {
       "t": 1795218496915,
       "type": "act",
@@ -616,7 +628,7 @@
   ],
   "metrics": {
     "done": 38,
-    "failed": 2,
+    "failed": 3,
     "toolStats": {}
   },
   "roles": {
