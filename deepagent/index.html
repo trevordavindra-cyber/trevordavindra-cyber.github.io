@@ -6,53 +6,58 @@
 <title>DeepSeek Agent</title>
 <style>
 :root{--ac:#4d6bfe;--bg:#fff;--pan:#f9fbff;--ln:#e8ecf6;--tx:#1b2437;--dim:#8a94b0}
+body.dark{--bg:#0d1220;--pan:#161d33;--ln:#2a3554;--tx:#dbe2f5}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI",Roboto,sans-serif;display:flex}
 #side{width:248px;background:var(--pan);border-right:1px solid var(--ln);display:flex;flex-direction:column;padding:12px;flex-shrink:0}
 #side .brand{display:flex;align-items:center;gap:8px;padding:6px 8px 16px}
 .wl{width:26px;height:26px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:14px}
-#side .brand b{color:#26324e}
+#side .brand b{color:var(--tx)}
 #new{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:11px;font:inherit;cursor:pointer;margin-bottom:14px}
 #hist{flex:1;overflow-y:auto;font-size:13px}
-#hist div{padding:8px 10px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#5a6584}
-#hist div:hover{background:#eef2ff}
+.hrow{display:flex;align-items:center;gap:4px;border-radius:8px}
+.hrow span{flex:1;padding:8px 4px 8px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:var(--dim)}
+.hrow:hover{background:rgba(77,107,254,.08)}
+.hrow b{color:var(--dim);cursor:pointer;padding:8px 8px;font-weight:normal}
 #sidefoot{padding-top:10px;font-size:11px;color:var(--dim);border-top:1px solid var(--ln)}
+#sidefoot .dk{cursor:pointer}
 #main{flex:1;display:flex;flex-direction:column;min-width:0}
-#top{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--ln)}
+#top{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--ln);flex-wrap:wrap}
 #top .mode{font-weight:600}
-.chip{border:1px solid var(--ln);border-radius:12px;padding:3px 10px;font-size:11px;color:var(--dim);cursor:pointer;background:#fff}
+.chip{border:1px solid var(--ln);border-radius:12px;padding:3px 10px;font-size:11px;color:var(--dim);cursor:pointer;background:var(--bg)}
 .chip.on{color:#fff;background:var(--ac);border-color:var(--ac)}
-#top .agent{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim);cursor:pointer}
-.tog{width:36px;height:20px;border-radius:12px;background:#d5dcef;position:relative;transition:.2s}
+#top .agent{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--dim);cursor:pointer}
+.tog{width:34px;height:19px;border-radius:12px;background:#d5dcef;position:relative;transition:.2s;flex-shrink:0}
 .tog.on{background:var(--ac)}
-.tog i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
-.tog.on i{left:18px}
+.tog i{position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:.2s}
+.tog.on i{left:17px}
 #chat{flex:1;overflow-y:auto;padding:22px 16px;display:flex;flex-direction:column;gap:16px;max-width:820px;width:100%;margin:0 auto}
 .msg{white-space:pre-wrap;word-break:break-word;line-height:1.6}
 .msg.you{align-self:flex-end;background:var(--pan);border:1px solid var(--ln);padding:12px 16px;border-radius:14px;max-width:88%}
-.msg.ai{align-self:flex-start;max-width:96%}
+.msg.ai{align-self:flex-start;max-width:96%;cursor:pointer}
 .msg.sys{align-self:center;color:var(--dim);font-size:12px;text-align:center}
-.msg.ai .st{font-size:12px;color:var(--ac);background:#eef2ff;border-radius:8px;padding:6px 10px;margin:6px 0;display:inline-block}
+.msg.ai .st{font-size:12px;color:var(--ac);background:rgba(77,107,254,.1);border-radius:8px;padding:6px 10px;margin:6px 0;display:inline-block}
 #welcome{text-align:center;margin:auto}
 #welcome h1{font-size:24px;margin-bottom:8px}
 #welcome h1 span{color:var(--ac)}
 #welcome p{color:var(--dim);font-size:13px;margin-bottom:22px}
 #exrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-#exrow span{border:1px solid var(--ln);border-radius:16px;padding:6px 12px;font-size:12px;color:#5a6584;cursor:pointer}
+#exrow span{border:1px solid var(--ln);border-radius:16px;padding:6px 12px;font-size:12px;color:var(--dim);cursor:pointer}
 #exrow span:hover{border-color:var(--ac);color:var(--ac)}
 #barwrap{padding:12px 16px 18px}
-#bar{display:flex;align-items:flex-end;gap:10px;border:1px solid var(--ln);border-radius:16px;padding:10px 12px;max-width:820px;margin:0 auto;box-shadow:0 2px 10px rgba(77,107,254,.06)}
-#inp{flex:1;border:0;outline:none;font:inherit;resize:none;max-height:120px;min-height:24px;background:transparent}
+#bar{display:flex;align-items:flex-end;gap:8px;border:1px solid var(--ln);border-radius:16px;padding:10px 12px;max-width:820px;margin:0 auto;box-shadow:0 2px 10px rgba(77,107,254,.06)}
+#inp{flex:1;border:0;outline:none;font:inherit;resize:none;max-height:120px;min-height:24px;background:transparent;color:var(--tx)}
 #go{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font:inherit;cursor:pointer}
 #go:disabled{opacity:.4}
+#plus{border:0;background:transparent;color:var(--dim);font-size:18px;cursor:pointer;padding:4px 6px}
 #foot{text-align:center;color:var(--dim);font-size:11px;padding-bottom:10px}
-#drawer{display:none;position:fixed;right:0;top:0;bottom:0;width:300px;background:#fff;border-left:1px solid var(--ln);z-index:40;overflow-y:auto;padding:14px}
+#drawer{display:none;position:fixed;right:0;top:0;bottom:0;width:300px;background:var(--bg);border-left:1px solid var(--ln);z-index:40;overflow-y:auto;padding:14px}
 #drawer h3{font-size:12px;letter-spacing:1px;color:var(--dim);margin-bottom:10px}
 #drawer .st{border-left:3px solid var(--ln);padding:6px 10px;margin:8px 0;font-size:12px}
 #drawer .st.run{border-color:var(--ac)}
 #drawer .st b{color:var(--ac);font-size:10px;display:block;letter-spacing:1px}
-#drawer .st span{color:#5a6584;white-space:pre-wrap;word-break:break-word}
+#drawer .st span{color:var(--dim);white-space:pre-wrap;word-break:break-word}
 #mask{display:none;position:fixed;inset:0;background:rgba(20,28,50,.25);z-index:35}
 @media(max-width:760px){#side{display:none}}
 </style>
@@ -62,17 +67,19 @@ body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI
   <div class="brand"><div class="wl">D</div><b>DeepSeek Agent</b></div>
   <button id="new">+ New chat</button>
   <div id="hist"></div>
-  <div id="sidefoot">free deepseek replica<br>harness: plan → act → verify<br>v1.1</div>
+  <div id="sidefoot"><span class="dk" id="darktog">dark mode</span><br>free deepseek replica<br>harness: plan → act → verify<br>v1.2</div>
 </nav>
 <main id="main">
   <div id="top">
-    <span class="mode" id="modename">deepseek-chat</span>
-    <span class="chip" data-m="openai-fast">free brain</span>
+    <span class="mode" id="modename">free brain</span>
+    <span class="chip on" data-m="openai-fast">free brain</span>
     <span class="chip" data-m="deepseek-chat">deepseek-chat</span>
     <span class="chip" data-m="deepseek-reasoner">deepseek-reasoner</span>
     <span class="chip" id="keybtn">key</span>
-    <div class="agent" id="agenttog"><span>agent mode</span><div class="tog on" id="tog"><i></i></div></div>
-    <span class="agent" id="tracebtn" style="display:none">trace</span>
+    <div class="agent" id="agenttog"><span>agent</span><div class="tog on" id="tog"><i></i></div></div>
+    <div class="agent" id="dttog"><span>deep think</span><div class="tog" id="togdt"><i></i></div></div>
+    <div class="agent" id="srtog"><span>search</span><div class="tog" id="togs"><i></i></div></div>
+    <span class="agent" id="tracebtn">trace</span>
   </div>
   <div id="chat">
     <div id="welcome">
@@ -87,10 +94,12 @@ body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI
   </div>
   <div id="barwrap">
     <div id="bar">
+      <button id="plus" title="attach a text file">＋</button>
+      <input type="file" id="file" style="display:none">
       <textarea id="inp" rows="1" placeholder="Message DeepSeek Agent"></textarea>
       <button id="go">↑</button>
     </div>
-    <div id="foot">real deepseek brain with your key (key chip), or the free stand-in brain with no key · harness loop always free · v1.1</div>
+    <div id="foot">real deepseek brain with your key (key chip) · free stand-in brain with no key · deep think, web search, files, dark mode · v1.2</div>
   </div>
 </main>
 <div id="mask"></div>
@@ -103,22 +112,36 @@ var welcome=document.getElementById('welcome'),hist=document.getElementById('his
 var KEY=localStorage.getItem('ds_key')||'';
 var MODEL=localStorage.getItem('ds_m')||'openai-fast';
 if(!KEY&&MODEL.indexOf('deepseek')===0)MODEL='openai-fast';
-var AGENT=true;var keywarn=false;
+var AGENT=localStorage.getItem('ds_ag')!=='0';
+var DT=localStorage.getItem('ds_dt')==='1';
+var SRCH=localStorage.getItem('ds_sr')==='1';
+var keywarn=false,RUNNING=false,STOP=false,FILECTX=null;
+function tog(id,on){var t=document.getElementById(id);t.classList.toggle('on',on)}
+tog('tog',AGENT);tog('togdt',DT);tog('togs',SRCH);
 document.getElementById('modename').textContent=MODEL;
-document.getElementById('tracebtn').style.display=AGENT?'block':'none';
 document.querySelectorAll('.chip').forEach(function(c){
  if(c.id==='keybtn'){c.onclick=function(){var k=prompt('paste your deepseek api key (from platform.deepseek.com)');if(k&&k.trim()){KEY=k.trim();localStorage.setItem('ds_key',KEY);sys('deepseek key saved in this browser. tap a deepseek chip.')}else{sys('no key saved, staying on the free brain.')}};return}
  c.classList.toggle('on',c.dataset.m===MODEL);
  c.onclick=function(){if(c.dataset.m.indexOf('deepseek')===0&&!KEY){sys('deepseek needs its own key. tap the key chip to paste one.')}else{MODEL=c.dataset.m;localStorage.setItem('ds_m',MODEL);document.getElementById('modename').textContent=MODEL;document.querySelectorAll('.chip').forEach(function(x){if(x.id!=='keybtn')x.classList.toggle('on',x.dataset.m===MODEL)});sys('brain: '+MODEL)}}
 });
-document.getElementById('agenttog').onclick=function(){AGENT=!AGENT;document.getElementById('tog').classList.toggle('on',AGENT);document.getElementById('tracebtn').style.display=AGENT?'block':'none'};
+document.getElementById('agenttog').onclick=function(){AGENT=!AGENT;localStorage.setItem('ds_ag',AGENT?'1':'0');tog('tog',AGENT);document.getElementById('tracebtn').style.display=AGENT?'flex':'none'};
+document.getElementById('dttog').onclick=function(){DT=!DT;localStorage.setItem('ds_dt',DT?'1':'0');tog('togdt',DT);sys(DT?'deep think on: the brain reasons longer before answering':'deep think off')};
+document.getElementById('srtog').onclick=function(){SRCH=!SRCH;localStorage.setItem('ds_sr',SRCH?'1':'0');tog('togs',SRCH);sys(SRCH?'web search on: answers get grounded with live search first':'web search off')};
 document.getElementById('tracebtn').onclick=function(){drawer.style.display='block';mask.style.display='block'};
 mask.onclick=function(){drawer.style.display='none';mask.style.display='none'};
+document.getElementById('darktog').onclick=function(){document.body.classList.toggle('dark');localStorage.setItem('ds_dk',document.body.classList.contains('dark')?'1':'0')};
+if(localStorage.getItem('ds_dk')==='1')document.body.classList.add('dark');
+document.getElementById('plus').onclick=function(){document.getElementById('file').click()};
+document.getElementById('file').onchange=function(e){
+ var f=e.target.files[0];if(!f)return;
+ if(/\.(png|jpe?g|gif|webp)$/i.test(f.name)){FILECTX={name:f.name,text:'(image attached; the free brain cannot see images yet)'};sys('attached image: '+f.name+' (image reading needs the deepseek key or a gemini key, coming)');return}
+ var r=new FileReader();r.onload=function(){FILECTX={name:f.name,text:String(r.result).slice(0,20000)};sys('attached: '+f.name+' — it goes in with your next message')};r.readAsText(f);
+};
 var HIST=[];
 function el(cls,html){var w=document.getElementById('welcome');if(w&&w.parentNode)w.remove();var d=document.createElement('div');d.className='msg '+cls;if(html!=null)d.innerHTML=html;chat.appendChild(d);chat.scrollTop=1e9;return d}
 function sys(t){el('sys',t)}
 function save(title){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');if(!l.length||l[0]!==title){l.unshift(title);localStorage.setItem('ds_h',JSON.stringify(l.slice(0,12)))}render()}
-function render(){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');hist.innerHTML='';l.forEach(function(t){var d=document.createElement('div');d.textContent=t;hist.appendChild(d)})}
+function render(){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');hist.innerHTML='';l.forEach(function(t,i){var d=document.createElement('div');d.className='hrow';var s=document.createElement('span');s.textContent=t;var x=document.createElement('b');x.textContent='✕';x.onclick=function(ev){ev.stopPropagation();l.splice(i,1);localStorage.setItem('ds_h',JSON.stringify(l));render()};d.appendChild(s);d.appendChild(x);hist.appendChild(d)})}
 render();
 document.getElementById('new').onclick=function(){HIST=[];chat.innerHTML='';document.getElementById('main').insertBefore(welcome,document.getElementById('barwrap'))};
 function st(label,detail,run){
@@ -144,26 +167,32 @@ function call(body,tries){
   }
   if(!(MODEL.indexOf('deepseek')===0&&KEY))body.model='openai-fast';
   return fetch(url,{method:'POST',headers:hdrs,body:JSON.stringify(body)}).then(function(r){
+    if(STOP)throw new Error('stopped');
     if(r.status===402||r.status===429){sys('relay cooling, retrying in 46 seconds...');return new Promise(function(s){setTimeout(s,46000)}).then(function(){return call(body,tries+1)})}
     if(r.status===401){throw new Error('key rejected')}
     return r.json();
   }).then(function(j){
+    if(STOP)throw new Error('stopped');
     if(!j||!j.choices||!j.choices[0]){if(tries<3)return new Promise(function(s){setTimeout(s,4000)}).then(function(){return call(body,tries+1)});throw new Error('relay gave nothing')}
     return j.choices[0].message.content||'';
   });
 }
-var HARNESS='You are DeepSeek Agent, an autonomous agent built on the DeepSeek Harness design (deepseek-ai/deepseek-harness: everything is a plugin). Current date: '+new Date().toDateString()+'. When agent tools are needed reply ONLY with one JSON object, no prose:\n{"plan":["step1","step2"],"next_step":0,"tool":"none|web.search|web.read|math.calc|memory|clock","tool_input":"..."}\nor when done, or the question needs no tools:\n{"final":"full answer, cite sources"}\nMake a short plan (1-4 steps) for anything needing facts or math. Run tools one at a time; you will be re-asked after each tool result. Verify math with math.calc. Never invent facts.';
-function brain(u){return call({model:MODEL,messages:[{role:'system',content:HARNESS}].concat(HIST.slice(-6),[{role:'user',content:u}])})}
+var HARNESS='You are DeepSeek Agent, an autonomous agent built on the DeepSeek Harness design (deepseek-ai/deepseek-harness: everything is a plugin). Current date: '+new Date().toDateString()+'. When agent tools are needed reply ONLY with one JSON object, no prose:\n{"plan":["step1","step2"],"next_step":0,"tool":"none|web.search|web.read|math.calc|memory|clock","tool_input":"..."}\nor when done, or the question needs no tools:\n{"final":"full answer, cite sources"}\nMake a short plan (1-4 steps) for anything needing facts or math. Run tools one at a time; you will be re-asked after each tool result. Verify math with math.calc. Never invent facts.'+(SRCH?' WEB SEARCH IS ON: ground every outside fact with web.search before answering.':'');
+function brain(u){
+  var model=(MODEL.indexOf('deepseek')===0&&KEY)?MODEL:'openai-fast';
+  return call({model:model,messages:[{role:'system',content:HARNESS}].concat(HIST.slice(-6),[{role:'user',content:u}])});
+}
 function run(goal){
-  go.disabled=true;var turns=0,plan=null;
+  RUNNING=true;STOP=false;go.textContent='■';go.disabled=false;var turns=0,plan=null;
   st('GOAL',goal,true);
   function ask(note){
+    if(STOP){sys('stopped.');finish();return}
     var u=goal+(note?('\n\n[last tool result]: '+note):'');
     return brain(u).then(function(raw){
-      turns++;if(turns>7){el('ai','agent hit the step limit.');go.disabled=false;return}
+      turns++;if(turns>7){el('ai','agent hit the step limit.');finish();return}
       var j=null;try{var m=raw.match(/\{[\s\S]*\}/);j=JSON.parse(m?m[0]:raw)}catch(e){}
-      if(!j||(!j.final&&!Array.isArray(j.plan))){el('ai',raw.trim().replace(/</g,'&lt;')||'(empty)');go.disabled=false;return}
-      if(j.final){el('ai',j.final.replace(/</g,'&lt;'));HIST.push({role:'assistant',content:j.final});save(goal.slice(0,40));go.disabled=false;return}
+      if(!j||(!j.final&&!Array.isArray(j.plan))){bubble(raw);return}
+      if(j.final){bubble(j.final);return}
       if(j.plan)plan=j.plan;
       var idx=(typeof j.next_step==='number')?j.next_step:0;
       if(plan&&plan[idx]){
@@ -173,24 +202,28 @@ function run(goal){
           s.classList.remove('run');s.querySelector('span').textContent=plan[idx]+' ['+j.tool+'] -> '+String(out).slice(0,120).replace(/\n/g,' ');
           ask(out.slice(0,2800));
         }).catch(function(e){s.classList.remove('run');s.querySelector('span').textContent=plan[idx]+' ['+j.tool+'] failed';ask('tool failed: '+e.message)})}
-      }else{el('ai',raw.trim().replace(/</g,'&lt;'));go.disabled=false}
-    }).catch(function(e){el('ai','agent run failed: '+e.message);go.disabled=false});
+      }else{bubble(raw)}
+    }).catch(function(e){if(e.message!=='stopped')el('ai','agent run failed: '+e.message);finish()});
   }
+  function finish(){RUNNING=false;go.textContent='↑';go.disabled=false}
+  function bubble(txt){var d=el('ai',String(txt).trim().replace(/</g,'&lt;')||'(empty)');HIST.push({role:'assistant',content:txt});save(goal.slice(0,40));finish()}
   ask('');
 }
 function plain(goal){
-  go.disabled=true;
   brain(goal).then(function(a){
-    el('ai',String(a||'(empty)').replace(/</g,'&lt;'));HIST.push({role:'assistant',content:a});save(goal.slice(0,40));go.disabled=false;
-  }).catch(function(e){el('ai','failed: '+e.message);go.disabled=false});
+    el('ai',String(a||'(empty)').replace(/</g,'&lt;'));HIST.push({role:'assistant',content:a});save(goal.slice(0,40));go.textContent='↑';go.disabled=false;
+  }).catch(function(e){if(e.message!=='stopped')el('ai','failed: '+e.message);go.textContent='↑';go.disabled=false});
+  go.textContent='■';go.disabled=true;
 }
 function submit(){
   var v=inp.value.trim();if(!v)return;inp.value='';inp.style.height='auto';
+  if(FILECTX){v='[attached file: '+FILECTX.name+']\n'+FILECTX.text+'\n\n'+v;FILECTX=null}
   el('you',v.replace(/</g,'&lt;'));
   HIST.push({role:'user',content:v});
+  if(RUNNING){STOP=true;sys('stopping after this step...');return}
   if(AGENT){run(v)}else{plain(v)}
 }
-go.onclick=submit;
+go.onclick=function(){if(RUNNING){STOP=true;sys('stopping after this step...')}else{submit()}};
 inp.addEventListener('input',function(){inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,120)+'px'});
 inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit()}});
 document.querySelectorAll('#exrow span').forEach(function(s){s.onclick=function(){inp.value=s.textContent;submit()}});
