@@ -29,7 +29,8 @@
       var inp = document.createElement('input');
       inp.type = 'file';
       inp.accept = '.txt,.md,.json,.csv,.html,.htm,.js,.css,.log,.xml,.yml,.yaml,text/*';
-      inp.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px;opacity:0;';
+      var olds = document.querySelectorAll('input[data-hl507]'); for (var k = 0; k < olds.length; k++) { try { olds[k].parentNode.removeChild(olds[k]); } catch (e7) {} }
+      inp.style.cssText = 'position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:0.01;z-index:99999;';
       inp.setAttribute('data-hl507', '1');
       document.body.appendChild(inp);
       inp.addEventListener('change', function () {
