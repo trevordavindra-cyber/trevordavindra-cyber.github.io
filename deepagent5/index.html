@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DeepSeek Agent</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cpath d=%27M39.7 12.8C38.4 7.7 41 2.6 45.4 0 47.4 3.8 48 8.3 46.7 12.2Z%27 fill=%27%235b6bf0%27/%3E%3Cpath d=%27M44.8 14.1C50.6 10.9 57.6 10.2 62.1 12.8 57.6 16 51.8 16.6 46.1 16.6Z%27 fill=%27%235b6bf0%27/%3E%3Cpath d=%27M7.7 37.1C6.4 28.2 10.2 16.6 21.8 12.8 28.2 10.9 35.8 9.6 39.7 10.9 44.8 12.8 49.9 20.5 49.9 28.2 49.9 35.8 47.4 42.2 39.7 44.8 30.7 48.6 15.4 47.4 7.7 37.1Z%27 fill=%27%235b6bf0%27/%3E%3Cpath d=%27M9.6 30.7C11.5 39.7 20.5 44.8 33.3 42.9%27 stroke=%27%23fff%27 stroke-width=%274.8%27 fill=%27none%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+<style>
+:root{--ac:#4d6bfe;--bg:#fff;--pan:#f7f8fa;--ln:#eceef2;--tx:#191c20;--dim:#9aa1ac;--sw:#34a853}
+body.dark{--bg:#111318;--pan:#1c1f26;--ln:#2a2e36;--tx:#e8eaee;--dim:#7d848f}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:520px;height:100%;margin:0 auto;display:flex;flex-direction:column;position:relative;background:var(--bg)}
+#top{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 6px}
+.circ{width:46px;height:46px;border-radius:50%;background:var(--pan);border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx)}
+.circ svg{width:20px;height:20px;stroke:var(--tx);fill:none;stroke-width:2;stroke-linecap:round}
+#toppill{display:flex;align-items:center;border:1.5px solid #d9dce3;border-radius:28px;height:52px;padding:0 6px;background:transparent}
+#toppill button{width:40px;height:40px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#toppill svg{width:21px;height:21px;stroke:var(--tx);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#chat{flex:1;overflow-y:auto;padding:10px 16px;display:flex;flex-direction:column;gap:14px}
+.msg{white-space:pre-wrap;word-break:break-word;line-height:1.6}
+.msg.you{align-self:flex-end;background:var(--pan);padding:12px 16px;border-radius:18px;max-width:85%}
+.msg.ai{align-self:flex-start;max-width:96%;cursor:pointer}
+.msg.sys{align-self:center;color:var(--dim);font-size:12px;text-align:center}
+#welcome{text-align:center;margin:auto}
+#welcome svg{width:72px;height:72px;margin-bottom:14px}
+#welcome h1{font-size:26px;font-weight:800;letter-spacing:-.3px}
+#composer{padding:6px 14px calc(16px + env(safe-area-inset-bottom))}
+.ccard{background:var(--pan);border-radius:32px;padding:18px 16px 12px}
+#inrow{display:flex;align-items:center;padding:2px 4px 10px;font-size:16px;color:var(--dim)}
+#send{width:34px;height:34px;border:0;background:transparent;cursor:pointer;display:none;padding:0}
+#send svg{width:34px;height:34px}
+#inp{flex:1;border:0;outline:none;font:inherit;background:transparent;color:var(--tx);resize:none;max-height:110px}
+#chiprow{display:flex;align-items:center;gap:8px;margin-top:6px}
+.chip{display:flex;align-items:center;gap:6px;border:1px solid var(--ln);border-radius:20px;padding:8px 14px;font-size:14px;color:var(--tx);cursor:pointer;background:var(--bg)}
+.chip svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.chip.on{color:var(--ac);background:rgba(77,107,254,.09);border-color:rgba(77,107,254,.35)}
+#plus,#mic{width:42px;height:42px;border-radius:50%;border:1.5px solid #d9dce3;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx);flex-shrink:0}
+#mic{margin-left:auto}
+#plus{margin-left:auto;font-size:22px;padding:0}
+#mic svg{width:20px;height:20px;stroke:var(--tx);fill:none;stroke-width:2;stroke-linecap:round}
+#sheet{display:none;position:absolute;left:0;right:0;bottom:0;top:8%;background:var(--bg);border-radius:26px 26px 0 0;z-index:50;overflow-y:auto;box-shadow:0 -8px 30px rgba(0,0,0,.18);padding:10px 16px 30px}
+#sheet h2,#panel h2{text-align:center;font-size:17px;padding:8px 0 16px}
+#grab{width:36px;height:4px;border-radius:2px;background:var(--ln);margin:2px auto 8px}
+.card{background:var(--pan);border-radius:18px;margin-bottom:14px}
+.row{display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid var(--ln);cursor:pointer}
+.card .row:last-child{border-bottom:0}
+.row .ic{width:24px;text-align:center}
+.row .ic .ri{width:20px;height:20px;stroke:var(--tx);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.row .lb{flex:1}
+.row .val{color:var(--dim);font-size:14px}
+.sect{color:var(--dim);font-size:13px;padding:10px 4px 8px}
+.sw{width:52px;height:32px;border-radius:18px;background:#d7dbe2;position:relative;transition:.2s;flex-shrink:0}
+.sw.on{background:var(--sw)}
+.sw i{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw.on i{left:23px}
+.sw.blue.on{background:var(--ac)}
+.note{color:var(--dim);font-size:13px;padding:2px 6px 14px}
+#panel{display:none;position:absolute;inset:0;background:var(--bg);z-index:60;flex-direction:column}
+#panel .phead{display:flex;align-items:center;padding:14px 16px}
+#panel .phead b{flex:1;text-align:center;font-size:17px}
+#back{width:44px;height:44px;border-radius:50%;background:var(--pan);border:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#back svg{width:18px;height:18px;stroke:var(--tx);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+#vwrap{margin:auto;width:78%;max-width:330px;text-align:center}
+#vblob{width:150px;height:96px;margin:30px auto 22px;border-radius:60px;background:radial-gradient(circle at 30% 30%,#cfe0ff,#9db9f7 60%,#7d9ef2)}
+#vname{font-size:24px;font-weight:800}
+#vtag{color:var(--dim);margin:6px 0 26px}
+#dots{display:flex;gap:8px;justify-content:center;margin-bottom:26px}
+#dots span{width:8px;height:8px;border-radius:50%;background:var(--ln)}
+#dots span.on{background:var(--ac)}
+#vconfirm{width:100%;background:var(--ac);color:#fff;border:0;border-radius:26px;padding:16px;font:inherit;font-weight:600;cursor:pointer}
+#trace{display:none;position:absolute;inset:0;background:var(--bg);z-index:55;padding:14px;overflow-y:auto}
+#trace .st{border-left:3px solid var(--ln);padding:6px 10px;margin:8px 0;font-size:13px}
+#trace .st.run{border-color:var(--ac)}
+#trace .st b{color:var(--ac);font-size:10px;display:block;letter-spacing:1px}
+#trace .st span{color:var(--dim);white-space:pre-wrap;word-break:break-word}
+#drawer{display:none;position:absolute;top:0;left:0;bottom:0;width:82%;max-width:400px;background:var(--bg);z-index:54;box-shadow:12px 0 40px rgba(0,0,0,.12);padding:18px 16px;flex-direction:column}
+#dback{display:none;position:absolute;inset:0;background:rgba(0,0,0,.25);z-index:53}
+.dsearch{display:flex;align-items:center;gap:10px;border:1.5px solid var(--ln);border-radius:32px;padding:13px 18px;color:var(--dim);font-size:16px}
+.dsearch svg{width:20px;height:20px;stroke:var(--dim);fill:none;stroke-width:2;stroke-linecap:round}
+.dhead{display:flex;align-items:center;justify-content:space-between;color:var(--dim);font-weight:700;padding:18px 4px 6px}
+.dchat{padding:13px 4px;font-weight:600;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dbottom{margin-top:auto;display:flex;align-items:center;gap:12px;cursor:pointer}
+.davatar{width:44px;height:44px;border-radius:50%;background:var(--pan);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.davatar svg{width:22px;height:22px;stroke:var(--dim);fill:var(--dim);stroke-width:0}
+#dbottom span{flex:1;font-weight:700}
+#dbottom b{color:var(--dim);font-weight:normal;letter-spacing:2px}
+.row.red .lb{color:#e5484d}
+#hist{display:none;position:absolute;inset:0;background:var(--bg);z-index:58;padding:14px;overflow-y:auto}
+.hrow{display:flex;align-items:center;background:var(--pan);border-radius:14px;margin-bottom:8px}
+.hrow span{flex:1;padding:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.hrow b{padding:14px;color:var(--dim);font-weight:normal;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <button class="circ" id="menu" style="background:transparent;border:1.5px solid #d9dce3"><svg viewBox="0 0 24 24"><path d="M4 8h16M4 14h10"/></svg></button>
+    <div id="toppill">
+      <button id="mute"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M22 9l-5 6M17 9l5 6"/></svg></button>
+      <button id="newchat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></button>
+    </div>
+  </div>
+  <div id="chat">
+    <div id="welcome">
+      <svg viewBox="0 0 64 64"><path d="M39.7 12.8C38.4 7.7 41 2.6 45.4 0 47.4 3.8 48 8.3 46.7 12.2Z" fill="#5b6bf0"/><path d="M44.8 14.1C50.6 10.9 57.6 10.2 62.1 12.8 57.6 16 51.8 16.6 46.1 16.6Z" fill="#5b6bf0"/><path d="M7.7 37.1C6.4 28.2 10.2 16.6 21.8 12.8 28.2 10.9 35.8 9.6 39.7 10.9 44.8 12.8 49.9 20.5 49.9 28.2 49.9 35.8 47.4 42.2 39.7 44.8 30.7 48.6 15.4 47.4 7.7 37.1Z" fill="#5b6bf0"/><path d="M9.6 30.7C11.5 39.7 20.5 44.8 33.3 42.9" stroke="#fff" stroke-width="4.8" fill="none" stroke-linecap="round"/><circle cx="21.8" cy="25" r="2.3" fill="#fff"/><path d="M16 21.1C17.9 18.6 23 18.6 25.6 21.1" stroke="#fff" stroke-width="2.05" fill="none" stroke-linecap="round"/></svg>
+      <h1>Whenever you're ready</h1>
+    </div>
+  </div>
+  <div id="composer"><div class="ccard">
+    <div id="inrow"><textarea id="inp" rows="1" placeholder="Type a message or hold to speak"></textarea><button id="send" aria-label="send"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#4d6bfe" stroke="none"/><path d="M12 17V8M8.5 11.5 12 8l3.5 3.5" stroke="#fff"/></svg></button></div>
+    <div id="chiprow">
+      <span class="chip" id="thinkchip"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Think</span>
+      <span class="chip on" id="searchchip"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Search</span>
+      <button id="plus" title="attach a text file">+</button>
+      <button id="mic" title="hold to speak"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 9.5a2 2 0 0 1 4 0v2a2 2 0 0 1-4 0zM12 13.5V16"/></svg></button>
+      <input type="file" id="file" style="display:none">
+    </div>
+  </div></div>
+  <div id="sheet">
+    <button class="circ" id="sheetx" style="position:absolute;top:12px;right:12px;background:transparent;border:1.5px solid var(--ln)"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button><div id="grab"></div><h2 style="padding-top:14px">Settings</h2>
+    <div class="sect">Profile</div>
+    <div class="card">
+      <div class="row" data-go="acct"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM5 20a7 7 0 0 1 14 0"/></svg></span><span class="lb">Account settings</span><span class="val">›</span></div>
+      <div class="row" id="datactl"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 7v10c0 1.7 3.6 3 8 3s8-1.3 8-3V7M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span class="lb">Data controls</span><span class="val">›</span></div>
+    </div>
+    <div class="sect">App</div>
+    <div class="card">
+      <div class="row"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span><span class="lb">Language</span><span class="val">English ›</span></div>
+      <div class="row" id="appear"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M12 5V3M12 21v-2M5 12H3M21 12h-2M6.4 6.4 5 5M19 19l-1.4-1.4M6.4 17.6 5 19M19 5l-1.4 1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/></svg></span><span class="lb">Appearance</span><span class="val" id="apval">System</span></div>
+      <div class="row" id="fontsz"><span class="ic" style="font-weight:700">Aa</span><span class="lb">Font size</span><span class="val" id="fzval">Default ›</span></div>
+      <div class="row" data-go="pers"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M12 3l1.9 4.6L18 9l-4.1 1.4L12 15l-1.9-4.6L6 9l4.1-1.4zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg></span><span class="lb">Personalization</span><span class="val">›</span></div>
+    </div>
+    <div class="sect">Audio</div>
+    <div class="card">
+      <div class="row" id="voicebtn"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/></svg></span><span class="lb">Voice</span><span class="val" id="voicename">Mira ›</span></div>
+      <div class="row"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v3"/></svg></span><span class="lb">Main language</span><span class="val">Use App language</span></div>
+    </div>
+    <div class="note">Select the primary language you use for voice input to achieve better recognition results</div>
+    <div class="sect">About</div>
+    <div class="card">
+      <div class="row" id="upd"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v5M12 16v.5"/></svg></span><span class="lb">Check for updates</span><span class="val">2.9.0(5) ›</span></div>
+      <div class="row" id="agmt"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6"/></svg></span><span class="lb">Service agreement</span><span class="val">›</span></div>
+    </div>
+    <div class="card">
+      <div class="row" id="help"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1.9-1.1 1.8M12 17v.5"/></svg></span><span class="lb">Help & Feedback</span><span class="val">›</span></div>
+    </div>
+    <div class="card">
+      <div class="row" id="logout"><span class="ic"><svg viewBox="0 0 24 24" class="ri"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 8l-4 4 4 4M6 12h11"/></svg></span><span class="lb">Log out</span></div>
+    </div>
+  </div>
+  <div id="panel">
+    <div class="phead"><button id="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b id="ptitle">Personalization</b><button class="circ" id="panx" style="width:44px;height:44px;background:transparent;border:1.5px solid var(--ln)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--tx);fill:none;stroke-width:2;stroke-linecap:round"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
+    <div id="pbody" style="padding:0 16px"></div>
+  </div>
+  <div id="trace"><button id="traceback" class="circ" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2 style="text-align:left;font-size:13px;letter-spacing:1px;color:var(--dim)">AGENT TRACE</h2><div id="steps"></div></div>
+  <div id="dback"></div>
+  <div id="drawer">
+    <div class="dsearch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>Search chat content...</div>
+    <div class="dhead">Today <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--dim);fill:none;stroke-width:2"><circle cx="8" cy="8" r="2.5"/><path d="M14 6h6M14 10h4"/><circle cx="8" cy="16" r="2.5"/><path d="M14 14h6M14 18h4"/></svg></div>
+    <div id="dchats" style="overflow-y:auto"></div>
+    <div id="dbottom"><div class="davatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6z"/></svg></div><span>trev*******dra@gmail.com</span><b>⋯</b></div>
+  </div>
+  <div id="hist"><button id="histback" class="circ" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div id="histlist"></div></div>
+  <div id="vsheet" style="display:none;position:absolute;left:0;right:0;bottom:0;top:14%;background:var(--bg);border-radius:26px 26px 0 0;z-index:52;box-shadow:0 -8px 30px rgba(0,0,0,.18)">
+    <div id="grab2" style="width:36px;height:4px;border-radius:2px;background:var(--ln);margin:10px auto 0"></div>
+    <h2 style="text-align:center;font-size:17px;padding:10px 0 0">Voice</h2>
+    <div id="vwrap">
+      <div id="vblob"></div>
+      <div id="vname">Mira</div>
+      <div id="vtag">Versatile & Playful</div>
+      <div id="dots"><span class="on"></span><span></span><span></span><span></span></div>
+      <button id="vconfirm">Confirm</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+var chat=document.getElementById('chat'),inp=document.getElementById('inp');
+var steps=document.getElementById('steps'),sheet=document.getElementById('sheet'),panel=document.getElementById('panel');
+var trace=document.getElementById('trace'),hist=document.getElementById('hist'),vsheet=document.getElementById('vsheet');
+var pbody=document.getElementById('pbody'),ptitle=document.getElementById('ptitle');
+var welcome=document.getElementById('welcome');
+var KEY=localStorage.getItem('ds_key')||'';
+var MODEL=localStorage.getItem('ds_m')||'openai-fast';
+if(!KEY&&MODEL.indexOf('deepseek')===0)MODEL='openai-fast';
+var AGENT=localStorage.getItem('ds_ag')!=='0';
+var DT=localStorage.getItem('ds_dt')==='1';
+var SRCH=localStorage.getItem('ds_sr')!=='0';
+var keywarn=false,RUNNING=false,STOP=false,FILECTX=null,AP=localStorage.getItem('ds_ap')||'System',FZ=+(localStorage.getItem('ds_fz')||0);
+var FZS=[['Default',100],['Large',112],['Small',88]];
+document.documentElement.style.fontSize=FZS[FZ][1]+'%';
+function applyAP(){document.body.classList.toggle('dark',AP==='Dark'||(AP==='System'&&window.matchMedia('(prefers-color-scheme: dark)').matches));document.getElementById('apval').textContent=AP}
+applyAP();
+function togchip(id,on){document.getElementById(id).classList.toggle('on',on)}
+togchip('thinkchip',DT);togchip('searchchip',SRCH);
+function openSheet(){sheet.style.display='block'}function closeSheet(){sheet.style.display='none'}
+var drawer=document.getElementById('drawer'),dback=document.getElementById('dback');
+function closeDrawer(){drawer.style.display='none';dback.style.display='none'}
+function renderD(){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');var dc=document.getElementById('dchats');dc.innerHTML='';if(!l.length){var e=document.createElement('div');e.className='dchat';e.style.color='var(--dim)';e.textContent='no chats yet';dc.appendChild(e)}l.forEach(function(t){var d=document.createElement('div');d.className='dchat';d.textContent=t;d.onclick=closeDrawer;dc.appendChild(d)})}
+document.getElementById('menu').onclick=function(){renderD();drawer.style.display='flex';dback.style.display='block'};
+dback.onclick=closeDrawer;
+document.getElementById('dbottom').onclick=function(){closeDrawer();openSheet()};
+document.getElementById('newchat').onclick=function(){HIST=[];chat.innerHTML='';chat.appendChild(welcome);render()};
+document.getElementById('mute').onclick=function(){sys('sound on for this chat')};
+document.getElementById('thinkchip').onclick=function(){DT=!DT;localStorage.setItem('ds_dt',DT?'1':'0');togchip('thinkchip',DT);sys(DT?'think on: longer reasoning before answers':'think off')};
+document.getElementById('searchchip').onclick=function(){SRCH=!SRCH;localStorage.setItem('ds_sr',SRCH?'1':'0');togchip('searchchip',SRCH);sys(SRCH?'search on: answers grounded with live web first':'search off')};
+document.getElementById('plus').onclick=function(){document.getElementById('file').click()};
+document.getElementById('file').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){FILECTX={name:f.name,text:String(r.result).slice(0,20000)};sys('attached: '+f.name+' — it goes in with your next message')};r.readAsText(f)};
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+document.getElementById('mic').onclick=function(){
+ if(!SR){sys('voice input not supported in this browser');return}
+ var r=new SR();r.lang='en-US';r.interimResults=false;
+ r.onresult=function(e){inp.value+=e.results[0][0].transcript};
+ r.onerror=function(){sys('did not catch that')};r.start();sys('listening...');
+};
+document.getElementById('datactl').onclick=function(){openPanel('data')};
+document.getElementById('appear').onclick=function(){AP=AP==='System'?'Light':(AP==='Light'?'Dark':'System');localStorage.setItem('ds_ap',AP);applyAP()};
+document.getElementById('fontsz').onclick=function(){FZ=(FZ+1)%3;localStorage.setItem('ds_fz',FZ);document.documentElement.style.fontSize=FZS[FZ][1]+'%';document.getElementById('fzval').textContent=FZS[FZ][0]+' ›'};
+document.getElementById('upd').onclick=function(){sys('2.9.0(5) — you are up to date')};
+document.getElementById('agmt').onclick=function(){sys('this is your replica, service agreement: none')};
+document.getElementById('help').onclick=function(){sys('feedback goes straight to the build notes')};
+document.getElementById('logout').onclick=function(){sys('no account here to log out of')};
+document.getElementById('voicebtn').onclick=function(){vsheet.style.display='block';closeSheet()};
+document.getElementById('vconfirm').onclick=function(){var names=['Mira','Kai','Nova','Echo'];var i=Array.prototype.indexOf.call(document.getElementById('dots').children,document.querySelector('#dots .on'));localStorage.setItem('ds_voice',names[i]);document.getElementById('voicename').textContent=names[i]+' ›';vsheet.style.display='none';sys('voice: '+names[i])};
+document.getElementById('dots').onclick=function(e){if(e.target.tagName!=='SPAN')return;var ds=document.getElementById('dots').children;for(var i=0;i<4;i++)ds[i].className='';e.target.className='on';var names=['Mira','Kai','Nova','Echo'];document.getElementById('vname').textContent=names[i];document.getElementById('vtag').textContent=['Versatile & Playful','Calm & Clear','Bright & Quick','Deep & Steady'][i]};
+var savedv=localStorage.getItem('ds_voice');if(savedv){document.getElementById('voicename').textContent=savedv+' ›'}
+document.getElementById('traceback').onclick=function(){trace.style.display='none'};
+document.getElementById('histback').onclick=function(){hist.style.display='none'};
+function openPanel(kind){
+ closeSheet();panel.style.display='flex';ptitle.textContent=kind==='pers'?'Personalization':(kind==='data'?'Data controls':'Account settings');pbody.innerHTML='';
+ if(kind==='data'){
+  pbody.innerHTML='<div class="card"><div class="row"><span class="lb">Improve the model for everyone</span><div class="sw" id="swt"><i></i></div></div></div><div class="note">Allow your content to be used to train our models and improve our services. We secure your data privacy.</div><div class="card"><div class="row" id="shlinks"><span class="lb">Shared links</span><span class="val">›</span></div></div><div class="card"><div class="row" id="expd"><span class="lb">Export data</span><span class="val">›</span></div></div><div class="card"><div class="row red" id="delall"><span class="lb">Delete all chats</span></div></div>';
+  var swt=document.getElementById('swt');swt.classList.toggle('on',localStorage.getItem('ds_train')!=='0');
+  swt.onclick=function(){swt.classList.toggle('on');localStorage.setItem('ds_train',swt.classList.contains('on')?'1':'0')};
+  document.getElementById('shlinks').onclick=function(){sys('no shared links yet')};
+  document.getElementById('expd').onclick=function(){var blob=new Blob([JSON.stringify({chats:JSON.parse(localStorage.getItem('ds_h')||'[]'),memory:localStorage.getItem('ds_mem')||''},null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='deepseek-agent-data.json';a.click();sys('exported to your downloads')};
+  document.getElementById('delall').onclick=function(){if(confirm('delete all chats?')){localStorage.removeItem('ds_h');HIST=[];chat.innerHTML='';chat.appendChild(welcome);render();panel.style.display='none';sys('all chats deleted')}};
+ }else if(kind==='pers'){
+  pbody.innerHTML='<div class="card"><div class="row"><span class="lb">Automatically collapse thinking content</span><div class="sw" id="swc"><i></i></div></div></div><div class="note">When enabled, thinking content will automatically collapse after thinking is complete.</div>';
+  var sw=document.getElementById('swc');sw.classList.toggle('on',localStorage.getItem('ds_collapse')!=='0');
+  sw.onclick=function(){sw.classList.toggle('on');localStorage.setItem('ds_collapse',sw.classList.contains('on')?'1':'0')};
+ }else{
+  pbody.innerHTML='<div class="card"><div class="row"><span class="lb">DeepSeek key</span><span class="val" id="kstat">'+(KEY?'saved':'none')+'</span></div><div class="row" id="setkey"><span class="lb">Set / change key</span><span class="val">›</span></div></div><div class="note">a real deepseek key from platform.deepseek.com turns on the deepseek-chat and deepseek-reasoner brains. it stays in this browser only.</div>';
+  document.getElementById('setkey').onclick=function(){var k=prompt('paste your deepseek api key');if(k&&k.trim()){KEY=k.trim();localStorage.setItem('ds_key',KEY);document.getElementById('kstat').textContent='saved';sys('deepseek key saved')}};
+ }
+}
+document.getElementById('back').onclick=function(){panel.style.display='none'};
+document.getElementById('sheetx').onclick=function(){closeSheet()};
+document.getElementById('panx').onclick=function(){panel.style.display='none'};
+document.querySelectorAll('[data-go]').forEach(function(r){r.onclick=function(){openPanel(r.dataset.go)}});
+var HIST=[];
+function el(cls,html){var w=document.getElementById('welcome');if(w&&w.parentNode)w.remove();var d=document.createElement('div');d.className='msg '+cls;if(html!=null)d.innerHTML=html;chat.appendChild(d);chat.scrollTop=1e9;return d}
+function sys(t){el('sys',t)}
+function save(title){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');if(!l.length||l[0]!==title){l.unshift(title);localStorage.setItem('ds_h',JSON.stringify(l.slice(0,12)))}}
+function render(){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');var hl=document.getElementById('histlist');hl.innerHTML='';l.forEach(function(t,i){var d=document.createElement('div');d.className='hrow';var s=document.createElement('span');s.textContent=t;var x=document.createElement('b');x.textContent='✕';x.onclick=function(ev){ev.stopPropagation();l.splice(i,1);localStorage.setItem('ds_h',JSON.stringify(l));render()};d.appendChild(s);d.appendChild(x);hl.appendChild(d)})}
+render();
+
+function st(label,detail,run){var d=document.createElement('div');d.className='st'+(run?' run':'');d.innerHTML='<b></b><span></span>';d.querySelector('b').textContent=label;d.querySelector('span').textContent=detail||'';steps.appendChild(d);trace.scrollTop=1e9;return d}
+var TOOLS={
+ 'web.search':function(q){return fetch('https://r.jina.ai/https://html.duckduckgo.com/html/?q='+encodeURIComponent(q)).then(function(r){return r.text()}).then(function(t){return t.slice(0,3200)})},
+ 'web.read':function(u){return fetch('https://r.jina.ai/'+u).then(function(r){return r.text()}).then(function(t){return t.slice(0,3200)})},
+ 'math.calc':function(x){try{if(!/^[-+*/%.()0-9\s^]+$/.test(x))return 'numbers and +-*/ only';return String(Function('"use strict";return ('+x.replace(/\^/g,'**')+')')())}catch(e){return 'calc failed'}},
+ 'memory':function(x){if(/^load\b/i.test(x))return localStorage.getItem('ds_mem')||'(empty)';var m=(localStorage.getItem('ds_mem')||'');m=(m?m+'\n':'')+x;localStorage.setItem('ds_mem',m);return 'stored.'},
+ 'clock':function(){return new Date().toString()}
+};
+function call(body,tries){
+ tries=tries||0;
+ var url='https://text.pollinations.ai/openai',hdrs={'Content-Type':'application/json'};
+ if(MODEL.indexOf('deepseek')===0&&KEY){url='https://api.deepseek.com/v1/chat/completions';hdrs.Authorization='Bearer '+KEY}
+ if(!(MODEL.indexOf('deepseek')===0&&KEY))body.model='openai-fast';
+ return fetch(url,{method:'POST',headers:hdrs,body:JSON.stringify(body)}).then(function(r){
+  if(STOP)throw new Error('stopped');
+  if(r.status===402||r.status===429){sys('relay cooling, retrying in 46 seconds...');return new Promise(function(s){setTimeout(s,46000)}).then(function(){return call(body,tries+1)})}
+  if(r.status===401)throw new Error('key rejected');
+  return r.json();
+ }).then(function(j){
+  if(STOP)throw new Error('stopped');
+  if(!j||!j.choices||!j.choices[0]){if(tries<3)return new Promise(function(s){setTimeout(s,4000)}).then(function(){return call(body,tries+1)});throw new Error('relay gave nothing')}
+  return j.choices[0].message.content||j.choices[0].message.reasoning||'';
+ });
+}
+var HARNESS='You are DeepSeek Agent, an autonomous agent built on the DeepSeek Harness design (deepseek-ai/deepseek-harness: everything is a plugin). Current date: '+new Date().toDateString()+'. When agent tools are needed reply ONLY with one JSON object, no prose:\n{"plan":["step1","step2"],"next_step":0,"tool":"none|web.search|web.read|math.calc|memory|clock","tool_input":"..."}\nor when done, or the question needs no tools:\n{"final":"full answer, cite sources"}\nMake a short plan (1-4 steps) for anything needing facts or math. Run tools one at a time; you will be re-asked after each tool result. Verify math with math.calc. Never invent facts. Example JSON: {"plan":["calculate 18% of 4395"],"next_step":0,"tool":"math.calc","tool_input":"4395*0.18"} Another example: {"final":"The answer is 791.10, from math.calc."}';
+function brain(u){var model=(MODEL.indexOf('deepseek')===0&&KEY)?MODEL:'openai-fast';return call({model:model,messages:[{role:'system',content:HARNESS}].concat(HIST.slice(-6),[{role:'user',content:u}])})}
+function finish(){RUNNING=false;setSend()}
+function bubble(txt){var t=String(txt).trim()||'(empty)';var d=el('ai',t.replace(/</g,'&lt;'));d.title='tap to copy';d.onclick=function(){navigator.clipboard.writeText(t).then(function(){sys('copied')})};HIST.push({role:'assistant',content:t});save(t.slice(0,40));finish()}
+function run(goal){
+ RUNNING=true;STOP=false;setSend();var turns=0,plan=null,repaired=false;
+ st('GOAL',goal,true);
+ function ask(note){
+  if(STOP){sys('stopped.');finish();return}
+  var u=goal+(note?('\n\n[last tool result]: '+note):'');
+  return brain(u).then(function(raw){
+   turns++;if(turns>7){bubble('agent hit the step limit: '+raw);return}
+   var j=null;try{var m=raw.match(/\{[\s\S]*\}/);j=JSON.parse(m?m[0]:raw)}catch(e){}
+   if(!j||(!j.final&&!Array.isArray(j.plan))){
+    if(!repaired){repaired=true;return ask('STOP. Your last reply was plain text, which is invalid. Reply ONLY with one JSON object: either the plan/tool object or {"final":"..."}. Goal: '+goal+(note?' Last result: '+note.slice(0,400):''))}
+    bubble(raw);return}
+   repaired=false;
+   if(j.final){bubble(j.final);return}
+   if(j.plan)plan=j.plan;
+   var idx=(typeof j.next_step==='number')?j.next_step:0;
+   if(plan&&plan[idx]){
+    var s=st('STEP '+(idx+1)+'/'+plan.length,plan[idx]+(j.tool&&j.tool!=='none'?' ['+j.tool+']':''),true);
+    if(!j.tool||j.tool==='none'||!TOOLS[j.tool]){ask('step '+(idx+1)+': if done reply final, else pick a tool')}
+    else{TOOLS[j.tool](String(j.tool_input||'')).then(function(out){
+     s.classList.remove('run');s.querySelector('span').textContent=plan[idx]+' ['+j.tool+'] -> '+String(out).slice(0,120).replace(/\n/g,' ');
+     ask(out.slice(0,2800));
+    }).catch(function(e){s.classList.remove('run');s.querySelector('span').textContent=plan[idx]+' ['+j.tool+'] failed';ask('tool failed: '+e.message)})}
+   }else{bubble(raw)}
+  }).catch(function(e){if(e.message!=='stopped')bubble('agent run failed: '+e.message);finish()});
+ }
+ ask('');
+}
+function plain(goal){
+ RUNNING=true;setSend();
+ brain(goal).then(function(a){bubble(a)}).catch(function(e){if(e.message!=='stopped')bubble('failed: '+e.message);finish()});
+}
+function submit(){
+ if(RUNNING){STOP=true;sys('stopping after this step...');setSend();return}
+ var v=inp.value.trim();if(!v)return;inp.value='';inp.style.height='auto';setSend();
+ if(FILECTX){v='[attached file: '+FILECTX.name+']\n'+FILECTX.text+'\n\n'+v;FILECTX=null}
+ el('you',v.replace(/</g,'&lt;'));
+ HIST.push({role:'user',content:v});
+ if(AGENT){run(v)}else{plain(v)}
+}
+var sendbtn=document.getElementById('send');
+function setSend(){sendbtn.style.display=(inp.value.trim()||RUNNING)?'block':'none';sendbtn.querySelector('circle').setAttribute('fill',RUNNING?'#e5484d':'#4d6bfe');sendbtn.querySelector('path').setAttribute('d',RUNNING?'M9 9h6v6H9z':'M12 17V8M8.5 11.5 12 8l3.5 3.5')}
+inp.addEventListener('input',setSend);setSend();
+sendbtn.onclick=submit;
+inp.addEventListener('input',function(){inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,110)+'px'});
+inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit()}});
+var prev=localStorage.getItem('ds_mem');if(prev)st('MEMORY LOADED',prev.slice(0,80),false);
+})();
+</script>
+</body>
+</html>
