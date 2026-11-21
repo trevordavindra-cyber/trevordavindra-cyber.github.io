@@ -21,6 +21,8 @@ body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI
 #main{flex:1;display:flex;flex-direction:column;min-width:0}
 #top{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--ln)}
 #top .mode{font-weight:600}
+.chip{border:1px solid var(--ln);border-radius:12px;padding:3px 10px;font-size:11px;color:var(--dim);cursor:pointer;background:#fff}
+.chip.on{color:#fff;background:var(--ac);border-color:var(--ac)}
 #top .agent{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim);cursor:pointer}
 .tog{width:36px;height:20px;border-radius:12px;background:#d5dcef;position:relative;transition:.2s}
 .tog.on{background:var(--ac)}
@@ -60,11 +62,15 @@ body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI
   <div class="brand"><div class="wl">D</div><b>DeepSeek Agent</b></div>
   <button id="new">+ New chat</button>
   <div id="hist"></div>
-  <div id="sidefoot">free browser replica of deepseek.com<br>agent harness: plan → act → verify<br>v1.0</div>
+  <div id="sidefoot">free deepseek replica<br>harness: plan → act → verify<br>v1.1</div>
 </nav>
 <main id="main">
   <div id="top">
     <span class="mode" id="modename">deepseek-chat</span>
+    <span class="chip" data-m="openai-fast">free brain</span>
+    <span class="chip" data-m="deepseek-chat">deepseek-chat</span>
+    <span class="chip" data-m="deepseek-reasoner">deepseek-reasoner</span>
+    <span class="chip" id="keybtn">key</span>
     <div class="agent" id="agenttog"><span>agent mode</span><div class="tog on" id="tog"><i></i></div></div>
     <span class="agent" id="tracebtn" style="display:none">trace</span>
   </div>
@@ -84,7 +90,7 @@ body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI
       <textarea id="inp" rows="1" placeholder="Message DeepSeek Agent"></textarea>
       <button id="go">↑</button>
     </div>
-    <div id="foot">deepseek-brained via free relay · r1 + reasoner toggle on request · honest: real dsh needs node, this runs its loop + plugins free</div>
+    <div id="foot">real deepseek brain with your key (key chip), or the free stand-in brain with no key · harness loop always free · v1.1</div>
   </div>
 </main>
 <div id="mask"></div>
@@ -94,15 +100,23 @@ body{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Segoe UI
 var chat=document.getElementById('chat'),inp=document.getElementById('inp'),go=document.getElementById('go');
 var steps=document.getElementById('steps'),drawer=document.getElementById('drawer'),mask=document.getElementById('mask');
 var welcome=document.getElementById('welcome'),hist=document.getElementById('hist');
-var MODEL=localStorage.getItem('ds_m')||'deepseek-chat';
-var AGENT=true;
+var KEY=localStorage.getItem('ds_key')||'';
+var MODEL=localStorage.getItem('ds_m')||'openai-fast';
+if(!KEY&&MODEL.indexOf('deepseek')===0)MODEL='openai-fast';
+var AGENT=true;var keywarn=false;
 document.getElementById('modename').textContent=MODEL;
 document.getElementById('tracebtn').style.display=AGENT?'block':'none';
+document.querySelectorAll('.chip').forEach(function(c){
+ if(c.id==='keybtn'){c.onclick=function(){var k=prompt('paste your deepseek api key (from platform.deepseek.com)');if(k&&k.trim()){KEY=k.trim();localStorage.setItem('ds_key',KEY);sys('deepseek key saved in this browser. tap a deepseek chip.')}else{sys('no key saved, staying on the free brain.')}};return}
+ c.classList.toggle('on',c.dataset.m===MODEL);
+ c.onclick=function(){if(c.dataset.m.indexOf('deepseek')===0&&!KEY){sys('deepseek needs its own key. tap the key chip to paste one.')}else{MODEL=c.dataset.m;localStorage.setItem('ds_m',MODEL);document.getElementById('modename').textContent=MODEL;document.querySelectorAll('.chip').forEach(function(x){if(x.id!=='keybtn')x.classList.toggle('on',x.dataset.m===MODEL)});sys('brain: '+MODEL)}}
+});
 document.getElementById('agenttog').onclick=function(){AGENT=!AGENT;document.getElementById('tog').classList.toggle('on',AGENT);document.getElementById('tracebtn').style.display=AGENT?'block':'none'};
 document.getElementById('tracebtn').onclick=function(){drawer.style.display='block';mask.style.display='block'};
 mask.onclick=function(){drawer.style.display='none';mask.style.display='none'};
 var HIST=[];
 function el(cls,html){var w=document.getElementById('welcome');if(w&&w.parentNode)w.remove();var d=document.createElement('div');d.className='msg '+cls;if(html!=null)d.innerHTML=html;chat.appendChild(d);chat.scrollTop=1e9;return d}
+function sys(t){el('sys',t)}
 function save(title){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');if(!l.length||l[0]!==title){l.unshift(title);localStorage.setItem('ds_h',JSON.stringify(l.slice(0,12)))}render()}
 function render(){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');hist.innerHTML='';l.forEach(function(t){var d=document.createElement('div');d.textContent=t;hist.appendChild(d)})}
 render();
@@ -123,8 +137,15 @@ var TOOLS={
 };
 function call(body,tries){
   tries=tries||0;
-  return fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){
-    if(r.status===402||r.status===429){el('sys','free relay cooling, retrying in 46 seconds...');return new Promise(function(s){setTimeout(s,46000)}).then(function(){return call(body,tries+1)})}
+  var url='https://text.pollinations.ai/openai',hdrs={'Content-Type':'application/json'};
+  if(MODEL.indexOf('deepseek')===0){
+    if(KEY){url='https://api.deepseek.com/v1/chat/completions';hdrs.Authorization='Bearer '+KEY}
+    else{if(!keywarn){keywarn=true;sys('deepseek brain needs its own key (tap the key chip). using the free stand-in brain for now.')}}
+  }
+  if(!(MODEL.indexOf('deepseek')===0&&KEY))body.model='openai-fast';
+  return fetch(url,{method:'POST',headers:hdrs,body:JSON.stringify(body)}).then(function(r){
+    if(r.status===402||r.status===429){sys('relay cooling, retrying in 46 seconds...');return new Promise(function(s){setTimeout(s,46000)}).then(function(){return call(body,tries+1)})}
+    if(r.status===401){throw new Error('key rejected')}
     return r.json();
   }).then(function(j){
     if(!j||!j.choices||!j.choices[0]){if(tries<3)return new Promise(function(s){setTimeout(s,4000)}).then(function(){return call(body,tries+1)});throw new Error('relay gave nothing')}
@@ -159,15 +180,14 @@ function run(goal){
 }
 function plain(goal){
   go.disabled=true;
-  el('you',goal.replace(/</g,'&lt;'));
-  HIST.push({role:'user',content:goal});
   brain(goal).then(function(a){
-    el('ai',String(a||'(empty)').replace(/</g,'&lt;'));HIST.push({role:'assistant',content:a});save(goal.slice(0,40));
-  }).catch(function(e){el('ai','failed: '+e.message)});
-  go.disabled=false;
+    el('ai',String(a||'(empty)').replace(/</g,'&lt;'));HIST.push({role:'assistant',content:a});save(goal.slice(0,40));go.disabled=false;
+  }).catch(function(e){el('ai','failed: '+e.message);go.disabled=false});
 }
 function submit(){
   var v=inp.value.trim();if(!v)return;inp.value='';inp.style.height='auto';
+  el('you',v.replace(/</g,'&lt;'));
+  HIST.push({role:'user',content:v});
   if(AGENT){run(v)}else{plain(v)}
 }
 go.onclick=submit;
