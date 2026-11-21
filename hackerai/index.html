@@ -14,7 +14,6 @@ body{background:var(--bg);color:var(--g);font-family:ui-monospace,SFMono-Regular
 body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,255,102,.035) 0 1px,transparent 1px 3px);mix-blend-mode:screen}
 #boot{position:fixed;inset:0;background:#000;z-index:50;display:flex;flex-direction:column;justify-content:center;padding:0 8vw;transition:opacity .6s}
 #boot p{font-size:12px;line-height:1.9;color:var(--g);opacity:.85;white-space:pre-wrap}
-#boot .big{font-size:clamp(26px,7vw,52px);letter-spacing:.35em;margin:14px 0 18px;color:#fff;text-shadow:0 0 18px rgba(0,255,102,.6)}
 #boot .cursor{display:inline-block;width:9px;height:14px;background:var(--g);animation:bl .9s steps(1) infinite;vertical-align:-2px}
 @keyframes bl{50%{opacity:0}}
 #app{display:none;height:100%;flex-direction:column}
@@ -28,59 +27,125 @@ header .r{margin-left:auto;color:var(--g);opacity:.6}
 .msg.you{color:#e8ffe8}
 .msg.ai{color:var(--g);text-shadow:0 0 8px rgba(0,255,102,.25)}
 .msg.sys{color:#7ef;max-width:760px;margin:0 auto 14px;font-size:12px}
-.think{opacity:.55;font-style:italic}
-form{display:flex;gap:8px;padding:10px 14px 16px;border-top:1px solid var(--dim);background:#000}
+.msg img{max-width:100%;border:1px solid var(--dim);border-radius:4px;margin-top:6px}
+form{display:flex;gap:8px;padding:8px 14px 6px;border-top:1px solid var(--dim);background:#000;align-items:flex-end}
 #in{flex:1;background:#01130a;border:1px solid var(--dim);color:#eaffea;font:inherit;font-size:14px;padding:12px 12px;outline:none;resize:none;max-height:120px;border-radius:4px}
 #in:focus{border-color:var(--g);box-shadow:0 0 12px rgba(0,255,102,.15)}
-button{background:var(--g);color:#001a08;border:0;font:inherit;font-weight:700;letter-spacing:.15em;padding:0 22px;border-radius:4px;cursor:pointer}
+button{background:var(--g);color:#001a08;border:0;font:inherit;font-weight:700;letter-spacing:.12em;padding:12px 16px;border-radius:4px;cursor:pointer}
 button:active{transform:translateY(1px)}
+.tbar{display:flex;gap:6px;padding:0 14px 8px;background:#000;flex-wrap:wrap}
+.tbar button{background:#01130a;color:var(--g);border:1px solid var(--dim);font-size:10px;letter-spacing:.15em;padding:7px 10px}
+.tbar button.on{background:var(--g);color:#001a08}
 #foot{text-align:center;font-size:9px;letter-spacing:.3em;color:var(--dim);padding-bottom:8px}
+#pending{max-width:760px;margin:0 auto 4px;font-size:11px;color:#ffd97a;display:none}
 </style>
 </head>
 <body>
 <div id="boot">
 <p id="blines"></p>
-<span class="big" style="display:none" id="btitle">HACKERAI</span>
 </div>
 <div id="app">
-<header><span class="dot"></span>HACKERAI<span class="r">NODE 01 // ONE AI ONLY</span></header>
+<header><span class="dot"></span>HACKERAI<span class="r" id="hstat">NODE 01 // ONE AI ONLY</span></header>
 <div id="log"></div>
+<div id="pending"></div>
+<div class="tbar">
+<button type="button" id="bfile">+ FILE</button>
+<button type="button" id="bmic">MIC</button>
+<button type="button" id="btalk">TALK</button>
+<button type="button" id="bmodel">MODEL: OPENAI</button>
+<button type="button" id="bhelp">/HELP</button>
+</div>
 <form id="f" autocomplete="off">
 <textarea id="in" rows="1" placeholder="ask anything_"></textarea>
 <button type="submit">SEND</button>
+<input type="file" id="file" accept=".txt,.md,.json,.csv,.js,.html,.css,.py,.log,.xml" style="display:none">
 </form>
-<div id="foot">SINGLE AI // FREE RELAY // NOTHING STORED OFF THIS BROWSER</div>
+<div id="foot">HACKERAI v1.1 // SINGLE AI // FREE RELAY // NOTHING STORED OFF THIS BROWSER</div>
 </div>
 <script>
-const SYS=`You are HACKERAI, the single AI on a hacker-style terminal site. Personality: sharp, calm, a little ominous, never cheesy. You answer anything: coding, tech, security concepts explained for learning, and everyday questions. Keep replies short and dense, use plain text, no markdown headers. You are one assistant, not a persona or a crew. If asked to do something illegal or harmful, refuse in one line and offer the safe version.`;
-const log=document.getElementById('log'),ta=document.getElementById('in');
-let hist=[];
+const BASE='You are HACKERAI, the single AI on a hacker-style terminal site. Personality: sharp, calm, a little ominous, never cheesy. You answer anything: coding, tech, security concepts explained for learning, and everyday questions. Keep replies short and dense, use plain text, no markdown headers. You are one assistant, not a persona or a crew. If asked to do something illegal or harmful, refuse in one line and offer the safe version.';
+const HELP=['COMMANDS:','/help - this list','/clear - wipe the chat','/memory - what the AI remembers about you','/forget - wipe memory','/model name - switch free model (openai, mistral, llama)','/read URL QUESTION - the AI reads a live web page and answers','/search QUERY - live web search, answers with sources','/image DESCRIPTION - makes an image from text','/export - download the chat as a text file','+ FILE button - attach a text file for the AI to read','MIC - voice input. TALK - spoken replies','remember THING - store a fact about you forever'].join('\n');
+const log=document.getElementById('log'),ta=document.getElementById('in'),pend=document.getElementById('pending');
+let hist=[],mem=[],model=localStorage.getItem('hk_model')||'openai',pendingFile=null,talkOn=false,rec=null;
 try{hist=JSON.parse(localStorage.getItem('hk_hist')||'[]')}catch(e){hist=[]}
+try{mem=JSON.parse(localStorage.getItem('hk_mem')||'[]')}catch(e){mem=[]}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
-function add(role,text){const m=document.createElement('div');m.className='msg '+role;if(role==='sys'){m.innerHTML=esc(text)}else{m.innerHTML='<span class="who">'+(role==='you'?'YOU':'HACKERAI')+'</span>'+esc(text)}log.appendChild(m);log.scrollTop=log.scrollHeight;return m}
-function boot(lines,el,cb){let i=0;(function n(){if(i>=lines.length){el.insertAdjacentHTML('beforeend','<span class="cursor"></span>');setTimeout(cb,650);return}el.textContent+=lines[i++]+"\n";setTimeout(n,260)})()}
-const BLINES=['> initializing node...','> mounting /brain ... ok','> scanning relays ... 1 found','> loading personality ... ok','> security: local session only','> one AI loaded. no extras.',''];
-boot(BLINES,document.getElementById('blines'),()=>{document.getElementById('boot').style.opacity=0;setTimeout(()=>{document.getElementById('boot').style.display='none';document.getElementById('app').style.display='flex';},650)});
+function add(role,text){const m=document.createElement('div');m.className='msg '+role;if(role==='sys'){m.innerHTML=esc(text)}else if(role==='img'){m.innerHTML='<span class="who">HACKERAI</span>'+esc(text[0]);const i=document.createElement('img');i.src=text[1];i.alt=esc(text[0]);i.loading='lazy';m.appendChild(i)}else{m.innerHTML='<span class="who">'+(role==='you'?'YOU':'HACKERAI')+'</span>'+esc(text)}log.appendChild(m);log.scrollTop=log.scrollHeight;return m}
+function boot(lines,el,cb){let i=0;(function n(){if(i>=lines.length){el.insertAdjacentHTML('beforeend','<span class="cursor"></span>');setTimeout(cb,600);return}el.textContent+=lines[i++]+"\n";setTimeout(n,230)})()}
+const BLINES=['> initializing node...','> mounting /brain ... ok','> scanning relays ... 1 found','> loading tools: search, read, files, image, memory, voice','> security: local session only','> one AI loaded. no extras.',''];
+boot(BLINES,document.getElementById('blines'),()=>{document.getElementById('boot').style.opacity=0;setTimeout(()=>{document.getElementById('boot').style.display='none';document.getElementById('app').style.display='flex';},600)});
 if(hist.length){add('sys','-- session restored ('+hist.filter(h=>h.role==='user').length+' messages) --')}
-function render(){log.innerHTML='';if(hist.length)add('sys','-- session restored --');for(const h of hist){if(h.role==='user')add('you',h.content);else if(h.role==='assistant')add('ai',h.content)}}
-async function ask(q){
+function setModel(n){model=(n||'openai').toLowerCase();document.getElementById('bmodel').textContent='MODEL: '+model.toUpperCase();localStorage.setItem('hk_model',model);document.getElementById('hstat').textContent='NODE 01 // '+model.toUpperCase()}
+document.getElementById('bmodel').addEventListener('click',()=>{const ms=['openai','mistral','llama'];setModel(ms[(ms.indexOf(model)+1)%ms.length]);add('sys','model switched to '+model)});
+setModel(model);
+function sysmsg(t){add('sys',t)}
+document.getElementById('bhelp').addEventListener('click',()=>sysmsg(HELP));
+document.getElementById('bfile').addEventListener('click',()=>document.getElementById('file').click());
+document.getElementById('file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(f.size>300000){sysmsg('file too big, keep it under 300kb');return}const r=new FileReader();r.onload=()=>{pendingFile={name:f.name,text:String(r.result).slice(0,60000)};pend.style.display='block';pend.textContent='[ attached: '+f.name+' - will be read with your next message ]'};r.readAsText(f);e.target.value=''});
+function speak(t){if(!talkOn)return;try{const u=new SpeechSynthesisUtterance(t.replace(/```[\s\S]*?```/g,' code block ').slice(0,600));speechSynthesis.speak(u)}catch(e){}}
+document.getElementById('btalk').addEventListener('click',function(){talkOn=!talkOn;this.classList.toggle('on',talkOn);sysmsg(talkOn?'talk mode on: replies are spoken':'talk mode off')});
+document.getElementById('bmic').addEventListener('click',function(){try{if(!rec){const R=window.SpeechRecognition||window.webkitSpeechRecognition;rec=new R();rec.lang='en-US';rec.onresult=e=>{ta.value=e.results[0][0].transcript;document.getElementById('f').requestSubmit()}}rec.start();this.classList.add('on');sysmsg('listening...')}catch(e){sysmsg('voice input not supported on this browser')}});
+async function relay(q,extra){
 const m=add('ai','');m.classList.add('think');m.textContent='thinking...';
 try{
-const res=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'system',content:SYS}].concat(hist.slice(-12)).concat([{role:'user',content:q}])})});
+const body={model:model,messages:[{role:'system',content:BASE+(mem.length?'\nFacts you remember about the user:\n- '+mem.join('\n- '):'')}].concat(hist.slice(-16)).concat(extra||[]).concat([{role:'user',content:q}])};
+const res=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 let out='';
 if(res.ok){const j=await res.json();out=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||''}
 if(!out){const r2=await fetch('https://text.pollinations.ai/'+encodeURIComponent(q));if(r2.ok){out=await r2.text()}}
 if(!out)out='[relay down. try again.]';
 m.classList.remove('think');m.innerHTML='<span class="who">HACKERAI</span>';
-let i=0;const t=out;(function type(){m.innerHTML='<span class="who">HACKERAI</span>'+esc(t.slice(0,i));log.scrollTop=log.scrollHeight;if(i<t.length){i+=3;setTimeout(type,12)}else{m.innerHTML='<span class="who">HACKERAI</span>'+esc(t)}})();
+let i=0;const t=out;(function type(){m.innerHTML='<span class="who">HACKERAI</span>'+esc(t.slice(0,i));log.scrollTop=log.scrollHeight;if(i<t.length){i+=3;setTimeout(type,10)}else{m.innerHTML='<span class="who">HACKERAI</span>'+esc(t)}})();
+speak(out);
 return out;
 }catch(e){m.classList.remove('think');m.innerHTML='<span class="who">HACKERAI</span>[connection failed. check the relay and retry.]';return ''}
 }
+async function readPage(url,q){
+const m=add('ai','');m.classList.add('think');m.textContent='reading the page...';
+try{
+const r=await fetch('https://r.jina.ai/'+url);
+if(!r.ok)throw 0;
+const t=(await r.text()).slice(0,12000);
+m.remove();
+const out=await relay((q||'Summarize the key points of this page in a few bullets, plain text.')+'\n\nWEB PAGE CONTENT FROM '+url+':\n'+t,[{role:'user',content:'(the page content above was fetched live from '+url+')'}]);
+hist.push({role:'assistant',content:out});save();
+}catch(e){m.classList.remove('think');m.innerHTML='<span class="who">HACKERAI</span>[could not read that page. check the url.]'}
+}
+async function searchWeb(q){
+const m=add('ai','');m.classList.add('think');m.textContent='searching the live web...';
+try{
+const r=await fetch('https://r.jina.ai/https://html.duckduckgo.com/html/?q='+encodeURIComponent(q));
+if(!r.ok)throw 0;
+const t=(await r.text()).slice(0,8000);
+m.remove();
+add('sys','[ web search: '+q+' ]');
+const out=await relay('Live web search results for "'+q+'":\n'+t+'\n\nAnswer the question: '+q+'\nName the sites your answer came from in plain text.',[{role:'user',content:'(live search results above)'}]);
+hist.push({role:'assistant',content:out});save();
+}catch(e){m.classList.remove('think');m.innerHTML='<span class="who">HACKERAI</span>[search failed, the relay may be busy. try again.]'}
+}
+function save(){try{localStorage.setItem('hk_hist',JSON.stringify(hist.slice(-40)));localStorage.setItem('hk_mem',JSON.stringify(mem))}catch(e){}}
 document.getElementById('f').addEventListener('submit',async e=>{
 e.preventDefault();const q=ta.value.trim();if(!q)return;ta.value='';ta.style.height='auto';
-add('you',q);hist.push({role:'user',content:q});
-const out=await ask(q);hist.push({role:'assistant',content:out});
-try{localStorage.setItem('hk_hist',JSON.stringify(hist.slice(-40)))}catch(e){}
+const lower=q.toLowerCase();
+if(lower.startsWith('/')){const parts=q.slice(1).split(' ');const cmd=parts[0].toLowerCase();const rest=parts.slice(1).join(' ');
+if(cmd==='help'){sysmsg(HELP)}
+else if(cmd==='clear'){hist=[];save();log.innerHTML='';sysmsg('-- chat wiped --')}
+else if(cmd==='memory'){sysmsg(mem.length?'REMEMBERED:\n- '+mem.join('\n- '):'memory is empty. say "remember thing" to store a fact.')}
+else if(cmd==='forget'){mem=[];save();sysmsg('-- memory wiped --')}
+else if(cmd==='model'){if(rest){setModel(rest.split(' ')[0]);sysmsg('model switched to '+model)}else sysmsg('usage: /model openai | mistral | llama')}
+else if(cmd==='read'){if(!rest){sysmsg('usage: /read URL QUESTION')}else{const sp=rest.indexOf(' ');const url=sp<0?rest:rest.slice(0,sp);const ask2=sp<0?null:rest.slice(sp+1);if(!/^https?:\/\//.test(url))sysmsg('that does not look like a url');else{hist.push({role:'user',content:'/read '+url});await readPage(url,ask2)}}}
+else if(cmd==='search'){if(!rest){sysmsg('usage: /search QUERY')}else{hist.push({role:'user',content:'/search '+rest});await searchWeb(rest)}}
+else if(cmd==='image'){if(!rest){sysmsg('usage: /image DESCRIPTION')}else{add('img',['image: '+rest,'https://image.pollinations.ai/prompt/'+encodeURIComponent(rest)+'?width=768&height=768&nologo=true'])}}
+else if(cmd==='export'){const txt=hist.map(h=>(h.role==='user'?'YOU: ':'HACKERAI: ')+h.content).join('\n\n')+'\n\nREMEMBERED: '+mem.join(' | ');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));a.download='hackerai-chat.txt';a.click();sysmsg('-- chat exported --')}
+else{sysmsg('unknown command. try /help')}
+return}
+add('you',q);
+if(lower.startsWith('remember ')){const fact=q.slice(9).trim();if(fact){mem.push(fact);save();sysmsg('[ stored: '+fact+' ]')}}
+let content=q;
+if(pendingFile){content='Attached file "'+pendingFile.name+'":\n'+pendingFile.text+'\n\nMy question or instruction: '+q;add('sys','[ file '+pendingFile.name+' attached ]');pendingFile=null;pend.style.display='none'}
+hist.push({role:'user',content:q});
+const out=await relay(content);
+hist.push({role:'assistant',content:out});save();
 });
 ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,120)+'px'});
 ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();document.getElementById('f').requestSubmit()}});
