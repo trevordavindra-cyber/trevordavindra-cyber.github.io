@@ -1,4 +1,4 @@
-/* deepagent27 up6.js - upgrade pack 6: dark mode toggle (v1.0) */
+/* deepagent27 up6.js - upgrade pack 6: dark mode toggle (v1.1) */
 (function(){
 var K='ds_theme';
 function cur(){try{return localStorage.getItem(K)==='dark'}catch(e){return false}}
@@ -17,9 +17,9 @@ function build(){
  drawer.insertBefore(row,anchor);
  var sw=document.querySelector('.sw');if(sw){var wrap=sw.closest('.row');if(wrap&&!wrap.getAttribute('data-u6swatch')){wrap.setAttribute('data-u6swatch','1');}}
 }
-function sync(){var r=document.getElementById('u6row');if(!r)return;var m=document.getElementById('u6mode');if(m)m.textContent=document.body.classList.contains('dark')?'Dark':'Light';}
+function sync(){var m=document.getElementById('u6mode');if(!m)return;var t=document.body.classList.contains('dark')?'Dark':'Light';if(m.textContent!==t)m.textContent=t;}
 build();
-var mo=new MutationObserver(function(){build();sync();});
+var mo=new MutationObserver(function(){if(mo._busy)return;mo._busy=true;setTimeout(function(){build();sync();mo._busy=false},0)});
 try{mo.observe(document.body,{childList:true,subtree:true})}catch(e){}
-console.log('[up6] dark mode toggle v1.0 loaded, initial:',document.body.classList.contains('dark')?'dark':'light');
+console.log('[up6] dark mode toggle v1.1 loaded, initial:',document.body.classList.contains('dark')?'dark':'light');
 })();
