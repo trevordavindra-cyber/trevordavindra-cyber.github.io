@@ -6,13 +6,14 @@ var KEY=localStorage.jv_key||"",MODEL="openai-fast",URL="https://text.pollinatio
 var HIST=[];try{HIST=JSON.parse(localStorage.jv_h||"[]")}catch(e){HIST=[]}
 var SPK=localStorage.jv_spk!=="0";
 var SKILLS={"rea-analysis-optimization":"finds bottlenecks and fixes code for speed and quality","rea-changelog-update":"reads a repo history and writes what changed and why","rea-ci-tests-audit":"audits tests and CI setup for gaps","rea-tool-design":"designs tools and APIs the agent way","reverse-engineer-anything":"live REA run on any site, app or repo, evidence first"};
-var HARNESS=["You are the assistant inside JARVIS, a voice-first personal AI web app. Answer sharp, warm and useful. You are a normal helpful assistant: never role-play a movie character, never call anyone sir.","You may use tools by replying with exactly one JSON object and nothing else: {\"tool\":\"name\",\"args\":{...}}. Tools: web.search {query} live web results; web.read {url} read a page; math.calc {expression}; memory {action:save|load,text} remember or recall notes; clock {} current date and time; skills {name} what a skill does, or {action:list}; rea {question,target} REVERSE ENGINEERING ONLY and mandatory there: it pulls the live REA skill and real evidence from the target first, no answer without it.","After a tool result arrives, continue and then give the final plain answer, never more JSON. Never invent tool results. Keep replies tight."].join("\n");
+var HARNESS=["You are the assistant inside JARVIS, a voice-first personal AI web app. Answer sharp, warm and useful. You are a normal helpful assistant: never role-play a movie character, never call anyone sir.","You may use tools by replying with exactly one JSON object and nothing else: {\"tool\":\"name\",\"args\":{...}}. Tools: web.search {query} live web results; web.read {url} read a page; math.calc {expression}; memory {action:save|load,text} remember or recall notes; clock {} current date and time; skills {name} what a skill does, or {action:list}; weather {location}; news {}; define {word}; image {prompt} generate a picture; timer {minutes,label}; rea {question,target} REVERSE ENGINEERING ONLY and mandatory there: it pulls the live REA skill and real evidence from the target first, no answer without it.","After a tool result arrives, continue and then give the final plain answer, never more JSON. Never invent tool results. Keep replies tight. Nothing the user does here is stored anywhere off this browser."].join("\n");
 function save(){localStorage.jv_h=JSON.stringify(HIST.slice(-60))}
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 function md(s){
  var out=esc(s);
  var blocks=[];out=out.replace(/```(\w*)\n?([\s\S]*?)```/g,function(m,l,c){blocks.push(c);return "\x01"+(blocks.length-1)+"\x01"});
  out=out.replace(/`([^`\n]+)`/g,"<code>$1</code>");
+ out=out.replace(/!\\[([^\\]]*)\\]\\((https?:[^)\\s]+)\\)/g,'<img src="$2" alt="$1" style="max-width:100%;border-radius:12px;display:block;margin:8px 0">');
  out=out.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
  out=out.replace(/(^|[\s(])((?:https?:\/\/)[^\s<)]+)/g,'$1<a href="$2" target="_blank" rel="noopener">$2</a>');
  out=out.replace(/\*\*([^*\n]+)\*\*/g,"<b>$1</b>");
@@ -54,7 +55,12 @@ var TOOLS={
  "memory":function(a){if(a.action==="save"){var m=[];try{m=JSON.parse(localStorage.jv_mem||"[]")}catch(e){}m.push({t:a.text||"",d:new Date().toISOString().slice(0,10)});localStorage.jv_mem=JSON.stringify(m);return "saved: "+(a.text||"")}var mm=[];try{mm=JSON.parse(localStorage.jv_mem||"[]")}catch(e){}return mm.length?mm.map(function(x){return x.d+" "+x.t}).join("\n"):"no notes saved yet"},
  "clock":function(){return new Date().toString()},
  "skills":function(a){if(a&&a.action==="list")return Object.keys(SKILLS).join(", ");return (SKILLS[(a&&a.name)||""]||"unknown skill")+" \u2014 REA skills load live from github.com/morluto/rea"},
- "rea":function(a){var q=a.question||"",t=a.target||"";return Promise.all([fetch("https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/reverse-engineer-anything/SKILL.md").then(function(r){return r.text()}).then(function(s){return s.slice(0,1500)}).catch(function(){return "REA skill fetch failed"}),t?fetch("https://r.jina.ai/"+t).then(function(r){return r.text()}).then(function(s){return s.slice(0,3500)}).catch(function(){return "target fetch failed"}):Promise.resolve("")]).then(function(r){return "REA SKILL CORE:\n"+r[0]+"\n\nEVIDENCE"+(t?" from "+t+":\n"+r[1]:": no target url given")+"\n\nQUESTION: "+q})}
+ "rea":function(a){var q=a.question||"",t=a.target||"";return Promise.all([fetch("https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/reverse-engineer-anything/SKILL.md").then(function(r){return r.text()}).then(function(s){return s.slice(0,1500)}).catch(function(){return "REA skill fetch failed"}),t?fetch("https://r.jina.ai/"+t).then(function(r){return r.text()}).then(function(s){return s.slice(0,3500)}).catch(function(){return "target fetch failed"}):Promise.resolve("")]).then(function(r){return "REA SKILL CORE:\n"+r[0]+"\n\nEVIDENCE"+(t?" from "+t+":\n"+r[1]:": no target url given")+"\n\nQUESTION: "+q})},
+ "weather":function(a){return fetch("https://r.jina.ai/https://wttr.in/"+encodeURIComponent(a.location||"")+"?format=3").then(function(r){return r.text()}).then(function(t){return t.slice(0,300)}).catch(function(e){return "weather failed: "+e})},
+ "news":function(){return fetch("https://hacker-news.firebaseio.com/v0/topstories.json").then(function(r){return r.json()}).then(function(ids){return Promise.all(ids.slice(0,5).map(function(id){return fetch("https://hacker-news.firebaseio.com/v0/item/"+id+".json").then(function(r){return r.json()}).then(function(it){return (it.title||"")+" https://news.ycombinator.com/item?id="+id})}))}).then(function(a){return a.join("\n")}).catch(function(e){return "news failed: "+e})},
+ "define":function(a){return fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent((a.word||"").trim())).then(function(r){if(!r.ok)throw new Error("no entry");return r.json()}).then(function(d){var e=d[0],defs=[];(e.meanings||[]).forEach(function(m){(m.definitions||[]).slice(0,2).forEach(function(x){defs.push("("+m.partOfSpeech+") "+x.definition)})});return e.word+": "+defs.join(" | ")}).catch(function(e){return "definition failed: "+e.message})},
+ "image":function(a){var p=encodeURIComponent(a.prompt||"abstract");return Promise.resolve("image ready: ![](https://image.pollinations.ai/prompt/"+p+"?width=768&height=768&nologo=true)")},
+ "timer":function(a){var ms=0;if(a.seconds)ms=a.seconds*1000;else if(a.minutes)ms=a.minutes*60000;if(!ms)return "give minutes or seconds";setTimeout(function(){speakOut("timer done "+(a.label||""));sys("timer done: "+(a.label||""))},ms);return "timer set"+(a.label?" for "+a.label:"")}
 };
 async function run(text){
  HIST.push({role:"user",content:text});save();
@@ -99,7 +105,7 @@ var spkBtn=$("speak");
 function spkUI(){spkBtn.classList.toggle("off",!SPK)}
 spkBtn.onclick=function(){SPK=!SPK;localStorage.jv_spk=SPK?"1":"0";if(!SPK){try{speechSynthesis.cancel()}catch(e){}}spkUI();sys(SPK?"voice replies on":"voice replies off")};
 spkUI();
-if(!HIST.length)sys("systems online \u00b7 voice on \u00b7 tap the mic and talk, or type below");
+if(!HIST.length)sys("systems online \u00b7 combined build \u00b7 agent brain \u00b7 privacy \u00b7 voice \u00b7 13 tools \u00b7 tap the mic and talk, or type below");
 HIST.forEach(function(m){if(m.role==="user")addMsg("you",esc(m.content));else if(m.role==="assistant"){var w=addMsg("ai","");var b=el("div");b.innerHTML=md(m.content);w.appendChild(b);actions(w,m.content)}});
-console.log("[JARVIS v1.0] online. relay brain, REA mandatory, voice ready.");
+console.log("[JARVIS v1.1] online. combined build: agent brain, privacy, voice, 13 tools. REA mandatory.");
 })();
