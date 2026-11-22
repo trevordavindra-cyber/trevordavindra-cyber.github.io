@@ -1,7 +1,7 @@
-/* deepagent35 up14.js - upgrade pack 14: search inside the current chat (v1.0) */
+/* deepagent35 up14.js - upgrade pack 14: search inside the current chat (v1.1) */
 (function(){
 if(window.__u14)return;window.__u14=1;
-console.log('[chatgpt up14.js v1.0] search in chat loaded');
+console.log('[chatgpt up14.js v1.1] search in chat loaded');
 var css=document.createElement('style');
 css.textContent='#u14bar{position:fixed;top:54px;left:50%;transform:translateX(-50%);z-index:70;display:none;align-items:center;gap:4px;background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:6px 10px;box-shadow:0 8px 24px rgba(0,0,0,.14);max-width:calc(100% - 24px)}body.dark #u14bar{background:#1e1e1e;border-color:#3a3a3a}#u14bar.on{display:flex}#u14q{border:none;outline:none;font:14px -apple-system,BlinkMacSystemFont,sans-serif;width:min(220px,40vw);background:transparent;color:#0d0d0d}body.dark #u14q{color:#e5e5e5}#u14bar .ub{background:none;border:none;cursor:pointer;color:#8e8e8e;padding:2px 6px;border-radius:6px;font:13px sans-serif;line-height:1}#u14bar .ub:hover{background:#f0f0f0}body.dark #u14bar .ub:hover{background:#2a2a2a}#u14count{font:12px sans-serif;color:#8e8e8e;min-width:52px;text-align:center;white-space:nowrap}mark.u14m{background:rgba(122,184,255,.45);border-radius:2px;color:inherit}mark.u14c{background:#7ab8ff;color:#0d0d0d;border-radius:2px}';
 document.head.appendChild(css);
@@ -42,7 +42,7 @@ bar.querySelector('#u14x').addEventListener('click',closeB);
 q.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeB()}else if(e.key==='Enter'||e.key==='ArrowDown'){e.preventDefault();go(idx+1)}else if(e.key==='ArrowUp'){e.preventDefault();go(idx-1)}});
 document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&(e.key==='f'||e.key==='F')){e.preventDefault();openB()}});
 var tr=document.querySelector('#top .tright');
-if(tr){var b=document.createElement('button');b.className='circ';b.id='u14find';b.title='search in chat';b.innerHTML='<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';tr.insertBefore(b,tr.firstChild)}
+if(tr){var b=document.createElement('button');b.className='circ';b.id='u14find';b.title='search in chat';b.innerHTML='<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';tr.insertBefore(b,tr.firstChild);b.addEventListener('click',openB)}
 var chatEl=document.getElementById('chat');
 if(chatEl&&window.MutationObserver){new MutationObserver(function(){if(openState)closeB()}).observe(chatEl,{childList:true,subtree:false})}
 })();
