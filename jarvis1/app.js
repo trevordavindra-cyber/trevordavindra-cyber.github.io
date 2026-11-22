@@ -6,7 +6,7 @@ var KEY=localStorage.jv_key||"",MODEL="openai-fast",URL="https://text.pollinatio
 var HIST=[];try{HIST=JSON.parse(localStorage.jv_h||"[]")}catch(e){HIST=[]}
 var SPK=localStorage.jv_spk!=="0";
 var SKILLS={"rea-analysis-optimization":"finds bottlenecks and fixes code for speed and quality","rea-changelog-update":"reads a repo history and writes what changed and why","rea-ci-tests-audit":"audits tests and CI setup for gaps","rea-tool-design":"designs tools and APIs the agent way","reverse-engineer-anything":"live REA run on any site, app or repo, evidence first"};
-var HARNESS=["You are the assistant inside JARVIS, a voice-first personal AI web app. Answer sharp, warm and useful. You are a normal helpful assistant: never role-play a movie character, never call anyone sir.","You may use tools by replying with exactly one JSON object and nothing else: {\"tool\":\"name\",\"args\":{...}}. Tools: web.search {query} live web results; web.read {url} read a page; math.calc {expression}; memory {action:save|load,text} remember or recall notes; clock {} current date and time; skills {name} what a skill does, or {action:list}; weather {location}; news {}; define {word}; image {prompt} generate a picture; timer {minutes,label}; rea {question,target} REVERSE ENGINEERING ONLY and mandatory there: it pulls the live REA skill and real evidence from the target first, no answer without it.","After a tool result arrives, continue and then give the final plain answer, never more JSON. Never invent tool results. Keep replies tight. Nothing the user does here is stored anywhere off this browser."].join("\n");
+var HARNESS=["You are the assistant inside JARVIS, a voice-first personal AI web app. Answer sharp, warm and useful. You are a normal helpful assistant: never role-play a movie character, never call anyone sir.","You may use tools by replying with exactly one JSON object and nothing else: {\"tool\":\"name\",\"args\":{...}}. Tools: web.search {query} live web results; web.read {url} read a page; math.calc {expression}; memory {action:save|load,text} remember or recall notes; clock {} current date and time; skills {name} what a skill does, or {action:list}; weather {location}; news {}; define {word}; image {prompt} generate a picture; timer {minutes,label}; translate {text,to} translate text between languages; youtube {query} find youtube videos; code {javascript} run javascript and show the result; rea {question,target} REVERSE ENGINEERING ONLY and mandatory there: it pulls the live REA skill and real evidence from the target first, no answer without it.","After a tool result arrives, continue and then give the final plain answer, never more JSON. Never invent tool results. Keep replies tight. Nothing the user does here is stored anywhere off this browser."].join("\n");
 function save(){localStorage.jv_h=JSON.stringify(HIST.slice(-60))}
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 function md(s){
@@ -47,8 +47,8 @@ function callStream(msgs,onDelta){
  pump()}).catch(rej)}pump()});
  });
 }
-function tryTool(t){var s=t.trim();if(s.charAt(0)!=="{")return null;try{var j=JSON.parse(s);if(j&&j.tool&&TOOLS[j.tool])return j}catch(e){}return null}
-var TOOLS={
+function tryTool(t){var s=t.trim();if(s.charAt(0)!=="{")return null;try{var j=JSON.parse(s);if(j&&j.tool&&(TOOLS[j.tool]))return j}catch(e){}return null}
+window.JTOOLS=window.JTOOLS||{};var TOOLS=Object.assign({
  "web.search":function(a){return fetch("https://r.jina.ai/https://duckduckgo.com/html/?q="+encodeURIComponent(a.query||"")).then(function(r){return r.text()}).then(function(h){var out=[],m,re=/<a[^>]*class="result__a"[^>]*>([\s\S]*?)<\/a>/g,i=0;while((m=re.exec(h))&&out.length<6){out.push((++i)+". "+m[1].replace(/<[^>]*>/g,""))}return out.length?out.join("\n"):"no results found"}).catch(function(e){return "search failed: "+e})},
  "web.read":function(a){return fetch("https://r.jina.ai/"+(a.url||"")).then(function(r){return r.text()}).then(function(t){return t.slice(0,4000)}).catch(function(e){return "read failed: "+e})},
  "math.calc":function(a){var e=String(a.expression||"");if(!/^[0-9+\-*/(). %]+$/.test(e))return "only plain math is allowed";try{return String(Function("return ("+e+")")())}catch(err){return "bad expression"}},
@@ -61,7 +61,7 @@ var TOOLS={
  "define":function(a){return fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent((a.word||"").trim())).then(function(r){if(!r.ok)throw new Error("no entry");return r.json()}).then(function(d){var e=d[0],defs=[];(e.meanings||[]).forEach(function(m){(m.definitions||[]).slice(0,2).forEach(function(x){defs.push("("+m.partOfSpeech+") "+x.definition)})});return e.word+": "+defs.join(" | ")}).catch(function(e){return "definition failed: "+e.message})},
  "image":function(a){var p=encodeURIComponent(a.prompt||"abstract");return Promise.resolve("image ready: ![](https://image.pollinations.ai/prompt/"+p+"?width=768&height=768&nologo=true)")},
  "timer":function(a){var ms=0;if(a.seconds)ms=a.seconds*1000;else if(a.minutes)ms=a.minutes*60000;if(!ms)return "give minutes or seconds";setTimeout(function(){speakOut("timer done "+(a.label||""));sys("timer done: "+(a.label||""))},ms);return "timer set"+(a.label?" for "+a.label:"")}
-};
+},window.JTOOLS||{});
 async function run(text){
  HIST.push({role:"user",content:text});save();
  addMsg("you",esc(text));
@@ -107,5 +107,5 @@ spkBtn.onclick=function(){SPK=!SPK;localStorage.jv_spk=SPK?"1":"0";if(!SPK){try{
 spkUI();
 if(!HIST.length)sys("systems online \u00b7 combined build \u00b7 agent brain \u00b7 privacy \u00b7 voice \u00b7 13 tools \u00b7 tap the mic and talk, or type below");
 HIST.forEach(function(m){if(m.role==="user")addMsg("you",esc(m.content));else if(m.role==="assistant"){var w=addMsg("ai","");var b=el("div");b.innerHTML=md(m.content);w.appendChild(b);actions(w,m.content)}});
-console.log("[JARVIS v1.1] online. combined build: agent brain, privacy, voice, 13 tools. REA mandatory.");
+console.log("[JARVIS v1.2] online. combined build + everything pack: agent brain, privacy, voice, 13 tools + translate, youtube, code, hf models.");
 })();
