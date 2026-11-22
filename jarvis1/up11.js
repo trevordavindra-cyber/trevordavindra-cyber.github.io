@@ -1,4 +1,4 @@
-/* JARVIS up11.js v1 - visual overhaul: advanced HUD skin (particles, scanlines, holo panels, new reactor, radar) */
+/* JARVIS up11.js v2 - visual overhaul: advanced HUD skin (particles, scanlines, holo panels, reactor halo, radar) */
 (function(){
 "use strict";
 function $(i){return document.getElementById(i)}
@@ -34,15 +34,10 @@ s.textContent=[
 /* buttons: gradient border + hover lift */
 "#qactions .qa,.abbtn,#mic,#send{transition:transform .18s ease,box-shadow .18s ease}",
 "#qactions .qa:hover,.abbtn:hover,#mic:hover,#send:hover{transform:translateY(-2px);box-shadow:0 0 18px rgba(55,209,255,.35) !important}",
-/* arc reactor upgrade: layered spinning rings */
-"#ring{position:relative}",
-"#ring i{border-radius:50% !important}",
-"#ring i:nth-child(1){background:conic-gradient(from 0deg,transparent 0 40deg,rgba(85,227,255,.85) 60deg,transparent 90deg,transparent 180deg,rgba(255,60,70,.7) 210deg,transparent 240deg) !important;animation:ringSpin 3.4s linear infinite !important;filter:blur(.4px)}",
-"#ring i:nth-child(2){background:conic-gradient(from 120deg,transparent 0 70deg,rgba(160,235,255,.75) 95deg,transparent 130deg) !important;animation:ringSpin 5.2s linear infinite reverse !important}",
-"#ring i:nth-child(3){background:conic-gradient(from 240deg,transparent 0 20deg,rgba(255,43,58,.5) 45deg,transparent 75deg) !important;animation:ringSpin 7.5s linear infinite !important}",
-"#ring i:nth-child(4){box-shadow:0 0 60px rgba(85,227,255,.55),0 0 120px rgba(55,209,255,.25) !important;animation:corePulse 2.6s ease-in-out infinite !important}",
-"@keyframes ringSpin{to{transform:rotate(360deg)}}",
-"@keyframes corePulse{50%{filter:brightness(1.35)}}",
+/* arc reactor upgrade: keep the crisp rings, add halo sweep + glow pulse */
+"#ring{filter:saturate(1.35) drop-shadow(0 0 26px rgba(55,209,255,.28));animation:corePulse 3s ease-in-out infinite}",
+"#hud:before{content:'';position:absolute;inset:-6%;border-radius:50%;background:conic-gradient(from 0deg,rgba(85,227,255,.16),transparent 70deg);animation:ringSpin 8s linear infinite;mix-blend-mode:screen;pointer-events:none}",
+"#reactor b{animation:corePulse 2.4s ease-in-out infinite}",
 /* banner: glitch-lite glow */
 "#banner b{animation:titleGlow 3.4s ease-in-out infinite}",
 "@keyframes titleGlow{0%,100%{text-shadow:0 0 18px rgba(255,43,58,.8),0 0 44px rgba(255,43,58,.35)}50%{text-shadow:0 0 26px rgba(255,60,70,.95),0 0 66px rgba(255,43,58,.5)}}",
@@ -75,5 +70,5 @@ document.head.appendChild(s);
   requestAnimationFrame(tick)})();
 })();
 var sw=document.createElement("div");sw.className="jv-sweep";document.body.appendChild(sw);
-console.log("[JARVIS up11.js v1] visual overhaul on: particles, scanlines, holo panels, reactor rings, radar sweep.");
+console.log("[JARVIS up11.js v2] visual overhaul on: particles, scanlines, holo panels, reactor halo, radar sweep.");
 })();
