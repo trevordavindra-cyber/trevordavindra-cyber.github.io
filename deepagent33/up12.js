@@ -3,6 +3,7 @@
 if(!window.CG){console.log('[up12.js v1.0] core api missing, upgrade inert');return}
 var ur=document.getElementById('upd');
 if(ur){var vv=ur.querySelector('.val');if(vv)vv.textContent='2.9.11(18)';ur.onclick=function(){sys('2.9.11(18) - you are up to date')}}
+function toast(t){try{if(typeof sys==='function'){sys(t)}else{console.log('[up12] '+t)}}catch(e){}}
 var KEYS=['ds_chats','ds_h','ds_chat_last','ds_titled'];
 var snap=null,timer=null;
 function readAll(){var o={};for(var i=0;i<KEYS.length;i++){o[KEYS[i]]=localStorage.getItem(KEYS[i])}return JSON.stringify(o)}
@@ -20,14 +21,14 @@ function on(){
  localStorage.setItem('ds_temp','1');take();
  if(!timer)timer=setInterval(guard,1200);
  btn.classList.add('act');btn.title='temporary chat: on';
- sys('temporary chat on: this chat will not be saved to history');
+ toast('temporary chat on: this chat will not be saved to history');
  console.log('[up12] temp chat on');
 }
 function off(){
  localStorage.setItem('ds_temp','0');
  if(timer){clearInterval(timer);timer=null}
  snap=null;btn.classList.remove('act');btn.title='temporary chat';
- sys('temporary chat off: chats are saved again');
+ toast('temporary chat off: chats are saved again');
  console.log('[up12] temp chat off');
 }
 var tr=document.querySelector('#top .tright');
