@@ -1,7 +1,7 @@
-/* deepagent35 up14.js - upgrade pack 14: search inside the current chat (v1.1) */
+/* deepagent35 up14.js - upgrade pack 14: search inside the current chat (v1.2) */
 (function(){
 if(window.__u14)return;window.__u14=1;
-console.log('[chatgpt up14.js v1.1] search in chat loaded');
+console.log('[chatgpt up14.js v1.2] search in chat loaded');
 var css=document.createElement('style');
 css.textContent='#u14bar{position:fixed;top:54px;left:50%;transform:translateX(-50%);z-index:70;display:none;align-items:center;gap:4px;background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:6px 10px;box-shadow:0 8px 24px rgba(0,0,0,.14);max-width:calc(100% - 24px)}body.dark #u14bar{background:#1e1e1e;border-color:#3a3a3a}#u14bar.on{display:flex}#u14q{border:none;outline:none;font:14px -apple-system,BlinkMacSystemFont,sans-serif;width:min(220px,40vw);background:transparent;color:#0d0d0d}body.dark #u14q{color:#e5e5e5}#u14bar .ub{background:none;border:none;cursor:pointer;color:#8e8e8e;padding:2px 6px;border-radius:6px;font:13px sans-serif;line-height:1}#u14bar .ub:hover{background:#f0f0f0}body.dark #u14bar .ub:hover{background:#2a2a2a}#u14count{font:12px sans-serif;color:#8e8e8e;min-width:52px;text-align:center;white-space:nowrap}mark.u14m{background:rgba(122,184,255,.45);border-radius:2px;color:inherit}mark.u14c{background:#7ab8ff;color:#0d0d0d;border-radius:2px}';
 document.head.appendChild(css);
@@ -12,7 +12,7 @@ bar.innerHTML='<input id="u14q" placeholder="Find in chat" autocomplete="off"><s
 document.body.appendChild(bar);
 var q=bar.querySelector('#u14q'),count=bar.querySelector('#u14count');
 var marks=[],hits=[],idx=0,term='',openState=false;
-function unwrapAll(){marks.forEach(function(m){var p=m.parentNode;if(!p)return;p.replaceChild(document.createTextNode(m.textContent),m);p.normalize()});marks=[]}
+function unwrapAll(){[].slice.call(document.querySelectorAll('#chat mark.u14m,#chat mark.u14c')).forEach(function(m){var p=m.parentNode;if(!p)return;p.replaceChild(document.createTextNode(m.textContent),m);p.normalize()});marks=[];hits=[]}
 function run(){unwrapAll();hits=[];idx=0;term=q.value;var t=term.trim();
  if(!t){count.textContent='';return}
  var rx=null;try{rx=new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'ig')}catch(e){rx=null}
