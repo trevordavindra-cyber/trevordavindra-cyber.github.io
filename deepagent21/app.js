@@ -33,7 +33,7 @@ document.getElementById('plus').onclick=function(){document.getElementById('file
 document.getElementById('file').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){FILECTX={name:f.name,text:String(r.result).slice(0,20000)};sys('attached: '+f.name)};r.readAsText(f)};
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 document.getElementById('mic').onclick=function(){if(!SR){sys('voice input not supported in this browser');return}var r=new SR();r.lang='en-US';r.interimResults=false;r.onresult=function(e){inp.value+=e.results[0][0].transcript;setSend()};r.onerror=function(){sys('did not catch that')};r.start();sys('listening...')};
-document.getElementById('datactl').onclick=function(){openPanel('data')};
+var dcx=document.getElementById('datactl');if(dcx)dcx.onclick=function(){openPanel('data')};
 document.getElementById('appear').onclick=function(){AP=AP==='System'?'Light':(AP==='Light'?'Dark':'System');localStorage.setItem('ds_ap',AP);applyAP()};
 document.getElementById('upd').onclick=function(){sys('2.9.0(6) - you are up to date')};
 document.getElementById('agmt').onclick=function(){sys('this is your replica, service agreement: none')};
