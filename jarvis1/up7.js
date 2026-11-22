@@ -8,7 +8,7 @@ function toast(t){var o=$("toast");if(!o)return;o.textContent=t;o.classList.add(
 function tick(){var n=new Date(),D=["SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"],M=["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"],h=n.getHours()%12||12,m=("0"+n.getMinutes()).slice(-2),s=("0"+n.getSeconds()).slice(-2);var c=$("cdate"),t=$("ctime");if(c)c.textContent=D[n.getDay()]+", "+M[n.getMonth()]+" "+n.getDate()+", "+n.getFullYear();if(t)t.textContent=h+":"+m+":"+s+(n.getHours()<12?" AM":" PM")}
 tick();setInterval(tick,1000);
 /* waveform bars */
-(function(){var w=$("wave");if(!w)return;for(var i=0;i<26;i++){var b=document.createElement("span");b.style.animationDelay=((i*70)%900)+"ms";b.style.animationDuration=(700+((i*53)%600))+"ms";w.appendChild(b)}})();
+(function(){var w=$("wave");if(!w)return;for(var i=0;i<26;i++){var b=document.createElement("span");b.style.height=(15+((i*37)%70))+"%";b.style.animationDelay=((i*70)%900)+"ms";b.style.animationDuration=(700+((i*53)%600))+"ms";w.appendChild(b)}})();
 /* status meters */
 var mc={cpu:12,ram:34,sto:78,gpu:42};
 function walk(k,lo,hi){var n=mc[k]+(Math.random()*8-4);if(n<lo)n=lo;if(n>hi)n=hi;mc[k]=n;return n}
@@ -61,7 +61,8 @@ var NAV={assistant:function(){var i=$("inp");if(i)i.focus()},
  roblox:function(){toast("roblox studio bay coming soon")},
  hacking:function(){toast("hacking tools stay on the pc build \u2014 this page keeps it clean")},
  multi:function(){toast("multi-tools coming soon \u2014 tell me what you need first")},
- home:function(){window.scrollTo({top:0,behavior:"smooth")}}};
+ home:function(){window.scrollTo({top:0,behavior:"smooth"})}};
 (function(){var sb=$("sidebar");if(!sb)return;sb.querySelectorAll(".nav").forEach(function(b){b.onclick=function(){sb.querySelectorAll(".nav").forEach(function(x){x.classList.remove("on")});b.classList.add("on");var f=NAV[b.dataset.n];if(f)f();feed("Module: "+b.textContent.trim())}})})();
+(function(){var s=document.createElement("style");s.textContent="#voice{flex-wrap:wrap}#vstate{flex-basis:100%}#jvgear{top:2px!important}";document.head.appendChild(s)})();
 console.log("[JARVIS up7.js v1] stark HUD on: clock, live panels, global map, feed, quick actions, sidebar.");
 })();
