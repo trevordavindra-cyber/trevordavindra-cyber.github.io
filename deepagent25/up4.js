@@ -1,4 +1,4 @@
-/* deepagent25 up4.js - upgrade pack 4: regenerate the last reply (v1.0) */
+/* deepagent25 up4.js - upgrade pack 4: regenerate the last reply (v1.1) */
 (function(){
 var CH=document.getElementById('chat');
 if(!CH||!window.CG){console.log('[up4.js v1.0] core api missing, upgrade inert');return}
@@ -7,7 +7,7 @@ function regen(){
  if(last<0)return;var txt=h[last].content;
  var msgs=CH.querySelectorAll('.msg');var lastYou=null;
  for(var k=msgs.length-1;k>=0;k--){if(msgs[k].classList.contains('you')){lastYou=msgs[k];break}}
- if(lastYou){var n=lastYou.nextSibling;while(n){var nx=n.nextSibling;CH.removeChild(n);n=nx}}
+ if(lastYou){var n=lastYou;while(n){var nx=n.nextSibling;CH.removeChild(n);n=nx}}
  CG.load(h.slice(0,last));
  var inp=document.getElementById('inp');inp.value=txt;
  document.getElementById('send').click();
@@ -27,5 +27,5 @@ function hook(){
 }
 new MutationObserver(function(){setTimeout(hook,0)}).observe(CH,{childList:true,subtree:true});
 hook();
-console.log('[chatgpt up4.js v1.0] regenerate loaded');
+console.log('[chatgpt up4.js v1.1] regenerate loaded');
 })();
