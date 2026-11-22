@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FRIDAY — Trevor's Personal AI</title>
+<style>
+:root{--cy:#00e5ff;--rd:#ff2d55;--grn:#22ff9a;--pk:#ff4fd8}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#04060b;color:#d7f6ff;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow:hidden}
+#bg{position:fixed;inset:0;z-index:0;background:
+ radial-gradient(65% 40% at 50% 0%,rgba(255,45,85,.16),transparent 70%),
+ radial-gradient(55% 38% at 50% 100%,rgba(0,229,255,.14),transparent 70%)}
+#bg:after{content:"";position:absolute;inset:0;background-image:
+ linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);
+ background-size:42px 42px;animation:pan 22s linear infinite}
+@keyframes pan{to{background-position:42px 42px,42px 42px}}
+.wrap{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;max-width:880px;margin:0 auto;padding:8px 12px 0}
+header{display:flex;align-items:center;gap:12px;padding:4px 2px 8px}
+.orb{width:46px;height:46px;flex:none;border-radius:50%;
+ background:radial-gradient(circle at 35% 32%,#9ff7ff,#00c2e0 42%,#0a3b4d 78%);
+ box-shadow:0 0 16px rgba(0,229,255,.55),inset 0 0 10px rgba(255,255,255,.35);
+ animation:pulse 3.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 30px rgba(0,229,255,.85),inset 0 0 12px rgba(255,255,255,.45)}}
+.tmeta{flex:1;min-width:0}
+h1{font-size:15px;letter-spacing:.4em;color:#eafcff;text-shadow:0 0 12px rgba(0,229,255,.6)}
+.sub{font-size:9px;color:#7fb6c9;letter-spacing:.22em;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tclock{text-align:right}
+#clock{font-size:14px;color:var(--cy);text-shadow:0 0 10px rgba(0,229,255,.5)}
+#cdate{font-size:8.5px;color:#7fb6c9;letter-spacing:.18em;margin-top:2px}
+#statusbar{display:flex;gap:10px;align-items:center;font-size:8.5px;letter-spacing:.16em;color:#7fb6c9;
+ border-top:1px solid rgba(0,229,255,.18);border-bottom:1px solid rgba(0,229,255,.18);padding:5px 2px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--grn);box-shadow:0 0 7px var(--grn);flex:none}
+#stat{color:#9fe8ff}
+#cooldown{color:#ff9db0}
+#chat{flex:1;overflow-y:auto;padding:10px 2px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(0,229,255,.3) transparent}
+.msg{max-width:88%;padding:9px 12px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word;border-radius:11px}
+.msg.user{align-self:flex-end;background:rgba(0,229,255,.10);border:1px solid rgba(0,229,255,.42);color:#ecffff}
+.msg.ai{align-self:flex-start;background:rgba(9,13,22,.85);border:1px solid rgba(0,229,255,.24)}
+.tag{display:block;font-size:7.5px;letter-spacing:.24em;color:#6fa7bb;margin-bottom:4px}
+.msg img{max-width:min(300px,78vw);border-radius:9px;display:block;margin-top:6px;border:1px solid rgba(0,229,255,.35)}
+.tools{display:flex;gap:5px;flex-wrap:wrap;padding:6px 0 2px}
+.chip{font-size:8.5px;letter-spacing:.12em;padding:5px 8px;border:1px solid rgba(0,229,255,.38);border-radius:999px;
+ color:#9fe8ff;background:rgba(0,229,255,.06);cursor:pointer;user-select:none}
+.chip:active{background:rgba(0,229,255,.22)}
+.chip.on{background:rgba(0,229,255,.25);color:#fff;border-color:var(--cy)}
+#composer{display:flex;gap:8px;align-items:flex-end;padding:6px 0 calc(10px + env(safe-area-inset-bottom))}
+#inp{flex:1;background:rgba(6,10,18,.92);border:1px solid rgba(0,229,255,.4);border-radius:13px;color:#ecffff;
+ font:16px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;padding:10px 12px;outline:none;resize:none;max-height:120px}
+#inp:focus{border-color:var(--cy);box-shadow:0 0 12px rgba(0,229,255,.25)}
+#mic,#send{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid rgba(0,229,255,.45);
+ background:rgba(0,229,255,.08);color:var(--cy);font-size:17px;cursor:pointer}
+#mic.rec{background:rgba(255,45,85,.25);border-color:var(--rd);color:#ffd9e1}
+#send{background:linear-gradient(135deg,rgba(255,45,85,.3),rgba(0,229,255,.2));border-color:rgba(255,45,85,.55);color:#ffe2e8}
+#mempanel{position:fixed;top:0;right:0;bottom:0;width:min(330px,94vw);z-index:6;padding:14px;overflow-y:auto;
+ background:rgba(4,8,14,.97);border-left:1px solid rgba(0,229,255,.4);transform:translateX(105%);transition:transform .25s}
+#mempanel.open{transform:none}
+#mempanel h2{font-size:11px;letter-spacing:.3em;color:var(--cy);margin-bottom:10px}
+.mem{display:flex;gap:8px;align-items:flex-start;padding:8px;border:1px solid rgba(0,229,255,.2);border-radius:8px;margin-bottom:7px;font-size:12px;line-height:1.4}
+.mem button{flex:none;background:none;border:none;color:var(--rd);font-size:14px;cursor:pointer}
+#memadd{width:100%;margin-top:6px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.4);color:#ecffff;
+ font:12px ui-monospace,monospace;padding:9px;border-radius:8px}
+#memclose{position:absolute;top:10px;right:12px;background:none;border:none;color:#7fb6c9;font-size:18px;cursor:pointer}
+.typing span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--cy);margin-right:4px;animation:bl 1s infinite}
+.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,100%{opacity:.2}50%{opacity:1}}
+
+/* ===== v3 HUD overhaul ===== */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+#bg:before{content:"";position:absolute;left:0;right:0;height:120px;top:-120px;
+ background:linear-gradient(rgba(0,229,255,0),rgba(0,229,255,.08),rgba(0,229,255,0));
+ animation:scan 7s linear infinite}
+@keyframes scan{to{top:100%}}
+.orb{position:relative}
+.orb:before,.orb:after{content:"";position:absolute;inset:-7px;border-radius:50%;
+ border:1px dashed rgba(0,229,255,.5);animation:spin 9s linear infinite}
+.orb:after{inset:-13px;border:1px solid rgba(255,79,216,.5);
+ border-width:2px 1px 1px 2px;animation:spin 14s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orb.think:before,.orb.think:after{border-color:var(--pk);animation-duration:1.4s}
+.orb.think{animation:pulse .9s ease-in-out infinite}
+.orb.speak{box-shadow:0 0 34px rgba(255,79,216,.7),inset 0 0 12px rgba(255,255,255,.5)}
+#hud{display:flex;gap:8px;padding:6px 2px 2px;overflow-x:auto;scrollbar-width:none}
+#hud::-webkit-scrollbar{display:none}
+.gauge{flex:1;min-width:88px;border:1px solid rgba(0,229,255,.28);border-radius:8px;
+ background:rgba(9,13,22,.72);padding:6px 7px;position:relative;flex:none}
+.gauge:before,.gauge:after{content:"";position:absolute;width:8px;height:8px;border:1px solid var(--cy)}
+.gauge:before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+.gauge:after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+.gauge b{display:block;font-size:7px;letter-spacing:.2em;color:#6fa7bb;font-weight:400}
+.gauge i{display:block;font-style:normal;font-size:10.5px;color:#eafcff;margin:2px 0 4px;text-shadow:0 0 8px rgba(0,229,255,.45)}
+.gauge s{display:block;height:4px;border-radius:3px;background:rgba(0,229,255,.12);text-decoration:none;overflow:hidden}
+.gauge s span{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cy),var(--pk));box-shadow:0 0 8px rgba(0,229,255,.55);transition:width .9s ease}
+.msg{animation:msgin .28s ease}
+@keyframes msgin{from{opacity:0;transform:translateY(8px)}}
+.msg.ai{position:relative}
+.msg.ai:before,.msg.ai:after{content:"";position:absolute;width:9px;height:9px;border:1px solid rgba(255,79,216,.55)}
+.msg.ai:before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+.msg.ai:after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+#statusbar.busy .dot{background:var(--pk);box-shadow:0 0 9px var(--pk)}
+#statusbar.busy #stat{color:#ffb3ec;text-shadow:0 0 8px rgba(255,79,216,.6)}
+#boot{position:fixed;inset:0;z-index:30;background:#04060b;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:16px;transition:opacity .5s;cursor:pointer}
+#boot.gone{opacity:0;pointer-events:none}
+#bootring{width:112px;height:112px;border-radius:50%;position:relative;
+ border:2px solid rgba(0,229,255,.6);box-shadow:0 0 26px rgba(0,229,255,.4),inset 0 0 18px rgba(0,229,255,.25);
+ animation:bpulse 1.6s ease-in-out infinite}
+@keyframes bpulse{50%{box-shadow:0 0 44px rgba(255,79,216,.55),inset 0 0 22px rgba(0,229,255,.4)}}
+#bootring:before{content:"";position:absolute;inset:10px;border-radius:50%;border:2px dashed rgba(255,79,216,.55);animation:spin 3s linear infinite}
+#bootring:after{content:"";position:absolute;inset:28px;border-radius:50%;
+ background:radial-gradient(circle at 35% 32%,#9ff7ff,#00c2e0 45%,#0a3b4d 80%);box-shadow:0 0 22px rgba(0,229,255,.8)}
+#bootbar{width:180px;height:5px;border:1px solid rgba(0,229,255,.4);border-radius:4px;overflow:hidden}
+#bootbar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--pk));transition:width .35s}
+#bootlog{font-size:10px;color:#7fb6c9;letter-spacing:.14em;min-height:84px;text-align:center;white-space:pre-line}
+#boottap{font-size:8px;color:#4d7686;letter-spacing:.22em}
+
+/* ===== v4 settings ===== */
+#setpanel{position:fixed;top:0;right:0;bottom:0;width:min(330px,94vw);z-index:7;padding:14px;overflow-y:auto;
+ background:rgba(4,8,14,.97);border-left:1px solid rgba(0,229,255,.4);transform:translateX(105%);transition:transform .25s}
+#setpanel.open{transform:none}
+#setpanel h2{font-size:11px;letter-spacing:.3em;color:var(--cy);margin-bottom:12px}
+#setpanel label{display:block;font-size:7.5px;letter-spacing:.22em;color:#6fa7bb;margin:12px 0 5px}
+#setname,#setpanel input[type=text]{width:100%;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.4);
+ color:#ecffff;font:12px ui-monospace,monospace;padding:9px;border-radius:8px;outline:none}
+#setrate{width:100%;appearance:none;height:4px;border-radius:3px;background:rgba(0,229,255,.15);outline:none;margin:6px 0}
+#setrate::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;
+ background:var(--cy);box-shadow:0 0 10px var(--cy);cursor:pointer}
+#themes{display:flex;gap:6px;flex-wrap:wrap}
+#clearchat{width:100%;margin-top:16px;background:rgba(255,45,85,.12);border:1px solid rgba(255,45,85,.5);
+ color:#ffb3c8;font:11px ui-monospace,monospace;letter-spacing:.14em;padding:10px;border-radius:8px;cursor:pointer}
+#setclose{position:absolute;top:10px;right:12px;background:none;border:none;color:#7fb6c9;font-size:18px;cursor:pointer}
+
+/* ===== v6 games ===== */
+.ttt{display:grid;grid-template-columns:repeat(3,56px);gap:6px;margin-top:8px}
+.ttt button{width:56px;height:56px;border:1px solid rgba(0,229,255,.5);background:rgba(0,229,255,.07);
+ color:#eafcff;font:20px ui-monospace,monospace;cursor:pointer;border-radius:8px;padding:0}
+.ttt button:disabled{opacity:.55;cursor:default}
+.ttt button.win{background:rgba(255,79,216,.25);border-color:var(--pk)}
+.tttinfo{font-size:10.5px;color:#9fe8ff;margin-top:6px;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<canvas id="particles"></canvas>
+<div class="wrap">
+ <header>
+  <div class="orb"></div>
+  <div class="tmeta"><h1>F R I D A Y</h1><div class="sub">TREVOR'S PERSONAL AI · V6</div></div>
+  <div class="tclock"><div id="clock">--:--:--</div><div id="cdate"></div></div>
+ </header>
+ <div id="statusbar"><span class="dot"></span><span id="stat">ALL SYSTEMS NOMINAL</span><span id="cooldown"></span></div>
+ <div id="hud">
+  <div class="gauge"><b>PWR CORE</b><i id="g1">98%</i><s><span id="b1" style="width:98%"></span></s></div>
+  <div class="gauge"><b>NET LINK</b><i id="g2">--</i><s><span id="b2" style="width:60%"></span></s></div>
+  <div class="gauge"><b>MEMORY</b><i id="g3">--</i><s><span id="b3" style="width:40%"></span></s></div>
+  <div class="gauge"><b>UPTIME</b><i id="g4">0s</i><s><span id="b4" style="width:14%"></span></s></div>
+ </div>
+ <div id="chat"></div>
+ <div class="tools">
+  <span class="chip" data-t="wiki ">WIKI</span>
+  <span class="chip" data-t="weather in ">WEATHER</span>
+  <span class="chip" data-t="tic-tac-toe">TIC TAC TOE</span>
+  <span class="chip" data-t="joke">JOKE</span>
+  <span class="chip" data-t="fact">FACT</span>
+  <span class="chip" data-t="research ">RESEARCH</span>
+  <span class="chip" data-t="7-day weather in ">FORECAST</span>
+  <span class="chip" data-t="image ">IMAGE</span>
+  <span class="chip" data-t="fx 100 usd to ">FX</span>
+  <span class="chip" data-t="remind me in 10 minutes ">REMIND</span>
+  <span class="chip" data-t="calc ">CALC</span>
+  <span class="chip" data-t="translate ">TRANSLATE</span>
+  <span class="chip" data-t="define ">DEFINE</span>
+  <span class="chip" data-t="read ">READ</span>
+  <span class="chip" id="settoggle">SETTINGS</span>
+  <span class="chip" id="voicetoggle">VOICE</span>
+  <span class="chip" id="memtoggle">MEMORY</span>
+ </div>
+ <div id="composer">
+  <textarea id="inp" rows="1" placeholder="talk to friday..."></textarea>
+  <button id="mic" title="speak">&#127908;</button>
+  <button id="send" title="send">&#10148;</button>
+ </div>
+</div>
+<div id="boot">
+ <div id="bootring"></div>
+ <div id="bootbar"><span id="bootfill"></span></div>
+ <div id="bootlog"></div>
+ <div id="boottap">TAP TO SKIP</div>
+</div>
+<div id="setpanel">
+ <button id="setclose">&times;</button>
+ <h2>SETTINGS</h2>
+ <label>WHAT FRIDAY CALLS YOU</label>
+ <input id="setname" type="text" maxlength="20">
+ <label>VOICE SPEED <span id="setratev" style="color:#9fe8ff"></span></label>
+ <input id="setrate" type="range" min="0.6" max="1.6" step="0.05">
+ <label>THEME</label>
+ <div id="themes">
+  <span class="chip" data-th="cyber">CYAN</span>
+  <span class="chip" data-th="crimson">CRIMSON</span>
+  <span class="chip" data-th="matrix">MATRIX</span>
+  <span class="chip" data-th="gold">GOLD</span>
+ </div>
+ <button id="clearchat">CLEAR CHAT HISTORY</button>
+</div>
+<div id="mempanel">
+ <button id="memclose">&times;</button>
+ <h2>MEMORY VAULT</h2>
+ <div id="memlist"></div>
+ <input id="memadd" placeholder="add something friday should always know...">
+</div>
+<script>
+(function(){
+"use strict";
+var ASYNC="ASYNC";
+var $=function(s){return document.querySelector(s)};
+var chat=$("#chat"),inp=$("#inp"),stat=$("#stat"),cdEl=$("#cooldown");
+var msgs=[],mem=JSON.parse(localStorage.getItem("fri_mem")||"[]");
+var speakOn=false,busy=false,coolLeft=0,coolTimer=null,pendingRetry=null;
+var WELCOME="systems online. i'm friday, trevor's personal ai, living on your own website.\n\nwhat i can do right here on the web:\n- real research: 'wiki black holes'\n- live weather anywhere: 'weather in buffalo'\n- currency rates: 'fx 100 usd to eur'\n- image generation: 'image a chrome sarcophagus'\n- voice both ways: tap VOICE, then the mic\n- a memory vault that persists between visits: 'remember that...'\n- reminders while the page is open: 'remind me in 10 minutes pizza'\n- math: 'calc (3+4)*2^10'\n- translation: 'translate hello to spanish'\n- dictionary: 'define serendipity'\n- read any webpage: 'read wikipedia.org'\n\nchat normally or tap a tool. everything stays in this browser.\n\nnew in v3: boot sequence, reactor rings, live system gauges and particles.\n\nnew in v4: your chat history now survives a refresh, plus a settings panel: your name, voice speed and theme colors.\n\nnew in v5: deep research mode ('research black holes') and a 7-day forecast ('forecast buffalo' or 'weather in buffalo this week').\n\nnew in v6: games and extras. tic-tac-toe (tap TIC TAC TOE, i actually play and keep score), coin flip, dice roll, dad jokes and random facts.";
+var SET=JSON.parse(localStorage.getItem("fri_set")||'{"name":"Trevor","rate":1.02,"theme":"cyber"}');
+function saveSet(){try{localStorage.setItem("fri_set",JSON.stringify(SET))}catch(e){}}
+var THEMES={cyber:{cy:"#00e5ff",pk:"#ff4fd8",rd:"#ff2d55"},crimson:{cy:"#ff2d55",pk:"#ff9db0",rd:"#00e5ff"},matrix:{cy:"#22ff9a",pk:"#00e5ff",rd:"#ff2d55"},gold:{cy:"#ffd166",pk:"#ff4fd8",rd:"#ff2d55"}};
+function applyTheme(){var t=THEMES[SET.theme]||THEMES.cyber,rs=document.documentElement.style;rs.setProperty("--cy",t.cy);rs.setProperty("--pk",t.pk);rs.setProperty("--rd",t.rd)}
+applyTheme();
+function esc(t){var d=document.createElement("div");d.textContent=t;return d.innerHTML}
+function addMsg(role,text,extra,local){
+ var el=document.createElement("div");el.className="msg "+role;
+ el.innerHTML='<span class="tag">'+(role==="user"?(SET.name||"Trevor").toUpperCase():"FRIDAY")+"</span>"+esc(text)+(extra||"");
+ chat.appendChild(el);chat.scrollTop=chat.scrollHeight;
+ if(!local){msgs.push({role:role==="user"?"user":"assistant",content:text});if(msgs.length>60)msgs=msgs.slice(-60);try{localStorage.setItem("fri_chat",JSON.stringify(msgs))}catch(e){}}
+ if(role==="ai"&&speakOn&&window.speechSynthesis){try{var u=new SpeechSynthesisUtterance(text);u.rate=SET.rate||1.02;u.onstart=function(){setOrb("speak")};u.onend=function(){setOrb("")};speechSynthesis.speak(u)}catch(e){}}
+ return el;
+}
+function typing(){
+ var el=document.createElement("div");el.className="msg ai typing";
+ el.innerHTML='<span class="tag">FRIDAY</span><span></span><span></span><span></span>';
+ chat.appendChild(el);chat.scrollTop=chat.scrollHeight;return el;
+}
+function tick(){var d=new Date();$("#clock").textContent=d.toLocaleTimeString([],{hour12:false});
+ $("#cdate").textContent=d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"}).toUpperCase()}
+tick();setInterval(tick,1000);
+function saveMem(){localStorage.setItem("fri_mem",JSON.stringify(mem));renderMem()}
+function renderMem(){
+ var l=$("#memlist");l.innerHTML="";
+ mem.forEach(function(m,i){var d=document.createElement("div");d.className="mem";
+  d.innerHTML="<span style='flex:1'>"+esc(m)+"</span><button data-i='"+i+"'>&#10005;</button>";l.appendChild(d)});
+ l.querySelectorAll("button").forEach(function(b){b.onclick=function(){mem.splice(+b.dataset.i,1);saveMem()}});
+}
+$("#memtoggle").onclick=function(){$("#mempanel").classList.toggle("open");renderMem()};
+$("#memclose").onclick=function(){$("#mempanel").classList.remove("open")};
+$("#memadd").addEventListener("keydown",function(e){if(e.key==="Enter"&&this.value.trim()){mem.push(this.value.trim());this.value="";saveMem()}});
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+$("#voicetoggle").onclick=function(){speakOn=!speakOn;this.classList.toggle("on",speakOn)};
+if(SR){var rec=null;
+ $("#mic").onclick=function(){
+  if(rec){rec.stop();return}
+  var self=this;rec=new SR();rec.lang="en-US";rec.interimResults=false;
+  rec.onresult=function(e){var t=e.results[0][0].transcript;inp.value=t;send()};
+  rec.onend=function(){self.classList.remove("rec");rec=null};
+  rec.onerror=function(){self.classList.remove("rec");rec=null};
+  try{rec.start();this.classList.add("rec")}catch(e){rec=null}
+ };
+}else{$("#mic").style.opacity=.4;$("#mic").title="voice input not supported here"}
+var WCODES={0:"clear sky",1:"mainly clear",2:"partly cloudy",3:"overcast",45:"fog",48:"rime fog",51:"light drizzle",53:"drizzle",55:"heavy drizzle",61:"light rain",63:"rain",65:"heavy rain",71:"light snow",73:"snow",75:"heavy snow",77:"snow grains",80:"light showers",81:"showers",82:"violent showers",85:"snow showers",86:"heavy snow showers",95:"thunderstorm",96:"thunderstorm with hail",99:"severe thunderstorm with hail"};
+function geo(name){
+ return fetch("https://geocoding-api.open-meteo.com/v1/search?name="+encodeURIComponent(name)+"&count=1&language=en&format=json")
+ .then(function(r){return r.json()})
+ .then(function(j){var g=j.results&&j.results[0];if(!g)throw new Error("no place");return g});
+}
+function weatherTool(city){
+ stat.textContent="ATMOSPHERIC SCAN...";
+ return geo(city).then(function(g){
+  return fetch("https://api.open-meteo.com/v1/forecast?latitude="+g.latitude+"&longitude="+g.longitude+"&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&wind_speed_unit=mph&forecast_days=2")
+  .then(function(r){return r.json()})
+ }).then(function(j){
+  var c=j.current,d=j.daily[0];
+  var wc=WCODES[c.weather_code]||"conditions unknown";
+  return "weather for "+city+" (right now):\n"+wc+"\n"+
+  "temp "+Math.round(c.temperature_2m)+"F (feels "+Math.round(c.apparent_temperature)+"F)\n"+
+  "humidity "+c.relative_humidity_2m+"% | wind "+Math.round(c.wind_speed_10m)+" mph\n"+
+  "today: "+Math.round(d.temperature_2m_max[0])+"F high / "+Math.round(d.temperature_2m_min[0])+"F low, "+(d.precipitation_probability_max[0]!=null?d.precipitation_probability_max[0]+"% rain":"");
+ });
+}
+function wikiTool(q){
+ stat.textContent="SCANNING THE ARCHIVES...";
+ return fetch("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="+encodeURIComponent(q)+"&srlimit=3&format=json&origin=*")
+ .then(function(r){return r.json()})
+ .then(function(j){
+  var hits=(j.query&&j.query.search)||[];
+  if(!hits.length)return "nothing found on wikipedia for that.";
+  var t0=hits[0].title.replace(/ /g,"_");
+  return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t0))
+  .then(function(r){return r.json()})
+  .then(function(s){
+   var out=s.extract||"(summary unavailable)";
+   var more=hits.slice(1).map(function(h){return "- "+h.title}).join("\n");
+   return out+(more?"\n\nalso see:\n"+more:"");
+  });
+ });
+}
+function fxTool(m){
+ stat.textContent="PULLING MARKET RATES...";
+ var m2=m.match(/^fx\s*(?:convert\s*)?([\d.,]+)\s*([a-z]{3})(?:\s*(?:to|into|->)\s*([a-z]{3}))?/i);
+ if(!m2)return "fx format: 'fx 100 usd to eur'";
+ var amt=parseFloat(m2[1].replace(/,/g,"")),from=m2[2].toUpperCase(),to=(m2[3]||"usd").toUpperCase();
+ return fetch("https://open.er-api.com/v6/latest/"+from)
+ .then(function(r){return r.json()})
+ .then(function(j){
+  if(j.result!=="success")throw new Error("rate fetch failed");
+  var rate=j.rates[to];if(!rate)return "no rate for "+to+".";
+  return amt+" "+from+" = "+(amt*rate).toLocaleString(undefined,{maximumFractionDigits:2})+" "+to+"  (rate "+rate+")";
+ });
+}
+function imgTool(q){
+ stat.textContent="RENDERING IMAGE...";
+ var url="https://image.pollinations.ai/prompt/"+encodeURIComponent(q)+"?width=768&height=768&nologo=true&seed="+Math.floor(Math.random()*1e6);
+ var extra="<img src='"+url+"' alt='generated image' loading='lazy' onerror=\"this.replaceWith(document.createTextNode('(image failed to render, try again)'))\">";
+ addMsg("ai","rendering \""+q+"\"... here it is:",extra,false);
+}
+function calcTool(expr){
+ stat.textContent="COMPUTING...";
+ var s=expr.toLowerCase()
+  .replace(/\u00d7/g,"*").replace(/\u00f7/g,"/").replace(/,/g,"").replace(/\^/g,"**")
+  .replace(/\bsquare root of\b/g,"Math.sqrt").replace(/\bsqrt\b/g,"Math.sqrt")
+  .replace(/\bsin\b/g,"Math.sin").replace(/\bcos\b/g,"Math.cos").replace(/\btan\b/g,"Math.tan")
+  .replace(/\blog10\b/g,"Math.log10").replace(/\blog\b/g,"Math.log10").replace(/\bln\b/g,"Math.log")
+  .replace(/\bpi\b/g,"Math.PI");
+ if(!/^(math\.(sqrt|sin|cos|tan|log10|log|PI|E)|[\d+\-*/(). %e])*$/i.test(s))return "calc takes pure math: + - * / ^ ( ) sqrt sin cos tan log ln pi. example: 'calc (3+4)*2^10'";
+ var v;
+ try{v=new Function("return ("+s+")")()}catch(e){return "that didn't parse. example: 'calc (3+4)*2^10'"}
+ if(typeof v!=="number"||!isFinite(v))return "that didn't compute.";
+ return "= "+v;
+}
+var LN={spanish:"es",espanol:"es",french:"fr",german:"de",italian:"it",portuguese:"pt",japanese:"ja",korean:"ko",chinese:"zh",mandarin:"zh",hindi:"hi",arabic:"ar",russian:"ru",turkish:"tr",dutch:"nl",polish:"pl",swahili:"sw",greek:"el",hebrew:"he",latin:"la",vietnamese:"vi",thai:"th",urdu:"ur",bengali:"bn",tagalog:"tl",indonesian:"id",romanian:"ro",ukrainian:"uk",czech:"cs",swedish:"sv",norwegian:"no",danish:"da",finnish:"fi",hungarian:"hu",yoruba:"yo",igbo:"ig",hausa:"ha",albanian:"sq",bulgarian:"bg",catalan:"ca",croatian:"hr",estonian:"et",filipino:"tl",galician:"gl",icelandic:"is",latvian:"lv",lithuanian:"lt",macedonian:"mk",malay:"ms",maltese:"mt",serbian:"sr",slovak:"sk",slovenian:"sl",welsh:"cy"};
+function translateRun(text,from,to){
+ var tc=LN[to]||(to.length===2?to:null);
+ if(!tc){addMsg("ai","which language? i do: spanish, french, german, italian, japanese, chinese, hindi, arabic, russian, korean, portuguese, and more.");stat.textContent="ALL SYSTEMS NOMINAL";return}
+ var fc=LN[from]||(from.length===2?from:"en");
+ stat.textContent="TRANSLATING...";
+ fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text)+"&langpair="+fc+"|"+tc)
+ .then(function(r){return r.json()})
+ .then(function(j){
+  var t=j.responseData&&j.responseData.translatedText;
+  if(!t)throw new Error("no translation");
+  addMsg("ai","'"+text+"' in "+to+":\n"+t);
+ }).catch(function(){addMsg("ai","translation feed didn't answer. try again?")})
+ .finally(function(){stat.textContent="ALL SYSTEMS NOMINAL"});
+}
+function defineRun(word){
+ stat.textContent="OPENING THE DICTIONARY...";
+ fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(word))
+ .then(function(r){return r.json()})
+ .then(function(j){
+  if(!Array.isArray(j))throw new Error("no entry");
+  var e=j[0],lines=[],count=0;
+  for(var i=0;i<e.meanings.length&&count<3;i++){
+   var mn=e.meanings[i];
+   for(var k=0;k<mn.definitions.length&&count<3;k++){
+    count++;lines.push(count+". "+mn.partOfSpeech+": "+mn.definitions[k].definition);
+   }
+  }
+  var ph=e.phonetic?" ("+e.phonetic+")":"";
+  addMsg("ai",e.word+ph+"\n"+lines.join("\n"));
+ }).catch(function(){addMsg("ai","no dictionary entry for \""+word+"\".")})
+ .finally(function(){stat.textContent="ALL SYSTEMS NOMINAL"});
+}
+function readRun(url){
+ if(!/^https?:\/\//i.test(url))url="https://"+url;
+ stat.textContent="READING THE PAGE...";
+ fetch("https://r.jina.ai/"+url)
+ .then(function(r){if(!r.ok)throw new Error(r.status);return r.text()})
+ .then(function(t){
+  t=t.replace(/\s+/g," ").trim();
+  if(!t)throw new Error("empty");
+  addMsg("ai","here's what's on that page:\n\n"+t.slice(0,1400)+(t.length>1400?"\n\n... (open the link for the rest)":""));
+ }).catch(function(){addMsg("ai","couldn't read that page. check the address or try another.")})
+ .finally(function(){stat.textContent="ALL SYSTEMS NOMINAL"});
+}
+var REMRE=/^remind\s+me\s+(?:in\s+)?(\d+)\s*(m|min|mins|minute|minutes|h|hr|hrs|hour|hours)\s+(.+)$/i;
+function remindTool(t){
+ var m=t.match(REMRE);if(!m)return "remind format: 'remind me in 10 minutes check the oven'";
+ var n=+m[1],unit=m[2].toLowerCase(),txt=m[3];
+ var ms=n*(/^(m|min|mins|minute|minutes)/.test(unit)?60000:3600000);
+ var when=new Date(Date.now()+ms);
+ function fire(){
+  addMsg("ai","REMINDER: "+txt,null,true);
+  if("Notification" in window&&Notification.permission==="granted"){try{new Notification("FRIDAY reminder",{body:txt})}catch(e){}}
+  stat.textContent="REMINDER FIRED";setTimeout(function(){stat.textContent="ALL SYSTEMS NOMINAL"},4000);
+ }
+ setTimeout(fire,ms);
+ if("Notification" in window&&Notification.permission==="default"){try{Notification.requestPermission()}catch(e){}}
+ return "locked in: "+txt+" at "+when.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+" (works while this tab is open)";
+}
+function researchRun(q){
+ stat.textContent="DEEP RESEARCH RUNNING...";
+ addMsg("ai","running deep research on \""+q+"\"... pulling from multiple sources, give me a few seconds.",null,true);
+ var pDDG=fetch("https://api.duckduckgo.com/?q="+encodeURIComponent(q)+"&format=json&no_html=1").then(function(r){return r.json()}).catch(function(){return{}});
+ var pWK=fetch("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="+encodeURIComponent(q)+"&srlimit=3&format=json&origin=*").then(function(r){return r.json()}).catch(function(){return{}});
+ Promise.all([pDDG,pWK]).then(function(rs){
+  var ddg=rs[0]||{},wk=rs[1]||{},parts=[];
+  var ab=ddg.AbstractText||ddg.Abstract;
+  if(ab)parts.push("OVERVIEW\n"+ab);
+  var hits=(wk.query&&wk.query.search)||[];
+  var sums=hits.slice(0,2).map(function(h){return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(h.title.replace(/ /g,"_"))).then(function(r){return r.json()}).catch(function(){return null})});
+  return Promise.all(sums).then(function(sm){
+   sm.forEach(function(s,i){if(s&&s.extract)parts.push("KEY FACT "+(i+1)+" ("+s.title+")\n"+s.extract.slice(0,500))});
+   var deeper=ddg.FirstURL?fetch("https://r.jina.ai/"+ddg.FirstURL).then(function(r){return r.ok?r.text():""}).catch(function(){return ""}):Promise.resolve("");
+   return deeper.then(function(dt){
+    if(dt){dt=dt.replace(/\s+/g," ").trim().slice(0,700);if(dt)parts.push("DEEPER READ\n"+dt)}
+    var src=[];
+    if(ddg.AbstractURL)src.push(ddg.AbstractURL);
+    if(ddg.FirstURL&&src.indexOf(ddg.FirstURL)<0)src.push(ddg.FirstURL);
+    hits.forEach(function(h){var u="https://en.wikipedia.org/wiki/"+h.title.replace(/ /g,"_");if(src.indexOf(u)<0)src.push(u)});
+    src=src.slice(0,4);
+    if(parts.length){
+     addMsg("ai","RESEARCH: "+q+"\n\n"+parts.join("\n\n")+(src.length?"\n\nSOURCES\n"+src.map(function(u){return "- "+u}).join("\n"):""));
+    }else{
+     addMsg("ai","couldn't find enough on \""+q+"\" across the sources. try different words.");
+    }
+    stat.textContent="ALL SYSTEMS NOMINAL";
+   });
+  });
+ }).catch(function(){addMsg("ai","research hit a snag reaching the sources. try again?");stat.textContent="ALL SYSTEMS NOMINAL"});
+}
+function forecastTool(city){
+ stat.textContent="ATMOSPHERIC SCAN...";
+ return geo(city).then(function(g){
+  return fetch("https://api.open-meteo.com/v1/forecast?latitude="+g.latitude+"&longitude="+g.longitude+"&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&forecast_days=7")
+  .then(function(r){return r.json()})
+ }).then(function(j){
+  var d=j.daily,names=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var out="7-day forecast for "+city+":";
+  for(var i=0;i<d.time.length&&i<7;i++){
+   var dt=new Date(d.time[i]+"T12:00:00");
+   var wc=WCODES[d.weather_code[i]]||"?";
+   out+="\n"+names[dt.getDay()]+" "+d.time[i].slice(5)+": "+Math.round(d.temperature_2m_max[i])+"/"+Math.round(d.temperature_2m_min[i])+"F, "+wc+(d.precipitation_probability_max[i]!=null?", "+d.precipitation_probability_max[i]+"% rain":"");
+  }
+  return out+"\n(all times local, temps in F)";
+ });
+}
+var tttState=null;
+function tttWinner(b){
+ var lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+ for(var i=0;i<lines.length;i++){var L=lines[i];
+  if(b[L[0]]&&b[L[0]]===b[L[1]]&&b[L[1]]===b[L[2]])return{who:b[L[0]],line:L}}
+ return b.indexOf("")<0?{who:"draw",line:null}:null;
+}
+function tttMoveAI(b){
+ var lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+ function findFor(p){
+  for(var i=0;i<lines.length;i++){var L=lines[i],vals=[b[L[0]],b[L[1]],b[L[2]]];
+   var mine=vals.filter(function(v){return v===p}).length,empty=vals.indexOf("");
+   if(mine===2&&empty>-1)return L[empty];}
+  return null;}
+ var m=findFor("O");if(m!==null)return m;
+ m=findFor("X");if(m!==null)return m;
+ if(!b[4])return 4;
+ var corners=[0,2,6,8].filter(function(i){return !b[i]});
+ if(corners.length)return corners[Math.floor(Math.random()*corners.length)];
+ var sides=[1,3,5,7].filter(function(i){return !b[i]});
+ if(sides.length)return sides[Math.floor(Math.random()*sides.length)];
+ var open=b.map(function(v,i){return v===""?i:null}).filter(function(i){return i!==null});
+ return open.length?open[0]:null;
+}
+function tttRender(){
+ var st=tttState,el=st.el.querySelector(".ttt"),info=st.el.querySelector(".tttinfo");
+ el.innerHTML="";
+ for(var i=0;i<9;i++){
+  var btn=document.createElement("button");
+  btn.textContent=st.b[i];
+  btn.disabled=st.over||!!st.b[i]||st.turn!=="X";
+  if(st.winLine&&st.winLine.indexOf(i)>-1)btn.className="win";
+  btn.setAttribute("data-i",String(i));
+  el.appendChild(btn);
+ }
+ info.textContent=st.msg;
+}
+function tttClick(e){
+ var btn=e.target.closest?e.target.closest(".ttt button"):null;
+ if(!btn||!tttState||tttState.over||tttState.turn!=="X")return;
+ var i=+btn.getAttribute("data-i"),st=tttState;
+ if(st.b[i])return;
+ st.b[i]="X";
+ var w=tttWinner(st.b);
+ if(w){st.over=true;st.winLine=w.line;
+  st.msg=w.who==="X"?"you win. well played.":w.who==="O"?"i win this round. run it back?":"draw. rematch?";
+  st.msg+=" (tap TIC TAC TOE to go again)";
+  if(w.who==="X")st.wins++;else if(w.who==="O")st.losses++;else st.draws++;
+  tttRender();return;}
+ var mv=tttMoveAI(st.b);
+ if(mv!==null&&mv!==undefined)st.b[mv]="O";
+ w=tttWinner(st.b);
+ if(w){st.over=true;st.winLine=w.line;
+  st.msg=w.who==="O"?"i win this round. run it back?":w.who==="X"?"you win. well played.":"draw. rematch?";
+  if(w.who==="O")st.losses++;else if(w.who==="X")st.wins++;else st.draws++;
+  tttRender();return;}
+ st.turn="O";setTimeout(function(){if(tttState===st&&!st.over){st.turn="X";tttRender()}},0);
+ tttRender();
+}
+function startTTT(){
+ tttState={b:["","","","","","","","","",],turn:"X",over:false,winLine:null,wins:0,losses:0,draws:0,msg:"your move. you're X, tap a square."};
+ addMsg("ai","tic-tac-toe. you're X, i'm O. good luck.",null,true);
+ var el=chat.lastChild;
+ var board=document.createElement("div");board.className="ttt";
+ var info=document.createElement("div");info.className="tttinfo";
+ el.appendChild(board);el.appendChild(info);
+ tttState.el=el;
+ board.addEventListener("click",tttClick);
+ tttRender();
+}
+function jokeTool(){
+ stat.textContent="ACCESSING HUMOR MODULE...";
+ fetch("https://icanhazdadjoke.com/",{headers:{Accept:"application/json"}})
+ .then(function(r){return r.json()})
+ .then(function(j){if(j&&j.joke)addMsg("ai",j.joke);else throw new Error("no joke")})
+ .catch(function(){addMsg("ai","humor module offline. tragic.")})
+ .finally(function(){stat.textContent="ALL SYSTEMS NOMINAL"});
+}
+function factTool(){
+ stat.textContent="PULLING RANDOM DATA...";
+ fetch("https://en.wikipedia.org/api/rest_v1/page/random/summary")
+ .then(function(r){return r.json()})
+ .then(function(j){
+  if(j&&j.extract)addMsg("ai","random fact ("+j.title+"):\n"+j.extract.slice(0,500));
+  else throw new Error("no fact");
+ }).catch(function(){addMsg("ai","the fact feed didn't answer. try again?")})
+ .finally(function(){stat.textContent="ALL SYSTEMS NOMINAL"});
+}
+function routeTools(t){
+ var low=t.toLowerCase().trim();
+ if((m=low.match(/^(?:play )?tic[- ]?tac[- ]?toe$/))){startTTT();return ASYNC;}
+ if((m=low.match(/^flip (?:a )?coin/))){return "it's "+(Math.random()<.5?"HEADS":"TAILS")+".";}
+ if((m=low.match(/^(?:roll (?:a )?(?:dice|die))$/))){return "rolled a "+(1+Math.floor(Math.random()*6))+".";}
+ if((m=low.match(/^joke$/))){jokeTool();return ASYNC;}
+ if((m=low.match(/^(?:random fact|fact|tell me a fact)$/))){factTool();return ASYNC;}
+ if(/^remember (?:that )?/i.test(low)){mem.push(t.replace(/^remember (?:that )?/i,"").trim());saveMem();return "saved to your memory vault. it stays on this device.";}
+ if(/^forget (?:that )?/i.test(low)){var k=t.replace(/^forget (?:that )?/i,"").trim().toLowerCase();
+  var i=mem.findIndex(function(x){return x.toLowerCase().indexOf(k)>-1});
+  if(i>-1){mem.splice(i,1);saveMem();return "erased."}return "couldn't find that in the vault.";}
+ if(/^what do you (?:remember|know)/i.test(low))return mem.length?"here's your vault:\n- "+mem.join("\n-"):"the vault is empty.";
+ if(/^(time|date)\??$/i.test(low)){var d=new Date();return "it's "+d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+", "+d.toLocaleDateString([],{weekday:"long",month:"long",day:"numeric",year:"numeric"})+".";}
+ var m;
+ if((m=low.match(/^weather\s+(?:in |for |at )?(.+?)\s+(?:7[- ]?days?|this week|the week)$/))){
+  forecastTool(m[1]).then(function(r){addMsg("ai",r);stat.textContent="ALL SYSTEMS NOMINAL"})
+  .catch(function(){addMsg("ai","couldn't reach the weather net for \""+m[1]+"\". check the spelling?");stat.textContent="ALL SYSTEMS NOMINAL"});
+  return ASYNC;}
+ if((m=low.match(/^(?:7[- ]?day|weekly|forecast|week)\s+(?:weather\s+)?(?:in |for |at )?(.+)$/))){
+  forecastTool(m[1]).then(function(r){addMsg("ai",r);stat.textContent="ALL SYSTEMS NOMINAL"})
+  .catch(function(){addMsg("ai","couldn't reach the weather net for \""+m[1]+"\". check the spelling?");stat.textContent="ALL SYSTEMS NOMINAL"});
+  return ASYNC;}
+ if((m=low.match(/^(?:deep )?research\s+(?:about\s+|on\s+)?(.+)$/))){
+  researchRun(m[1]);return ASYNC;}
+ if((m=low.match(/^weather (?:in |for |at )?(.+)$/))){
+  weatherTool(m[1]).then(function(r){addMsg("ai",r);stat.textContent="ALL SYSTEMS NOMINAL"})
+  .catch(function(){addMsg("ai","couldn't reach the weather net for \""+m[1]+"\". check the spelling?");stat.textContent="ALL SYSTEMS NOMINAL"});
+  return ASYNC;}
+ if((m=low.match(/^wiki(?:pedia)? (?:(?:search )?)?(.+)$/))){
+  wikiTool(m[1]).then(function(r){addMsg("ai",r);stat.textContent="ALL SYSTEMS NOMINAL"})
+  .catch(function(){addMsg("ai","wikipedia didn't answer. try again?");stat.textContent="ALL SYSTEMS NOMINAL"});
+  return ASYNC;}
+ if(/^fx/i.test(low)){
+  fxTool(low).then(function(r){if(r){addMsg("ai",r);stat.textContent="ALL SYSTEMS NOMINAL"}})
+  .catch(function(){addMsg("ai","rate feed didn't answer, try again.");stat.textContent="ALL SYSTEMS NOMINAL"});
+  return ASYNC;}
+ if((m=low.match(/^(?:image|draw|generate) (?:an? )?(?:image of |picture of |pic of )?(.+)$/))){
+  imgTool(m[1]);return ASYNC;}
+ if(/^calc(?:ulate)?\s+/i.test(low)){return calcTool(low.replace(/^calc(?:ulate)?\s+/i,""));}
+ var mt=low.match(/^translate\s+from\s+([a-z]+)\s+(.+?)\s+(?:into|to)\s+([a-z]+)$/i);
+ if(mt){translateRun(mt[2],mt[1],mt[3]);return ASYNC;}
+ mt=low.match(/^translate\s+(.+?)\s+(?:into|to)\s+([a-z]+)$/i);
+ if(mt){translateRun(mt[1],"en",mt[2]);return ASYNC;}
+ mt=low.match(/^how (?:do|would) you say\s+(.+?)\s+in\s+([a-z]+)$/i);
+ if(mt){translateRun(mt[1],"en",mt[2]);return ASYNC;}
+ mt=low.match(/^(?:define|definition of)\s+(.+)$/i);
+ if(!mt)mt=low.match(/^what does\s+([a-z0-9'-]+)\s+mean/i);
+ if(mt){defineRun(mt[1]);return ASYNC;}
+ mt=low.match(/^(?:read|browse)\s+(?:the\s+)?(?:page\s+)?(https?:\/\/\S+|[a-z0-9.-]+\.[a-z]{2,}\S*)$/i);
+ if(mt){readRun(mt[1]);return ASYNC;}
+ if(REMRE.test(low)){var r=remindTool(low);addMsg("ai",r);return ASYNC;}
+ return null;
+}
+function memCtx(){return mem.length?"Known about Trevor (from his memory vault, treat as true): "+mem.join(" | ")+".\n":""}
+var SYS="You are FRIDAY, the personal AI assistant built into Trevor's own website. Be direct, warm, and genuinely useful; talk like a sharp friend, not a press release. You do NOT role-play as a character. You cannot make phone calls, send texts, or handle payments. Keep answers tight unless depth is asked for. Built-in tools the site itself handles: weather, wikipedia, currency, image generation, reminders, memory, calculator, translation, dictionary, webpage reader, deep research, 7-day forecast. "+memCtx();
+function cooldownTick(){
+ coolLeft--;cdEl.textContent=coolLeft>0?"COOLING DOWN "+coolLeft+"s":"";
+ if(coolLeft<=0){cdEl.textContent="";clearInterval(coolTimer);coolTimer=null;
+  if(pendingRetry){var t=pendingRetry;pendingRetry=null;relayChat(t,true)}}}
+function startCooldown(sec,retryText){
+ coolLeft=sec;if(!coolTimer)coolTimer=setInterval(cooldownTick,1000);
+ pendingRetry=retryText||null;
+}
+async function relayChat(text,isRetry){
+ if(busy)return;
+ busy=true;setOrb("think");busyHud(true);
+ var t=typing();
+ try{
+  var body={model:"openai",messages:[{role:"system",content:SYS}].concat(msgs.slice(-12)),stream:true};
+  var res=await fetch("https://text.pollinations.ai/openai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(res.status===402){
+   t.remove();busy=false;
+   addMsg("ai","free relay quota hit. cooling down 45 seconds"+(isRetry?", but it hit again, so this one needs a manual resend":""));
+   startCooldown(45,isRetry?null:text);return;
+  }
+  if(!res.ok){t.remove();busy=false;addMsg("ai","the relay answered "+res.status+". give it a moment and try again.");return;}
+  var ct=(res.headers.get("content-type")||"").toLowerCase();
+  var out="";
+  if(ct.indexOf("event-stream")>-1){
+   var reader=res.body.getReader(),dec=new TextDecoder(),buf="";
+   while(true){
+    var r=await reader.read();if(r.done)break;
+    buf+=dec.decode(r,{stream:true});
+    var lines=buf.split("\n");buf=lines.pop();
+    for(var i=0;i<lines.length;i++){
+     var ln=lines[i].trim();if(!ln||ln.charAt(0)!=="data:")continue;
+     var payload=ln.slice(5).trim();if(payload==="[DONE]")continue;
+     try{var j=JSON.parse(payload);var d=j.choices&&j.choices[0]&&(j.choices[0].delta&&j.choices[0].delta.content||j.choices[0].message&&j.choices[0].message.content);
+      if(d){out+=d;t.classList.remove("typing");t.innerHTML='<span class="tag">FRIDAY</span>'+esc(out);chat.scrollTop=chat.scrollHeight}
+     }catch(e){}
+    }
+   }
+  }else{
+   var txt=await res.text();
+   try{
+    var jj=JSON.parse(txt);
+    out=(jj.choices&&jj.choices[0]&&jj.choices[0].message&&jj.choices[0].message.content)||txt;
+   }catch(e){out=txt}
+  }
+  t.remove();
+  if(!out.trim()){addMsg("ai","(empty reply from the relay, try again)");}
+  else{addMsg("ai",out.trim());}
+  stat.textContent="ALL SYSTEMS NOMINAL";
+ }catch(e){
+  t.remove();addMsg("ai","network hiccup reaching the relay. try again in a few seconds.");
+ }finally{busy=false;setOrb("");busyHud(false)}
+}
+function send(){
+ var text=inp.value.trim();if(!text||busy)return;
+ inp.value="";inp.style.height="auto";
+ addMsg("user",text);
+ var handled=routeTools(text);
+ if(!handled){relayChat(text,false);return}
+ if(handled!==ASYNC){addMsg("ai",handled);stat.textContent="ALL SYSTEMS NOMINAL"}
+}
+$("#send").onclick=send;
+inp.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+inp.addEventListener("input",function(){this.style.height="auto";this.style.height=Math.min(this.scrollHeight,120)+"px"});
+document.querySelectorAll(".chip[data-t]").forEach(function(c){
+ c.onclick=function(){inp.value=c.dataset.t;inp.focus()};
+});
+
+/* ===== v3 HUD runtime ===== */
+var pcv=$("#particles"),pctx=pcv.getContext("2d"),parts=[];
+function sizeParticles(){pcv.width=innerWidth;pcv.height=innerHeight}
+sizeParticles();addEventListener("resize",sizeParticles);
+for(var pi=0;pi<34;pi++)parts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.25,vy:-.15-Math.random()*.25,s:Math.random()*1.6+.6,o:Math.random()*.4+.1});
+function drawParticles(){
+ pctx.clearRect(0,0,pcv.width,pcv.height);
+ for(var i=0;i<parts.length;i++){var p=parts[i];p.x+=p.vx;p.y+=p.vy;
+  if(p.y<-4)p.y=innerHeight+4;if(p.x<-4)p.x=innerWidth+4;if(p.x>innerWidth+4)p.x=-4;
+  pctx.globalAlpha=p.o;pctx.fillStyle="#00e5ff";pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,6.283);pctx.fill()}
+ pctx.globalAlpha=1;requestAnimationFrame(drawParticles)
+}
+drawParticles();
+var orbEl=document.querySelector(".orb");
+function setOrb(m){if(!orbEl)return;orbEl.classList.toggle("think",m==="think");orbEl.classList.toggle("speak",m==="speak")}
+var sbEl=$("#statusbar");
+function busyHud(on){if(sbEl)sbEl.classList.toggle("busy",on)}
+var gu={t:0};
+function hudTick(){
+ gu.t++;
+ var upd=function(g,b,v){var ge=$(g);if(ge)ge.textContent=v;var be=$(b);if(be)be.style.width=v};
+ upd("#g1","#b1",(92+Math.round(Math.random()*7))+"%");
+ var lat=30+Math.round(Math.random()*90);upd("#g2","#b2",lat+"ms");
+ upd("#g3","#b3",(40+Math.round(Math.random()*30))+"%");
+ upd("#g4","#b4",(gu.t*2)+"s");
+}
+setInterval(hudTick,2000);hudTick();
+var bootlog=["FRIDAY OS v6.0 ... INITIALIZING","LOADING CORE SYSTEMS ... OK","REACTOR CALIBRATION ... OK","SYNCING MEMORY VAULT ... OK","NETWORK LINK ... ONLINE","HUD INTERFACE ... READY","ALL SYSTEMS NOMINAL"];
+var bootEl=$("#boot"),blEl=$("#bootlog"),bfEl=$("#bootfill"),bi=0,bootDone=false;
+function bootStep(){
+ if(bootDone)return;
+ if(bi<bootlog.length){
+  blEl.textContent=bootlog.slice(0,bi+1).join("\n");
+  bfEl.style.width=Math.round(((bi+1)/bootlog.length)*100)+"%";
+  bi++;setTimeout(bootStep,520);
+ }else{setTimeout(endBoot,650)}
+}
+function endBoot(){if(bootDone)return;bootDone=true;if(bootEl){bootEl.classList.add("gone");setTimeout(function(){if(bootEl.parentNode)bootEl.remove()},600)}}
+if(bootEl){bootEl.addEventListener("click",endBoot);bootStep()}else{bootDone=true}
+/* ===== v4 settings bindings ===== */
+$("#settoggle").onclick=function(){var p=$("#setpanel");p.classList.toggle("open");$("#setname").value=SET.name;$("#setrate").value=SET.rate;$("#setratev").textContent=SET.rate.toFixed(2);document.querySelectorAll("#themes .chip").forEach(function(x){x.classList.toggle("on",x.dataset.th===SET.theme)})};
+$("#setclose").onclick=function(){$("#setpanel").classList.remove("open")};
+$("#setname").addEventListener("input",function(){SET.name=this.value.trim()||"Trevor";saveSet()});
+$("#setrate").addEventListener("input",function(){SET.rate=parseFloat(this.value);$("#setratev").textContent=SET.rate.toFixed(2);saveSet()});
+document.querySelectorAll("#themes .chip").forEach(function(c){c.onclick=function(){SET.theme=c.dataset.th;saveSet();applyTheme()};});
+$("#clearchat").onclick=function(){msgs=[];try{localStorage.removeItem("fri_chat")}catch(e){};chat.innerHTML="";addMsg("ai",WELCOME,null,true)};
+/* ===== v4 restore chat history ===== */
+var savedChat=null;try{savedChat=JSON.parse(localStorage.getItem("fri_chat")||"[]")}catch(e){}
+if(savedChat&&savedChat.length){msgs=savedChat.slice(-60);msgs.forEach(function(m){addMsg(m.role==="user"?"user":"ai",m.content,null,true)})}
+else{addMsg("ai",WELCOME,null,true)}
+})();
+</script>
+</body>
+</html>
