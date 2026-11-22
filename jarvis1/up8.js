@@ -53,7 +53,7 @@ function draw(){
   if(f&&(r[0]+" "+r[2]+" "+r[3]).toLowerCase().indexOf(f)<0)return;
   var st=r[1]>=1000?(Math.round(r[1]/100)/10)+"k":""+r[1];
   out.push('<div class="rrow"><a href="https://github.com/'+r[0]+'" target="_blank" rel="noopener">'+esc(r[0])+'</a><span class="rs">\u2605 '+st+'</span><span class="rd">'+esc(r[3])+'</span></div>')});
- $("rlist").innerHTML=out.length?out.join("":'<div class="rd" style="color:#7f95ad;padding:8px 0">no repos match.</div>)}
+ if(out.length){$("rlist").innerHTML=out.join("")}else{$("rlist").innerHTML='<div class="rd" style="color:#7f95ad;padding:8px 0">no repos match.</div>'}}
 CHIPS.forEach(function(c){var b=document.createElement("button");b.className="rchip"+(c[0]==="all"?" on":"");b.textContent=c[0].toUpperCase();b.dataset.c=c[0];$("rchips").appendChild(b)});
 $("rchips").querySelectorAll(".rchip").forEach(function(b){b.onclick=function(){$("rchips").querySelectorAll(".rchip").forEach(function(x){x.classList.remove("on")});b.classList.add("on");cur=b.dataset.c;draw()}});
 $("rq").oninput=function(){q=this.value;draw()};
