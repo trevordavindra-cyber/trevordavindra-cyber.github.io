@@ -1,0 +1,5 @@
+const C='deepagent38-v1';
+const F=['./up17.js?v=1','../deepagent37/up16.js?v=1','../deepagent36/up15.js?v=1','./','./index.html','../deepagent35/up14.js?v=3','../deepagent34/up13.js?v=2','../deepagent33/up12.js?v=1','../deepagent32/up11.js?v=1','../deepagent31/up10.js?v=1','../deepagent30/up9.js?v=1','../deepagent29/styles.css?v=2','../deepagent29/app.js?v=8','../deepagent29/up.js?v=1','../deepagent29/up2.js?v=1','../deepagent29/up3.js?v=1','../deepagent29/up4.js?v=3','../deepagent29/up5.js?v=1','../deepagent29/up6.js?v=2','../deepagent29/up7.js?v=2','../deepagent29/up8.js?v=1'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(n=>{const cl=n.clone();caches.open(C).then(c=>c.put(e.request,cl));return n}).catch(()=>caches.match('./index.html'))))});
