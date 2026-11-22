@@ -1,4 +1,4 @@
-/* deepagent28 up7.js - upgrade pack 7: pin chats in the sidebar (v1.0) */
+/* deepagent28 up7.js - upgrade pack 7: pin chats in the sidebar (v1.1) */
 (function(){
 var DC=document.getElementById('dchats');
 if(!DC||!window.CG){console.log('[up7.js v1.0] core api missing, upgrade inert');return}
@@ -12,14 +12,16 @@ function arm(){
   var d=DC.children[i];
   if(d.getAttribute('data-u7'))continue;
   d.setAttribute('data-u7','1');
-  var sp=d.querySelector('span');if(!sp)continue;
-  var t=sp.textContent;
-  var b=document.createElement('b');
-  b.className='u7pin';b.title=isP(t)?'unpin':'pin';
-  b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
-  b.onclick=function(ev){ev.stopPropagation();toggle(t)};
-  d.insertBefore(b,d.lastElementChild);
-  d.classList.toggle('pin',isP(t));
+  (function(){
+   var sp=d.querySelector('span');if(!sp)return;
+   var t=sp.textContent;
+   var b=document.createElement('b');
+   b.className='u7pin';b.title=isP(t)?'unpin':'pin';
+   b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
+   b.onclick=function(ev){ev.stopPropagation();toggle(t)};
+   d.insertBefore(b,d.lastElementChild);
+   d.classList.toggle('pin',isP(t));
+  })();
  }
 }
 function sort(){
@@ -42,5 +44,5 @@ new MutationObserver(function(){
 var st=document.createElement('style');st.textContent='.u7pin{display:inline-flex;color:var(--dim);cursor:pointer}.u7pin svg{width:14px;height:14px}.dchat.pin{background:rgba(217,119,6,.12)}.dchat.pin .u7pin{color:#d97706}body.dark .dchat.pin{background:rgba(217,119,6,.22)}';
 document.head.appendChild(st);
 arm();sort();
-console.log('[up7] chat pin v1.0 loaded, pinned:',load().length);
+console.log('[up7] chat pin v1.1 loaded, pinned:',load().length);
 })();
