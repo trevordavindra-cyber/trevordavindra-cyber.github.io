@@ -4,7 +4,10 @@ if(window.__u20)return;window.__u20=1;
 if(!window.CG){console.log('[up20.js v1.0] core api missing, upgrade inert');return}
 var ur=document.getElementById('upd');
 if(ur){var vv=ur.querySelector('.val');if(vv)vv.textContent='2.9.19(26)';ur.onclick=function(){sys('2.9.19(26) - you are up to date')}}
-function T(m){try{sys(m)}catch(e){console.log('[up20] '+m)}
+function T(m){
+ try{sys(m)}
+ catch(e){console.log('[up20] '+m)}
+}
 var DC=document.getElementById('dchats');
 if(!DC){console.log('[up20.js v1.0] dchats missing, upgrade inert');return}
 function arcs(){try{return JSON.parse(localStorage.getItem('ds_arc')||'[]')}catch(e){return[]}}
