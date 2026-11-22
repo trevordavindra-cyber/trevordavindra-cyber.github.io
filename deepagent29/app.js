@@ -18,10 +18,10 @@ function togchip(id,on){var e=document.getElementById(id);if(e)e.classList.toggl
 togchip('thinkchip',DT);togchip('searchchip',SRCH);
 var drawer=document.getElementById('drawer'),dback=document.getElementById('dback');
 function closeDrawer(){drawer.style.display='none';dback.style.display='none'}
-function renderD(){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');var dc=document.getElementById('dchats');dc.innerHTML='';if(!l.length){var e=document.createElement('div');e.className='dchat';e.style.color='var(--dim)';e.textContent='no chats yet';dc.appendChild(e)}l.forEach(function(t,i){var d=document.createElement('div');d.className='dchat';var sp=document.createElement('span');sp.textContent=t;var x=document.createElement('b');x.textContent='\\u2715';x.onclick=function(ev){ev.stopPropagation();l.splice(i,1);localStorage.setItem('ds_h',JSON.stringify(l));renderD()};d.appendChild(sp);d.appendChild(x);d.onclick=newChat;dc.appendChild(d)})}
+function renderD(){var l=JSON.parse(localStorage.getItem('ds_h')||'[]');var dc=document.getElementById('dchats');dc.innerHTML='';if(!l.length){var e=document.createElement('div');e.className='dchat';e.style.color='var(--dim)';e.textContent='no chats yet';dc.appendChild(e)}l.forEach(function(t,i){var d=document.createElement('div');d.className='dchat';var sp=document.createElement('span');sp.textContent=t;var x=document.createElement('b');x.textContent='\u2715';x.onclick=function(ev){ev.stopPropagation();l.splice(i,1);localStorage.setItem('ds_h',JSON.stringify(l));renderD()};d.appendChild(sp);d.appendChild(x);d.onclick=newChat;dc.appendChild(d)})}
 document.getElementById('menu').onclick=function(){renderD();drawer.style.display='flex';dback.style.display='block'};
 dback.onclick=closeDrawer;
-document.getElementById('dshare').onclick=function(){var txt=HIST.map(function(m){return (m.role==='user'?'You: ':'ChatGPT: ')+m.content}).join('\\n\\n');navigator.clipboard.writeText(txt||'(empty chat)').then(function(){sys('chat copied, paste it anywhere to share')});closeDrawer()};
+document.getElementById('dshare').onclick=function(){var txt=HIST.map(function(m){return (m.role==='user'?'You: ':'ChatGPT: ')+m.content}).join('\n\n');navigator.clipboard.writeText(txt||'(empty chat)').then(function(){sys('chat copied, paste it anywhere to share')});closeDrawer()};
 document.getElementById('dbottom').onclick=function(){closeDrawer();sheet.style.display='block'};
 function newChat(){HIST=[];SRC=[];chat.innerHTML='';chat.appendChild(welcome);closeDrawer();renderD()}
 document.getElementById('newchat').onclick=newChat;
@@ -42,7 +42,7 @@ document.getElementById('logout').onclick=function(){sys('no account here to log
 function openPanel(kind){
  sheet.style.display='none';panel.style.display='flex';ptitle.textContent=kind==='pers'?'Personalization':(kind==='data'?'Data controls':'Account settings');pbody.innerHTML='';
  if(kind==='data'){
-  pbody.innerHTML='<div class="card"><div class="row"><span class="lb">Improve the model for everyone</span><div class="sw" id="swt"><i></i></div></div></div><div class="note">Allow your content to be used to train our models and improve our services. We secure your data privacy.</div><div class="card"><div class="row" id="shlinks"><span class="lb">Shared links</span><span class="val">\\u203a</span></div></div><div class="card"><div class="row" id="expd"><span class="lb">Export data</span><span class="val">\\u203a</span></div></div><div class="card"><div class="row red" id="delall"><span class="lb">Delete all chats</span></div></div>';
+  pbody.innerHTML='<div class="card"><div class="row"><span class="lb">Improve the model for everyone</span><div class="sw" id="swt"><i></i></div></div></div><div class="note">Allow your content to be used to train our models and improve our services. We secure your data privacy.</div><div class="card"><div class="row" id="shlinks"><span class="lb">Shared links</span><span class="val">\u203a</span></div></div><div class="card"><div class="row" id="expd"><span class="lb">Export data</span><span class="val">\u203a</span></div></div><div class="card"><div class="row red" id="delall"><span class="lb">Delete all chats</span></div></div>';
   var swt=document.getElementById('swt');swt.classList.toggle('on',localStorage.getItem('ds_train')!=='0');
   swt.onclick=function(){swt.classList.toggle('on');localStorage.setItem('ds_train',swt.classList.contains('on')?'1':'0')};
   document.getElementById('shlinks').onclick=function(){sys('no shared links yet')};
@@ -53,7 +53,7 @@ function openPanel(kind){
   var ci=document.getElementById('ci');ci.value=localStorage.getItem('ds_mem')||'';
   ci.onchange=function(){localStorage.setItem('ds_mem',ci.value);sys('custom instructions saved')};
  }else{
-  pbody.innerHTML='<div class="card"><div class="row"><span class="lb">DeepSeek key</span><span class="val" id="kstat">'+(KEY?'saved':'none')+'</span></div><div class="row" id="setkey"><span class="lb">Set / change key</span><span class="val">\\u203a</span></div></div><div class="note">a real deepseek key from platform.deepseek.com turns on the deepseek-chat and deepseek-reasoner brains. it stays in this browser only.</div>';
+  pbody.innerHTML='<div class="card"><div class="row"><span class="lb">DeepSeek key</span><span class="val" id="kstat">'+(KEY?'saved':'none')+'</span></div><div class="row" id="setkey"><span class="lb">Set / change key</span><span class="val">\u203a</span></div></div><div class="note">a real deepseek key from platform.deepseek.com turns on the deepseek-chat and deepseek-reasoner brains. it stays in this browser only.</div>';
   document.getElementById('setkey').onclick=function(){var k=prompt('paste your deepseek api key');if(k&&k.trim()){KEY=k.trim();localStorage.setItem('ds_key',KEY);document.getElementById('kstat').textContent='saved';sys('deepseek key saved')}};
  }
 }
@@ -68,14 +68,14 @@ document.querySelectorAll('[data-go]').forEach(function(r){r.onclick=function(){
  function cur(){return (MODEL.indexOf('deepseek')===0&&KEY)?MODEL:'free relay'}
  function open(anchor){
   close();mm=document.createElement('div');mm.className='mmenu';
-  MODELS.forEach(function(m){var o=document.createElement('div');o.textContent=m+(m===cur()?' \\u2713':'');if(m===cur())o.className='on';o.onclick=function(){close();if(m==='free relay'){MODEL='openai-fast';localStorage.setItem('ds_m',m)}else{MODEL=m;localStorage.setItem('ds_m',m)}var mv=document.getElementById('mval');if(mv)mv.textContent=cur()+' \\u203a';sys(m==='free relay'?'brain: free relay':'model set to '+m+(m.indexOf('deepseek')===0&&!KEY?' - add your deepseek key in account settings or it stays on the free relay':''))};mm.appendChild(o)});
+  MODELS.forEach(function(m){var o=document.createElement('div');o.textContent=m+(m===cur()?' \u2713':'');if(m===cur())o.className='on';o.onclick=function(){close();if(m==='free relay'){MODEL='openai-fast';localStorage.setItem('ds_m',m)}else{MODEL=m;localStorage.setItem('ds_m',m)}var mv=document.getElementById('mval');if(mv)mv.textContent=cur()+' \u203a';sys(m==='free relay'?'brain: free relay':'model set to '+m+(m.indexOf('deepseek')===0&&!KEY?' - add your deepseek key in account settings or it stays on the free relay':''))};mm.appendChild(o)});
   var r=anchor.getBoundingClientRect();mm.style.left=Math.max(10,Math.min(r.left,window.innerWidth-210))+'px';mm.style.top=(r.bottom+8)+'px';
   document.body.appendChild(mm);
  }
  document.addEventListener('click',function(e){if(mm&&e.target!==mm&&!mm.contains(e.target))close()});
  var mr=document.getElementById('mrow');if(mr)mr.onclick=function(e){e.stopPropagation();open(mr)};
  var br=document.getElementById('brand');if(br)br.onclick=function(e){e.stopPropagation();open(br)};
- var mv=document.getElementById('mval');if(mv)mv.textContent=cur()+' \\u203a';
+ var mv=document.getElementById('mval');if(mv)mv.textContent=cur()+' \u203a';
 })();
 /* relay brain + REA core */
 function el(cls,html){var w=document.getElementById('welcome');if(w&&w.parentNode)w.remove();var d=document.createElement('div');d.className='msg '+cls;if(html!=null)d.innerHTML=html;chat.appendChild(d);chat.scrollTop=1e9;return d}
@@ -102,24 +102,24 @@ chat.addEventListener('click',function(e){
 ].forEach(function(c){var b=document.createElement('button');b.className='wchip';b.innerHTML='<svg viewBox="0 0 24 24">'+c[1]+'</svg>';b.appendChild(document.createTextNode(c[0]));b.onclick=function(){var t=c[2];if(t==='surprise me'){var S=['Explain quantum computing like I am five','Write a haiku about my phone battery','Teach me one useful thing in 30 seconds','Plan a 3-day Tokyo trip on a budget'];t=S[Math.floor(Math.random()*S.length)]}inp.value=t;setSend();submit()};ws.appendChild(b)})})();
 function bm(){return (MODEL.indexOf('deepseek')===0&&KEY)?MODEL:'openai-fast'}
 function st(label,detail,run){var d=document.createElement('div');d.className='st'+(run?' run':'');d.innerHTML='<b></b><span></span>';d.querySelector('b').textContent=label;d.querySelector('span').textContent=detail||'';steps.appendChild(d);trace.scrollTop=1e9;return d}
-function clip2(s,n){s=String(s||'').replace(/\s+/g,' ').trim();return s.length>n?s.slice(0,n)+'\\u2026':s}
+function clip2(s,n){s=String(s||'').replace(/\s+/g,' ').trim();return s.length>n?s.slice(0,n)+'\u2026':s}
 function fT(url,max){var t=null;return Promise.race([fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(x){t=x;return x}),new Promise(function(res){setTimeout(function(){res(null)},9000)})]).then(function(x){return x?clip2(x,max):null})['catch'](function(){return t?clip2(t,max):null})}
 function skillText(name){var k='ds_sk_'+name;var t=localStorage.getItem(k),at=parseInt(localStorage.getItem(k+'_at')||'0',10);if(t&&Date.now()-at<7*864e5)return Promise.resolve(t);return fetch('https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/'+name+'/SKILL.md').then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(full){localStorage.setItem(k,full);localStorage.setItem(k+'_at',String(Date.now()));return full})['catch'](function(){return t||''})}
 function reconEv(q){
- var gh=q.match(/github\\.com\\/([A-Za-z0-9_.-]+)\\/([A-Za-z0-9_.-]+)/i);
- var um=q.match(/https?:\\/\\/[^\\s'"<>]+|www\\.[^\\s'"<>]+|\\b[a-z0-9][a-z0-9-]*\\.(?:com|net|org|io|dev|ai|co|app|xyz|me|gg|shop|store|online|site|pages\\.dev)(?:\\/[^\\s'"<>]*)?/i);
+ var gh=q.match(/github\.com\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)/i);
+ var um=q.match(/https?:\/\/[^\s'"<>]+|www\.[^\s'"<>]+|\b[a-z0-9][a-z0-9-]*\.(?:com|net|org|io|dev|ai|co|app|xyz|me|gg|shop|store|online|site|pages\.dev)(?:\/[^\s'"<>]*)?/i);
  var jobs=[];
- if(um){var u=um[0].replace(/[.,;:!)]+$/,'');if(!/^https?:\\/\\//i.test(u))u='https://'+u;if(!gh||u.indexOf('github.com')===-1)jobs.push(fT('https://r.jina.ai/'+u,2600))}
- if(gh){var rp=gh[2].replace(/\\.git$/,'');jobs.push(Promise.all([fT('https://api.github.com/repos/'+gh[1]+'/'+rp,900),fT('https://raw.githubusercontent.com/'+gh[1]+'/'+rp+'/main/README.md',2600)]).then(function(a){return (a[0]||a[1])?('REPO METADATA: '+(a[0]||'(meta unreachable)')+'\\n\\nREADME:\\n'+(a[1]||'(README unreachable)')):null}))}
+ if(um){var u=um[0].replace(/[.,;:!)]+$/,'');if(!/^https?:\/\//i.test(u))u='https://'+u;if(!gh||u.indexOf('github.com')===-1)jobs.push(fT('https://r.jina.ai/'+u,2600))}
+ if(gh){var rp=gh[2].replace(/\.git$/,'');jobs.push(Promise.all([fT('https://api.github.com/repos/'+gh[1]+'/'+rp,900),fT('https://raw.githubusercontent.com/'+gh[1]+'/'+rp+'/main/README.md',2600)]).then(function(a){return (a[0]||a[1])?('REPO METADATA: '+(a[0]||'(meta unreachable)')+'\n\nREADME:\n'+(a[1]||'(README unreachable)')):null}))}
  if(!jobs.length)return Promise.resolve(null);
- return Promise.all(jobs).then(function(rs){var got=rs.filter(Boolean);return got.length?got.join('\\n\\n-----\\n\\n'):null})
+ return Promise.all(jobs).then(function(rs){var got=rs.filter(Boolean);return got.length?got.join('\n\n-----\n\n'):null})
 }
 function reaBlock(sk,ev){
- var block='\\n\\n[REA RUN - Reverse Engineer Anything, github.com/morluto/rea, MIT]';
- if(sk)block+='\\n\\nSKILL METHOD (live skill, follow its routes for this task):\\n'+String(sk).slice(0,13000);
- if(ev)block+='\\n\\nLIVE EVIDENCE (fetched right now from the target; treat as shipped-artifact evidence, cite it, and mark every inference as an inference):\\n'+ev;
- else block+='\\n\\nTARGET EVIDENCE COULD NOT BE FETCHED. Apply the skill discipline anyway: state your assumptions plainly and label what is unverified.';
- block+='\\nEnd of skill run.';
+ var block='\n\n[REA RUN - Reverse Engineer Anything, github.com/morluto/rea, MIT]';
+ if(sk)block+='\n\nSKILL METHOD (live skill, follow its routes for this task):\n'+String(sk).slice(0,13000);
+ if(ev)block+='\n\nLIVE EVIDENCE (fetched right now from the target; treat as shipped-artifact evidence, cite it, and mark every inference as an inference):\n'+ev;
+ else block+='\n\nTARGET EVIDENCE COULD NOT BE FETCHED. Apply the skill discipline anyway: state your assumptions plainly and label what is unverified.';
+ block+='\nEnd of skill run.';
  return block;
 }
 function skillNames(){var t=localStorage.getItem('ds_skills');var at=parseInt(localStorage.getItem('ds_skills_at')||'0',10);if(t&&Date.now()-at<864e5){try{return Promise.resolve(JSON.parse(t))}catch(e){}}return fetch('https://api.github.com/repos/morluto/rea/contents/.agents/skills').then(function(r){return r.json()}).then(function(d){var l=d.filter(function(i){return i.type==='dir'}).map(function(i){return i.name});localStorage.setItem('ds_skills',JSON.stringify(l));localStorage.setItem('ds_skills_at',String(Date.now()));return l})['catch'](function(){return t?JSON.parse(t):['reverse-engineer-anything']})}
@@ -129,17 +129,17 @@ var TOOLS={
  'math.calc':function(x){try{if(!/^[-+*/(). 0-9]+$/.test(String(x)))throw 0;return String(Function('return('+x+')')())}catch(e){return 'bad expression'}},
  'memory':function(x){if(String(x)==='load')return localStorage.getItem('ds_mem')||'(memory empty)';localStorage.setItem('ds_mem',String(x));return 'stored'},
  'clock':function(){return new Date().toString()},
- 'rea':function(x){return Promise.all([skillText('reverse-engineer-anything'),reconEv(String(x))]).then(function(r){return reaBlock(r[0],r[1])+'\\nAnswer by walking artifact -> observation -> conclusion, marking every inference as an inference.'})},
+ 'rea':function(x){return Promise.all([skillText('reverse-engineer-anything'),reconEv(String(x))]).then(function(r){return reaBlock(r[0],r[1])+'\nAnswer by walking artifact -> observation -> conclusion, marking every inference as an inference.'})},
  'skills':function(x){
   var q=String(x).trim();
   return skillNames().then(function(l){SKILLS=l;
-   if(!q||/^list\\b/i.test(q))return 'skills installed ('+l.length+'): '+l.join(', ')+' - load one with input "<skill-name> <target or question>"';
+   if(!q||/^list\b/i.test(q))return 'skills installed ('+l.length+'): '+l.join(', ')+' - load one with input "<skill-name> <target or question>"';
    var ql=q.toLowerCase(),name=null;
    for(var i=0;i<l.length;i++){if(ql.indexOf(l[i].toLowerCase())===0){name=l[i];break}}
    if(!name){for(var j=0;j<l.length;j++){if(ql.indexOf(l[j].toLowerCase().replace(/^rea-/,''))>-1){name=l[j];break}}}
    if(!name)return 'skills installed: '+l.join(', ')+' - pass one of these names first';
-   var rest=q.slice(name.length).replace(/^[\\s:,.-]+/,'');
-   return Promise.all([skillText(name),rest?reconEv(rest):Promise.resolve(null)]).then(function(r){return reaBlock(r[0],r[1])+'\\nFollow the loaded skill method on the request. Mark every inference as an inference.'})
+   var rest=q.slice(name.length).replace(/^[\s:,.-]+/,'');
+   return Promise.all([skillText(name),rest?reconEv(rest):Promise.resolve(null)]).then(function(r){return reaBlock(r[0],r[1])+'\nFollow the loaded skill method on the request. Mark every inference as an inference.'})
   })
  }
 };
@@ -158,7 +158,7 @@ function callStream(body,onChunk,tries){
   function pump(){return rd.read().then(function(d){
    if(d.done){if(!full&&tries<2)return new Promise(function(s){setTimeout(s,3000)}).then(function(){return callStream(body,onChunk,tries+1)});return full}
    buf+=dec.decode(d.value,{stream:true});
-   var ls=buf.split('\\n');buf=ls.pop();
+   var ls=buf.split('\n');buf=ls.pop();
    ls.forEach(function(l){l=l.trim();if(l.slice(0,5)!=='data:')return;var p=l.slice(5).trim();if(p==='[DONE]')return;try{var j=JSON.parse(p);var ch=j.choices&&j.choices[0];var c=(ch&&(ch.delta&&ch.delta.content||ch.message&&ch.message.content)||ch&&ch.text)||'';if(c){full+=c;if(onChunk)onChunk(full)}}catch(e){}});
    return pump();
   })}
@@ -173,25 +173,25 @@ function finish(){RUNNING=false;STOP=false;setSend()}
 function esc(x){return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function md(t){
  t=esc(t);var blocks=[];
- t=t.replace(/```(\\w*)\\n?([\\s\\S]*?)```/g,function(m,l,c){blocks.push('<div class="code"><div class="chead"><span>'+(l||'code')+'</span><button class="cpy" data-c="'+encodeURIComponent(c)+'">copy</button></div><pre>'+c.replace(/\\n$/,'')+'</pre></div>');return '\\u0000B'+(blocks.length-1)+'\\u0000'});
- t=t.replace(/`([^`\\n]+)`/g,'<code>$1</code>');
- t=t.replace(/\\*\\*([^*]+)\\*\\*/g,'<b>$1</b>');
+ t=t.replace(/```(\w*)\n?([\s\S]*?)```/g,function(m,l,c){blocks.push('<div class="code"><div class="chead"><span>'+(l||'code')+'</span><button class="cpy" data-c="'+encodeURIComponent(c)+'">copy</button></div><pre>'+c.replace(/\n$/,'')+'</pre></div>');return '\u0000B'+(blocks.length-1)+'\u0000'});
+ t=t.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+ t=t.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
  t=t.replace(/^### (.+)$/gm,'<h4>$1</h4>').replace(/^## (.+)$/gm,'<h3>$1</h3>');
- t=t.replace(/^[-*] (.+)$/gm,'\\u2022 $1');
- t=t.replace(/\\n/g,'<br>');
- t=t.replace(/\\u0000B(\\d+)\\u0000/g,function(m,i){return blocks[+i]});
+ t=t.replace(/^[-*] (.+)$/gm,'\u2022 $1');
+ t=t.replace(/\n/g,'<br>');
+ t=t.replace(/\u0000B(\d+)\u0000/g,function(m,i){return blocks[+i]});
  return t;
 }
 function finishBubble(d,txt,th,started){
  var html='';
  if(th)html+='<div class="think"><button class="thd">thought for '+Math.max(1,Math.round((Date.now()-started)/1000))+'s</button><div class="tbody">'+esc(th)+'</div></div>';
  html+=md(txt);
- if(SRC.length)html+='<div class="srcs">sources: '+SRC.slice(0,3).map(function(u){return '<a href="'+u+'" target="_blank" rel="noopener">'+u.replace(/^https?:\\/\\//,'').slice(0,60)+'</a>'}).join(' | ')+'</div>';
+ if(SRC.length)html+='<div class="srcs">sources: '+SRC.slice(0,3).map(function(u){return '<a href="'+u+'" target="_blank" rel="noopener">'+u.replace(/^https?:\/\//,'').slice(0,60)+'</a>'}).join(' | ')+'</div>';
  html+=actsHtml()+'<div class="sugg" data-sg></div>';
  d.innerHTML=html;d.dataset.raw=txt;
  var sg=d.querySelector('[data-sg]');
  var sgq={model:bm(),messages:[{role:'user',content:'Here is an exchange. Reply ONLY a JSON array of 3 very short follow-up questions the user might ask next. Exchange: '+(HIST.slice(-2).map(function(m){return m.content.slice(0,300)}).join(' | '))}]};
- call(sgq).then(function(r){try{var a=JSON.parse(r.match(/\\[[\\s\\S]*\\]/)[0]);sg.innerHTML='';a.slice(0,3).forEach(function(q){var b=document.createElement('button');b.className='sgchip';b.textContent=q;b.onclick=function(){inp.value=q;setSend();submit()};sg.appendChild(b)})}catch(e){}}).catch(function(){});
+ call(sgq).then(function(r){try{var a=JSON.parse(r.match(/\[[\s\S]*\]/)[0]);sg.innerHTML='';a.slice(0,3).forEach(function(q){var b=document.createElement('button');b.className='sgchip';b.textContent=q;b.onclick=function(){inp.value=q;setSend();submit()};sg.appendChild(b)})}catch(e){}}).catch(function(){});
  HIST.push({role:'assistant',content:txt});save(txt.slice(0,40));try{if(window.__upP)window.__upP()}catch(e){};finish();
 }
 function bubble(txt){var t=String(txt).trim()||'(empty)';var d=el('ai');d.dataset.raw=t;d.innerHTML=md(t)+actsHtml();HIST.push({role:'assistant',content:t});save(t.slice(0,40));try{if(window.__upP)window.__upP()}catch(e){};finish()}
@@ -200,10 +200,10 @@ function run(goal){
  st('GOAL',goal,true);
  function ask(note){
   if(STOP){sys('stopped.');finish();return}
-  var u=goal+(note?('\\n\\n[last tool result]: '+note):'');
+  var u=goal+(note?('\n\n[last tool result]: '+note):'');
   return brain(u).then(function(raw){
    turns++;if(turns>7){bubble('agent hit the step limit: '+raw);return}
-   var j=null;try{var m=raw.match(/\\{[\\s\\S]*\\}/);j=JSON.parse(m?m[0]:raw)}catch(e){}
+   var j=null;try{var m=raw.match(/\{[\s\S]*\}/);j=JSON.parse(m?m[0]:raw)}catch(e){}
    if(!j||(!j.final&&!Array.isArray(j.plan))){
     if(!repaired){repaired=true;return ask('STOP. Your last reply was plain text, which is invalid. Reply ONLY with one JSON object: either the plan/tool object or {"final":"..."}. Goal: '+goal+(note?' Last result: '+note.slice(0,400):''))}
     bubble(raw);return}
@@ -215,7 +215,7 @@ function run(goal){
     var s=st('STEP '+(idx+1)+'/'+plan.length,plan[idx]+(j.tool&&j.tool!=='none'?' ['+j.tool+']':''),true);
     if(!j.tool||j.tool==='none'||!TOOLS[j.tool]){ask('step '+(idx+1)+': if done reply final, else pick a tool')}
     else{TOOLS[j.tool](String(j.tool_input||'')).then(function(out){
-     s.classList.remove('run');s.querySelector('span').textContent=plan[idx]+' ['+j.tool+'] -> '+String(out).slice(0,120).replace(/\\n/g,' ');
+     s.classList.remove('run');s.querySelector('span').textContent=plan[idx]+' ['+j.tool+'] -> '+String(out).slice(0,120).replace(/\n/g,' ');
      ask(out.slice(0,2800));
     }).catch(function(e){s.classList.remove('run');s.querySelector('span').textContent=plan[idx]+' ['+j.tool+'] failed';ask('tool failed: '+e.message)})}
    }else{bubble(raw)}
@@ -236,7 +236,7 @@ function plain(goal){
  }
  function streamAnswer(th){
   var d=el('ai');d.innerHTML='<span class="cursor"></span>';
-  return callStream({model:bm(),messages:[{role:'system',content:HARNESS_PLAIN}].concat(HIST.slice(-6),th?[{role:'system',content:'Private reasoning notes to build on:\\n'+th}]:[],[{role:'user',content:goal}])},function(full){
+  return callStream({model:bm(),messages:[{role:'system',content:HARNESS_PLAIN}].concat(HIST.slice(-6),th?[{role:'system',content:'Private reasoning notes to build on:\n'+th}]:[],[{role:'user',content:goal}])},function(full){
    d.innerHTML=md(full)+'<span class="cursor"></span>';chat.scrollTop=1e9;
   }).then(function(full){
    if(!full)throw new Error('relay gave nothing');
@@ -251,7 +251,7 @@ function plain(goal){
 function submit(){
  if(RUNNING){STOP=true;if(CTRL){try{CTRL.abort()}catch(e){}}sys('stopped');setSend();return}
  var v=inp.value.trim();if(!v)return;inp.value='';inp.style.height='auto';setSend();
- if(FILECTX){v='[attached file: '+FILECTX.name+']\\n'+FILECTX.text+'\\n\\n'+v;FILECTX=null}
+ if(FILECTX){v='[attached file: '+FILECTX.name+']\n'+FILECTX.text+'\n\n'+v;FILECTX=null}
  SRC=[];
  var ct=document.getElementById('ctitle');if(ct&&!ct.textContent)ct.textContent=v.slice(0,30);
  el('you').textContent=v;HIST.push({role:'user',content:v});
