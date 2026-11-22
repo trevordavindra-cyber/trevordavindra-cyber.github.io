@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#04070d">
+<title>J.A.R.V.I.S. — Stark Industries</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2337d1ff' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='3' fill='%2337d1ff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../jarvis1/styles.css?v=8">
+</head>
+<body>
+<div id="app">
+ <header id="topbar">
+  <div id="logo">STARK INDUSTRIES</div>
+  <div id="brandtag">J.A.R.V.I.S. <em>v3.7.0</em> <span class="online">ONLINE <i></i></span></div>
+  <div id="clockbox"><span id="cdate"></span><b id="ctime"></b></div>
+ </header>
+ <div id="shell">
+  <nav id="sidebar">
+   <button class="nav on" data-n="home"><i>⌂</i>HOME</button>
+   <button class="nav" data-n="assistant"><i>✦</i>AI ASSISTANT</button>
+   <button class="nav" data-n="systems"><i>⚙</i>SYSTEMS</button>
+   <button class="nav" data-n="security"><i>🛡</i>SECURITY</button>
+   <button class="nav" data-n="network"><i>🌐</i>NETWORK</button>
+   <button class="nav" data-n="files"><i>🗂</i>FILES</button>
+   <button class="nav" data-n="robotics"><i>🦾</i>ROBOTICS</button>
+   <button class="nav" data-n="roblox"><i>▶</i>ROBLOX STUDIO</button>
+   <button class="nav" data-n="hacking"><i>☠</i>HACKING TOOLS</button>
+   <button class="nav" data-n="multi"><i>🛠</i>MULTI-TOOLS</button>
+   <button class="nav" data-n="settings"><i>⚙</i>SETTINGS</button>
+  </nav>
+  <main id="grid">
+   <section class="col left">
+    <div class="panel"><h3>SYSTEM STATUS</h3>
+     <div class="meter"><span>CPU USAGE</span><b id="m_cpu">12%</b><div><i id="f_cpu"></i></div></div>
+     <div class="meter"><span>RAM USAGE</span><b id="m_ram">34%</b><div><i id="f_ram"></i></div></div>
+     <div class="meter"><span>STORAGE</span><b id="m_sto">78%</b><div><i id="f_sto"></i></div></div>
+     <div class="meter"><span>GPU TEMP</span><b id="m_gpu">42°C</b><div><i id="f_gpu"></i></div></div>
+    </div>
+    <div class="panel"><h3>NETWORK</h3>
+     <div class="nrow"><span>DOWNLOAD</span><b id="n_dl">412.6 Mbps</b></div>
+     <div class="nrow"><span>UPLOAD</span><b id="n_up">398.1 Mbps</b></div>
+     <div class="nrow"><span>PING</span><b id="n_ping">4 ms</b></div>
+     <canvas id="ngraph"></canvas>
+    </div>
+    <div class="panel"><h3>GLOBAL MAP</h3><canvas id="map"></canvas></div>
+   </section>
+   <section id="stage">
+    <div id="hud">
+     <div id="ring"><i></i><i></i><i></i><b></b></div>
+     <div id="reactor"><div id="id">J.A.R.V.I.S.</div><div id="sub">Just A Rather Very Intelligent System</div></div>
+    </div>
+    <div id="banner"><em></em><div><b>SYSTEMS ONLINE</b><small>All systems operational. How can I help you today?</small></div><em></em></div>
+    <aside id="trace"><div id="steps"></div></aside>
+   </section>
+   <section class="col right">
+    <div class="panel"><h3>VOICE CONTROL</h3>
+     <div id="voice">
+      <button id="mic" title="speak"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <div id="wave"></div>
+      <span id="vstate"></span>
+     </div>
+    </div>
+    <div class="panel chatpanel"><h3>J.A.R.V.I.S. CHAT</h3>
+     <div id="log"></div>
+     <div id="composer">
+      <textarea id="inp" placeholder="Type a command..." rows="1"></textarea>
+      <button id="speak" title="voice replies"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></button>
+      <button id="send" title="send"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="none"/><path d="M12 17V8M8.5 11.5 12 8l3.5 3.5" stroke="#04070d"/></svg></button>
+     </div>
+    </div>
+   </section>
+   <section class="col quick">
+    <div class="panel"><h3>QUICK ACTIONS</h3>
+     <div id="qactions">
+      <button class="qa" data-a="shutdown"><i>⏻</i>Shutdown</button>
+      <button class="qa" data-a="restart"><i>⟳</i>Restart</button>
+      <button class="qa" data-a="lock"><i>🔒</i>Lock PC</button>
+      <button class="qa" data-a="boost"><i>🚀</i>Boost Performance</button>
+      <button class="qa" data-a="screenshot"><i>📷</i>Screenshot</button>
+      <button class="qa" data-a="record"><i>⏺</i>Record</button>
+      <button class="qa" data-a="wifi"><i>📶</i>Toggle Wi-Fi</button>
+      <button class="qa" data-a="threats"><i>🛡</i>Scan Threats</button>
+     </div>
+    </div>
+   </section>
+   <section id="bottomrow">
+    <div class="panel"><h3>ACTIVE PROCESSES</h3><div id="procs"></div></div>
+    <div class="panel"><h3>REAL-TIME FEED</h3><div id="feed"></div></div>
+   </section>
+  </main>
+ </div>
+ <div id="toast"></div>
+ <div id="blackout">J.A.R.V.I.S. GOING DARK…</div>
+</div>
+<script src="../jarvis1/app.js?v=14"></script>
+<script src="../jarvis1/up.js?v=6"></script>
+<script src="../jarvis1/up2.js?v=6"></script>
+<script src="../jarvis1/up3.js?v=6"></script>
+<script src="../jarvis1/up4.js?v=6"></script>
+<script src="../jarvis1/up5.js?v=6"></script>
+<script src="../jarvis1/up6.js?v=6"></script>
+<script src="../jarvis1/up7.js?v=7"></script>
+<script src="../jarvis1/up10.js?v=2"></script>
+<script src="../jarvis1/up11.js?v=1"></script>
+</body>
+</html>
