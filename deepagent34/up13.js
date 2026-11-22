@@ -1,6 +1,6 @@
-/* deepagent34 up13.js - upgrade pack 13: read replies aloud (v1.0) */
+/* deepagent34 up13.js - upgrade pack 13: read replies aloud (v1.1) */
 (function(){
-if(!window.CG){console.log('[up13.js v1.0] core api missing, upgrade inert');return}
+if(!window.CG){console.log('[up13.js v1.1] core api missing, upgrade inert');return}
 var ur=document.getElementById('upd');
 if(ur){var vv=ur.querySelector('.val');if(vv)vv.textContent='2.9.12(19)';ur.onclick=function(){sys('2.9.12(19) - you are up to date')}}
 function toast(t){try{if(typeof sys==='function'){sys(t)}else{console.log('[up13] '+t)}}catch(e){}}
@@ -30,7 +30,7 @@ function speak(d,b){
  console.log('[up13] speaking',t.length,'chars');
 }
 var CH=document.getElementById('chat');
-if(!CH){console.log('[up13.js v1.0] chat missing, upgrade inert');return}
+if(!CH){console.log('[up13.js v1.1] chat missing, upgrade inert');return}
 function addBtn(d){
  var b=document.createElement('button');b.title='read reply aloud';b.className='up13speak';
  b.style.cssText='display:inline-flex;align-items:center;gap:6px;color:var(--dim);font-size:12px;padding:4px 8px;margin:2px 0 12px;border-radius:8px;cursor:pointer;background:transparent;border:0';
@@ -42,6 +42,8 @@ function hook(){
  for(var i=0;i<ais.length;i++){var d=ais[i];if(d.getAttribute('data-u13'))continue;
   if(!d.querySelector('.acts')){setTimeout(hook,300);return}
   d.setAttribute('data-u13','1');
+  var nb=d.querySelector('.acts button[title="read aloud"]');
+  if(nb){if(!nb.classList.contains('up13speak')){nb.classList.add('up13speak');nb.title='read reply aloud';console.log('[up13] wired native read-aloud button')}continue}
   var b=addBtn(d);
   var sg=d.querySelector('.sugg');if(sg)d.insertBefore(b,sg);else d.appendChild(b);
  }
@@ -63,5 +65,5 @@ document.addEventListener('click',function(ev){
 var st=document.createElement('style');
 st.textContent='.up13speak.on{color:#0d9488}';
 document.head.appendChild(st);
-console.log('[chatgpt up13.js v1.0] read aloud loaded');
+console.log('[chatgpt up13.js v1.1] read aloud loaded');
 })();
