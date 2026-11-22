@@ -1,4 +1,4 @@
-/* JARVIS v1.0 - voice-first personal AI, fresh build. relay brain + REA mandatory */
+/* JARVIS v1.1 - combined build: agent brain, privacy, voice, 13 tools. REA mandatory */
 (function(){
 "use strict";
 var $=function(id){return document.getElementById(id)};
@@ -13,7 +13,7 @@ function md(s){
  var out=esc(s);
  var blocks=[];out=out.replace(/```(\w*)\n?([\s\S]*?)```/g,function(m,l,c){blocks.push(c);return "\x01"+(blocks.length-1)+"\x01"});
  out=out.replace(/`([^`\n]+)`/g,"<code>$1</code>");
- out=out.replace(/!\\[([^\\]]*)\\]\\((https?:[^)\\s]+)\\)/g,'<img src="$2" alt="$1" style="max-width:100%;border-radius:12px;display:block;margin:8px 0">');
+ out=out.replace(/!\[([^\]]*)\]\((https?:[^)\s]+)\)/g,'<img src="$2" alt="$1" style="max-width:100%;border-radius:12px;display:block;margin:8px 0">');
  out=out.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
  out=out.replace(/(^|[\s(])((?:https?:\/\/)[^\s<)]+)/g,'$1<a href="$2" target="_blank" rel="noopener">$2</a>');
  out=out.replace(/\*\*([^*\n]+)\*\*/g,"<b>$1</b>");
