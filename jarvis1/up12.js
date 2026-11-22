@@ -1,8 +1,8 @@
-/* JARVIS up12.js v2 - mobile HUD layout: same stark look, compact phone layout, chat right under the reactor */
+/* JARVIS up12.js v3 - mobile HUD layout: same stark look, compact phone layout, chat right under the reactor */
 (function(){
 "use strict";
 var css = `
-/* JARVIS up12.js v2: mobile layout */
+/* JARVIS up12.js v3: mobile layout */
 @media(max-width:1100px){
   #app{max-width:100%;overflow-x:hidden}
   #topbar{padding:8px 12px;gap:8px}
@@ -17,6 +17,9 @@ var css = `
   #sidebar{scrollbar-width:none}
   .nav{padding:7px 10px;font-size:10px;letter-spacing:1px;white-space:nowrap;flex:0 0 auto}
   #grid{grid-template-columns:1fr 1fr;gap:8px;padding:8px}
+  #clockbox{padding-right:30px}
+  #grid>.panel#abmem{order:5;grid-column:1}
+  #grid>.panel#absp{order:5;grid-column:2}
   .panel{padding:10px 11px}
   .panel h3{font-size:10px;letter-spacing:1.5px;margin-bottom:8px}
   #stage{grid-column:1/-1;order:1;min-height:0;padding:4px 0 2px}
@@ -36,20 +39,23 @@ var css = `
   .col.quick{order:4;grid-column:1/-1}
   #qactions{grid-template-columns:repeat(4,1fr);gap:6px}
   .qa{padding:8px 4px;font-size:9px}
-  #bottomrow{order:5;grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #bottomrow{order:6;grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #jvwake{bottom:14px;left:12px}
   #composer textarea{font-size:16px}
   #log{font-size:12px}
 }
-@media(max-width:460px){
+@media(max-width:360px){
   #grid{grid-template-columns:1fr}
   .col.left{grid-template-columns:1fr}
+  #grid>.panel#abmem,#grid>.panel#absp{grid-column:1/-1}
   #bottomrow{grid-template-columns:1fr}
   #qactions{grid-template-columns:repeat(2,1fr)}
   #ring{width:66vw;height:66vw}
   #reactor{width:58vw;height:58vw}
   #banner b{font-size:12px;letter-spacing:2px}
+  #jvwake{width:42px;height:42px}
 }
 `;
 try{document.head.appendChild(Object.assign(document.createElement('style'),{textContent:css}))}catch(e){}
-try{console.log('[JARVIS up12.js v2] mobile HUD layout loaded: 2-col phone grid, compact reactor, chat right under the reactor')}catch(e){}
+try{console.log('[JARVIS up12.js v3] mobile HUD layout loaded: 2-col phone grid, compact reactor, chat right under the reactor')}catch(e){}
 })();
