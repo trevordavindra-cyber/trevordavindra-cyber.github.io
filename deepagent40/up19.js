@@ -1,12 +1,12 @@
-/* deepagent40 up19.js - upgrade pack 19: message details (v1.1, timestamps + star) */
+/* deepagent40 up19.js - upgrade pack 19: message details (v1.2, timestamps + star) */
 (function(){
 if(window.__u19)return;window.__u19=1;
-if(!window.CG){console.log('[up19.js v1.1] core api missing, upgrade inert');return}
+if(!window.CG){console.log('[up19.js v1.2] core api missing, upgrade inert');return}
 var ur=document.getElementById('upd');
 if(ur){var vv=ur.querySelector('.val');if(vv)vv.textContent='2.9.18(25)';ur.onclick=function(){sys('2.9.18(25) - you are up to date')}}
 function T(m){try{sys(m)}catch(e){console.log('[up19] '+m)}}
 var chat=document.getElementById('chat');
-if(!chat){console.log('[up19.js v1.1] chat missing, upgrade inert');return}
+if(!chat){console.log('[up19.js v1.2] chat missing, upgrade inert');return}
 function hms(d){var h=d.getHours(),m=d.getMinutes();return (h<10?'0':'')+h+':'+(m<10?'0':'')+m}
 var starred=[];
 try{starred=JSON.parse(localStorage.getItem('ds_star')||'[]')}catch(e){starred=[]}
@@ -34,13 +34,13 @@ chat.addEventListener('click',function(e){
 },true);
 var panel=document.createElement('div');panel.id='u19panel';
 panel.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70';
-panel.innerHTML='<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#0d0d0d;border-radius:14px;padding:18px;max-width:520px;width:90%;max-height:70vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.25)"><div style="display:flex;align-items:center;justify-content:space-between"><b id="u19stars">Starred (0)</b><button id="u19x" style="border:0;background:none;cursor:pointer;font-size:18px;color:#0d0d0d">&#10005;</button></div><div id="u19list" style="margin-top:10px"></div></div>';
+panel.innerHTML='<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#0d0d0d;border-radius:14px;padding:18px;max-width:520px;width:90%;max-height:70vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.25)"><div style="display:flex;align-items:center;justify-content:space-between"><b id="u19pcount">Starred (0)</b><button id="u19x" style="border:0;background:none;cursor:pointer;font-size:18px;color:#0d0d0d">&#10005;</button></div><div id="u19list" style="margin-top:10px"></div></div>';
 document.body.appendChild(panel);
 panel.addEventListener('click',function(e){
  if(e.target===panel||e.target.id==='u19x'){panel.style.display='none';return}
  if(e.target&&e.target.classList&&e.target.classList.contains('u19row')){panel.style.display='none';var inp=document.getElementById('inp');if(inp){inp.value=e.target.getAttribute('data-full')||e.target.textContent;inp.focus()}}
 });
-function syncCount(){var n=document.getElementById('u19stars');if(n)n.textContent='Starred ('+starred.length+')'}
+function syncCount(){var a=document.getElementById('u19stars');if(a)a.textContent='Starred ('+starred.length+')';var b=document.getElementById('u19pcount');if(b)b.textContent='Starred ('+starred.length+')'}
 function renderPanel(){
  var l=document.getElementById('u19list');if(!l)return;
  l.innerHTML='';
@@ -79,5 +79,5 @@ var mo=new MutationObserver(function(){try{hook()}catch(e){}});
 mo.observe(chat,{childList:true,subtree:true});
 addDrawer();
 hook();
-console.log('[chatgpt up19.js v1.1] message details loaded: timestamps on every message + star replies, starred list in the sidebar');
+console.log('[chatgpt up19.js v1.2] message details loaded: timestamps on every message + star replies, starred list in the sidebar');
 })();
