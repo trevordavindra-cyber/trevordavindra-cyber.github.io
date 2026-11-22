@@ -1,4 +1,4 @@
-/* JARVIS Stark Industries HUD theme v2 */
+/* JARVIS Stark Industries HUD theme v3 */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--red:#ff2b3a;--blue:#37d1ff;--cyan:#7fe3ff;--bg:#05070d;--panel:rgba(8,13,22,.86);--line:rgba(255,60,70,.5);--text:#d8e6f5;--dim:#7f95ad}
 html,body{height:100%}
@@ -35,7 +35,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .nrow b{color:#fff}
 #ngraph{width:100%;height:44px;display:block;margin-top:6px}
 #map{width:100%;height:150px;display:block}
-#stage{position:relative;min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;order:1}
+#stage{position:relative;min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px}
 #hud{position:relative;width:min(420px,72vw);aspect-ratio:1;display:flex;align-items:center;justify-content:center;transition:transform .3s}
 #hud.small{transform:scale(.82)}
 #ring{position:absolute;inset:0}
@@ -93,7 +93,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .qa{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border:1px solid rgba(255,43,58,.28);border-radius:10px;background:rgba(20,8,12,.5);font-size:9.5px;letter-spacing:.5px;color:#ffd9dc;text-align:center}
 .qa i{font-style:normal;font-size:19px;color:var(--red);filter:drop-shadow(0 0 8px rgba(255,43,58,.8))}
 .qa:hover{border-color:var(--red);box-shadow:0 0 10px rgba(255,43,58,.35)}
-#bottomrow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px;order:5}
+#bottomrow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 #procs .prow{display:flex;align-items:center;gap:10px;font-size:12px;color:#cfe0ef;margin:8px 0}
 #procs .prow span{flex:none;min-width:130px}
 #procs .prow i{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
@@ -116,7 +116,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
  #sidebar{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--line);padding:8px;order:0}
  .nav{padding:8px 10px}
  #grid{grid-template-columns:1fr}
- .col.left{order:4}.col.right{order:2}.col.quick{order:3}
+ .col.left{order:4}.col.right{order:2}.col.quick{order:3}#stage{order:1}#bottomrow{order:5}
  #stage{min-height:380px}
  #bottomrow{grid-template-columns:1fr}
  #clockbox{min-width:0}
