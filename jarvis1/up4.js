@@ -1,0 +1,11 @@
+/* JARVIS up4.js v1 - titan pack: wayback, research papers, crypto, books, nasa space. strongest ideas pulled from the 1000 */
+(function(){
+"use strict";
+var J=window.JTOOLS=window.JTOOLS||{};
+J["wayback"]=function(a){var u=(a.url||"").replace(/^https?:\/\//,"");return fetch("https://archive.org/wayback/available?url="+encodeURIComponent(u)).then(function(r){return r.json()}).then(function(d){var s=d.archived_snapshots&&d.archived_snapshots.closest;if(!s)return "no archived snapshot found";return "archived "+s.timestamp.slice(0,4)+": "+s.url}).catch(function(e){return "wayback failed: "+e.message})};
+J["papers"]=function(a){return fetch("https://api.semanticscholar.org/graph/v1/paper/search?query="+encodeURIComponent(a.query||"")+"&limit=5&fields=title,year,url").then(function(r){return r.json()}).then(function(d){return (d.data||[]).map(function(x,i){return (i+1)+". "+x.title+(x.year?" ("+x.year+")":"")+"\n   "+(x.url||"no link")}).join("\n")||"no papers found"}).catch(function(e){return "papers failed: "+e.message})};
+J["crypto"]=function(a){var id=(a.coin||"bitcoin").toLowerCase().trim();return fetch("https://api.coingecko.com/api/v3/simple/price?ids="+encodeURIComponent(id)+"&vs_currencies=usd").then(function(r){return r.json()}).then(function(d){var v=d[id]&&d[id].usd;return v!=null?id+" = $"+v.toLocaleString():"unknown coin; use bitcoin, ethereum, solana, dogecoin and similar names"}).catch(function(e){return "crypto failed: "+e.message})};
+J["book"]=function(a){return fetch("https://openlibrary.org/search.json?q="+encodeURIComponent(a.title||a.query||"")+"&limit=5").then(function(r){return r.json()}).then(function(d){return (d.docs||[]).map(function(x,i){return (i+1)+". "+x.title+" - "+(x.author_name?x.author_name.join(", "):"unknown")+(x.first_year?" ("+x.first_year+")":"")}).join("\n")||"no books found"}).catch(function(e){return "book failed: "+e.message})};
+J["space"]=function(){return fetch("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY").then(function(r){return r.json()}).then(function(d){return "NASA picture of the day: "+d.title+"\n"+(d.explanation||"").slice(0,500)+"\n"+(d.url||"")}).catch(function(e){return "space failed: "+e.message})};
+console.log("[JARVIS up4.js v1] titan pack on: wayback, papers, crypto, books, space.");
+})();
