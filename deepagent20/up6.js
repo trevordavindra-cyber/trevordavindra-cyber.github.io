@@ -29,6 +29,9 @@ st.textContent=[
 '#drawer{background:#f9f9f9}',
 '#wsugg{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:680px;margin:16px auto 0;align-items:flex-start}',
 '#wsugg .chip,#wsugg .gchip,#wsugg button{width:auto;flex:0 0 auto;white-space:nowrap}',
+'#surp{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:24px;font-size:14px;line-height:1.2;width:auto !important;height:auto !important;min-height:0 !important;box-shadow:none}',
+'#surp svg{width:14px !important;height:14px !important;stroke:#a855f7 !important;fill:none !important;stroke-width:2 !important;stroke-linecap:round}',
+'#wsugg .chip{height:auto !important;line-height:1.2}',
 '.gchip{font:inherit}',
 '#drawer .dsearch{background:#fff;border-color:#e5e5e5}',
 '.gchip{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:24px;font-size:14px;cursor:pointer;color:#0d0d0d;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(90deg,#a855f7,#ec4899) border-box;border:1.5px solid transparent}',
@@ -99,6 +102,7 @@ if(ws){
     var g=mk('button','gchip');
     g.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>';
     g.appendChild(D.createTextNode(label));
+    g.id='surp';
     g.onclick=fn;ws.appendChild(g);return g;
   }
   MASKS.forEach(function(m){
