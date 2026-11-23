@@ -22,12 +22,18 @@ h1 b{color:var(--gold)}
 .mchip{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:999px;padding:8px 15px;font:inherit;font-size:11px;letter-spacing:.12em}
 .mchip.on{color:#1a1204;background:var(--gold);border-color:var(--gold);font-weight:700}
 .mchip:hover{border-color:var(--gold);color:var(--gold)}
+.trends{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0 0}
+.tchip{cursor:pointer;border:1px dashed var(--line);background:transparent;color:var(--dim);border-radius:999px;padding:5px 11px;font:inherit;font-size:10px}
+.tchip:hover{border-color:var(--cyan);color:var(--cyan)}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}
 .panel h2{font-size:12px;letter-spacing:.2em;color:var(--cyan);text-transform:uppercase;margin-bottom:10px}
 textarea,input[type=text]{width:100%;background:#06060d;border:1px solid var(--line);border-radius:9px;color:var(--txt);padding:11px 12px;font:inherit;font-size:13px;outline:none;resize:vertical}
 textarea:focus,input:focus{border-color:var(--gold)}
+select{background:#06060d;border:1px solid var(--line);border-radius:8px;color:var(--txt);padding:9px 10px;font:inherit;font-size:11px;outline:none;max-width:180px}
 .opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;align-items:center}
 .opts input[type=text]{max-width:190px}
+.setrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;font-size:11px;color:var(--dim)}
+input[type=range]{accent-color:var(--gold);width:110px}
 .go{cursor:pointer;border:0;border-radius:9px;padding:12px 26px;font:inherit;font-size:13px;letter-spacing:.1em;font-weight:700;color:#1a1204;background:var(--gold)}
 .go:disabled{opacity:.45}
 .steps{margin-top:12px;font-size:12px;line-height:1.75;color:var(--dim);max-height:150px;overflow:auto}
@@ -36,7 +42,11 @@ textarea:focus,input:focus{border-color:var(--gold)}
 .scene{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#08080f}
 .scene img{width:100%;display:block;aspect-ratio:9/16;object-fit:cover}
 .scene .sc{padding:7px;font-size:10px;color:var(--dim);line-height:1.45}
-.scene .sc b{color:var(--txt);display:block;font-size:10.5px;margin-bottom:3px}
+.scene .sc b{color:var(--txt);display:block;font-size:10.5px;margin-bottom:3px;outline:none}
+.scene .sc b:focus{background:rgba(255,201,51,.12)}
+.scene .tools{display:flex;gap:4px;padding:0 7px 7px}
+.tbtn{cursor:pointer;flex:1;border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:6px;padding:4px 0;font:inherit;font-size:9px;letter-spacing:.06em}
+.tbtn:hover{color:var(--cyan);border-color:var(--cyan)}
 .rowbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .btn{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--txt);border-radius:8px;padding:10px 16px;font:inherit;font-size:12px;letter-spacing:.06em;text-decoration:none}
 .btn.gold{background:var(--gold);color:#1a1204;border-color:var(--gold);font-weight:700}
@@ -65,15 +75,24 @@ footer b{color:var(--gold)}
 <button class="mchip" data-m="reddit">REDDIT STORY</button>
 <button class="mchip" data-m="chat">TEXT CHAT</button>
 <button class="mchip" data-m="clipper">CLIPPER</button>
+<button class="mchip" data-m="quotes">QUOTES</button>
+<button class="mchip" data-m="karaoke">KARAOKE</button>
 </div>
 
 <div class="panel">
 <h2 id="modeTitle">TURBO — topic in, finished short out</h2>
 <textarea id="topic" rows="3" placeholder="type your topic / prompt / story idea / transcript…"></textarea>
+<div class="trends" id="trends"></div>
 <div class="opts">
 <input type="text" id="vibe" placeholder="vibe (funny, luxury, dark…)">
 <button class="go" id="go">FORGE IT →</button>
 <span id="cool" style="color:var(--dim);font-size:11px"></span>
+</div>
+<div class="setrow">
+VOICE <select id="voice"></select>
+SPEED <input type="range" id="rate" min="0.7" max="1.6" step="0.05" value="1.12"><span id="ratev">1.12</span>
+CAPTIONS <select id="capstyle"><option value="highlight">WORD HIGHLIGHT</option><option value="typewriter">TYPEWRITER</option><option value="pop">POP</option></select>
+RATIO <select id="ratio"><option value="9:16">9:16 TIKTOK</option><option value="1:1">1:1 SQUARE</option><option value="16:9">16:9 WIDE</option></select>
 </div>
 <div class="steps" id="steps"></div>
 </div>
@@ -84,8 +103,9 @@ footer b{color:var(--gold)}
 <div class="rowbtns">
 <button class="btn gold" id="play">▶ PLAY</button>
 <button class="btn" id="stop">■ STOP</button>
-<button class="btn cy" id="voicetoggle">VOICE: ON</button>
 <button class="btn cy" id="rec">● EXPORT WEBM</button>
+<button class="btn cy" id="srt">⬇ SUBTITLES .SRT</button>
+<button class="btn cy" id="thumb">⬇ THUMBNAIL PNG</button>
 <a class="btn" id="dl" style="display:none" download="shortforge.webm">⬇ SAVE VIDEO</a>
 </div>
 <div class="playwrap">
@@ -94,7 +114,7 @@ footer b{color:var(--gold)}
 </div>
 </div>
 
-<footer>shortforge <b>v1</b> · built by <b>FO</b> for trevor · combines <b>MoneyPrinterTurbo · short-video-maker · purffle-shorts · ShortGPT · MoneyPrinter · AI-Shorts-Generator</b> · nothing leaves your browser but the prompts</footer>
+<footer>shortforge <b>v2</b> · built by <b>FO</b> for trevor · combines <b>MoneyPrinterTurbo · short-video-maker · purffle-shorts · ShortGPT · MoneyPrinter · AI-Shorts-Generator</b> · nothing leaves your browser but the prompts</footer>
 </div>
 <script>
 'use strict';
@@ -108,15 +128,26 @@ var REPOS=[
 var rb=document.getElementById('repos');
 REPOS.forEach(function(r){var d=document.createElement('div');d.className='repo';d.innerHTML='<a href="'+r.u+'" target="_blank" rel="noopener">'+r.n+' '+r.s+'</a><span>'+r.b+'</span>';rb.appendChild(d)});
 
+var TOPICS=['ai taking over 2026','things broke people buy','the 3am thought experiment','history they never taught you','why the ocean scares scientists','$1 vs $1000 gadget','day in the life of a hacker','space facts that feel illegal','gym mistakes everyone makes','signs someone is lying'];
+var tr=document.getElementById('trends');
+TOPICS.forEach(function(t){var b=document.createElement('button');b.className='tchip';b.textContent=t;b.addEventListener('click',function(){document.getElementById('topic').value=t});tr.appendChild(b)});
+
 var MODE='turbo';
-var MODENAMES={turbo:'TURBO — topic in, finished short out',prompt:'PROMPT — one prompt, one short',reddit:'REDDIT STORY — hook + narration over AI visuals',chat:'TEXT CHAT — the fake iMessage conversation format',clipper:'CLIPPER — paste a transcript, get the viral short'};
+var MODENAMES={turbo:'TURBO — topic in, finished short out',prompt:'PROMPT — one prompt, one short',reddit:'REDDIT STORY — hook + narration over AI visuals',chat:'TEXT CHAT — the fake iMessage conversation format',clipper:'CLIPPER — paste a transcript, get the viral short',quotes:'QUOTES — powerful quote cards over mood visuals',karaoke:'KARAOKE — singable lyric lines, word by word'};
 document.querySelectorAll('.mchip').forEach(function(b){b.addEventListener('click',function(){MODE=b.dataset.m;document.querySelectorAll('.mchip').forEach(function(x){x.classList.toggle('on',x===b)});document.getElementById('modeTitle').textContent=MODENAMES[MODE]})});
 
 function step(msg,hl){var s=document.getElementById('steps');var d=document.createElement('div');if(hl)d.innerHTML='<b>'+msg+'</b>';else d.textContent=msg;s.appendChild(d);s.scrollTop=s.scrollHeight;return d}
 function clearSteps(){document.getElementById('steps').innerHTML=''}
 
 var sys='You are a viral short-form video director. Reply with STRICT JSON only, no markdown, no commentary. Schema: {"title":string,"caption":string,"hashtags":[8 strings],"scenes":[{"cap":string (max 9 words, on-screen text),"t":string (narration, 1-2 short sentences),"img":string (detailed image prompt, cinematic, vertical 9:16)}]}. Six scenes.';
-function modeHint(){if(MODE==='reddit')return' This is a REDDIT STORY video: scene 1 is the hook ("cap" = a shocking hook line), then the story beats, ending on a twist.Keep every cap punchy.';if(MODE==='chat')return' This is a FAKE TEXT-MESSAGE conversation video: each scene cap is ONE chat bubble line, alternate senders by prefixing every cap with ME: or THEM:. img prompts should be moody phone-gradient backgrounds.';if(MODE==='clipper')return' The user gives a transcript of long content: extract the single most viral 30-second moment, rewrite it as 6 punchy scenes that stand alone.';if(MODE==='prompt')return' The user gives a raw creative prompt: turn it into a 6-scene short.';return' The user gives a topic: build the classic MoneyPrinterTurbo pipeline script for it.'}
+function modeHint(){
+if(MODE==='reddit')return' This is a REDDIT STORY video: scene 1 is the hook ("cap" = a shocking hook line), then the story beats, ending on a twist.Keep every cap punchy.';
+if(MODE==='chat')return' This is a FAKE TEXT-MESSAGE conversation video: each scene cap is ONE chat bubble line, alternate senders by prefixing every cap with ME: or THEM:. img prompts should be moody phone-gradient backgrounds.';
+if(MODE==='clipper')return' The user gives a transcript of long content: extract the single most viral 30-second moment, rewrite it as 6 punchy scenes that stand alone.';
+if(MODE==='quotes')return' This is a QUOTE CAROUSEL video: each cap is ONE short powerful quote or aphorism about the topic (max 10 words). Narration t explains the quote in one sentence. img prompts: minimal elegant dark backgrounds with subtle gold light, no text in the image.';
+if(MODE==='karaoke')return' This is a KARAOKE-STYLE video: each cap is ONE short singable lyric line (max 7 words) about the topic, and t is that same line phrased as speech. Keep a rhythm: lines should feel like song bars.';
+if(MODE==='prompt')return' The user gives a raw creative prompt: turn it into a 6-scene short.';
+return' The user gives a topic: build the classic MoneyPrinterTurbo pipeline script for it.'}
 
 function localTemplate(topic){
 var sc=[];var caps=['wait for it…','this changes everything','nobody talks about this','the part that matters','save this one','follow for part 2'];
@@ -149,73 +180,112 @@ attempt(0);
 function countdown(cb){var left=45;var el=document.getElementById('cool');var t=setInterval(function(){el.textContent='relay cooldown '+left+'s';left--;if(left<=0){clearInterval(t);el.textContent='';cb()}},1000)}
 
 var SCENES=[],META=null,SDUR=[];
+function dims(){var r=document.getElementById('ratio').value;if(r==='1:1')return[1024,1024];if(r==='16:9')return[1280,720];return[720,1280]}
 function build(j){
 META=j;SCENES=j.scenes;
 SDUR=SCENES.map(function(s){var w=(s.t||s.cap).split(/\s+/).length;return Math.max(3.6,Math.min(9,w*0.42))});
-var bp=document.getElementById('boardPanel');bp.style.display='';
-var bd=document.getElementById('board');bd.innerHTML='';
-SCENES.forEach(function(s,i){
-var d=document.createElement('div');d.className='scene';
-d.innerHTML='<img id="im'+i+'" alt=""><div class="sc"><b>'+(i+1)+'. '+esc(s.cap)+'</b>'+esc(s.t)+'</div>';
-bd.appendChild(d);loadImg(s,i);
-});
-document.getElementById('meta').innerHTML='<b>'+esc(META.title)+'</b><br>'+esc(META.caption)+'<br><span class="tags">'+esc(META.hashtags.join(' '))+'</span><br><br>webm export: video + synth beat. voiceover plays in preview (browser voice). post the caption + tags with the video.';
+document.getElementById('boardPanel').style.display='';
+setRatio();renderBoard();
+document.getElementById('meta').innerHTML='<b>'+esc(META.title)+'</b><br>'+esc(META.caption)+'<br><span class="tags">'+esc(META.hashtags.join(' '))+'</span><br><br>webm export: video + synth beat. voiceover plays in preview (browser voice). edit any caption right on the card, re-roll images, delete scenes. post the caption + tags with the video.';
 document.getElementById('boardPanel').scrollIntoView({behavior:'smooth',block:'start'});
 step('images: pulling one AI visual per scene…',1);
 }
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function renderBoard(){
+var bd=document.getElementById('board');bd.innerHTML='';
+SCENES.forEach(function(s,i){
+var d=document.createElement('div');d.className='scene';
+d.innerHTML='<img id="im'+i+'" alt=""><div class="sc"><b id="cap'+i+'" contenteditable="true">'+esc(s.cap)+'</b>'+esc(s.t)+'</div><div class="tools"><button class="tbtn" data-i="'+i+'" data-a="re">RE-IMG</button><button class="tbtn" data-i="'+i+'" data-a="del">DEL</button></div>';
+bd.appendChild(d);loadImg(s,i);
+d.querySelector('#cap'+i).addEventListener('blur',function(){s.cap=this.textContent.trim()});
+});
+bd.querySelectorAll('.tbtn').forEach(function(b){b.addEventListener('click',function(){
+var i=parseInt(b.dataset.i,10);
+if(b.dataset.a==='re'){var im=document.getElementById('im'+i);var u=imgUrl(SCENES[i],i,true);im.crossOrigin='anonymous';im.src=u;step('scene '+(i+1)+' image re-rolling…')}
+else{SCENES.splice(i,1);SDUR.splice(i,1);step('scene deleted',0);renderBoard()}
+})});
+}
+function imgUrl(s,i,reshuffle){var d=dims();return'https://image.pollinations.ai/prompt/'+encodeURIComponent(s.img+' vertical 9:16')+'?width='+d[0]+'&height='+d[1]+'&nologo=true&seed='+(i*977+13+(reshuffle?Math.floor(Math.random()*9000):0))}
 function loadImg(s,i){
-var u='https://image.pollinations.ai/prompt/'+encodeURIComponent(s.img+' vertical 9:16')+'?width=720&height=1280&nologo=true&seed='+(i*977+13);
 var im=document.getElementById('im'+i);
 im.crossOrigin='anonymous';
-im.onerror=function(){im.removeAttribute('crossorigin');im.onerror=null;im.src=u;};
-im.src=u;
+im.onerror=function(){im.removeAttribute('crossorigin');im.onerror=null;im.src=imgUrl(s,i,false);};
+im.src=imgUrl(s,i,false);
 im.onload=function(){step('image '+(i+1)+' landed',0)};
 }
 
-/* player */
+/* ratio + player */
 var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 var playing=false,si=0,st=0,raf=0,voiceOn=true;
+function setRatio(){var d=dims();cv.width=d[0];cv.height=d[1]}
+document.getElementById('ratio').addEventListener('change',function(){setRatio();step('canvas now '+this.value,0)});
+var W=720,H=1280;
 function draw(){
+W=cv.width;H=cv.height;
 if(!SCENES.length)return;
 var s=SCENES[si],p=Math.min(1,(Date.now()-st)/(SDUR[si]*1000));
 var im=document.getElementById('im'+si),img=null;
 try{if(im&&im.complete&&im.naturalWidth&&im.crossOrigin==='anonymous')img=im}catch(e){}
-ctx.fillStyle='#05050a';ctx.fillRect(0,0,720,1280);
-if(img){var z=1.05+0.08*p;var w=720*z,h=1280*z;ctx.drawImage(img,(720-w)/2,(1280-h)/2,w,h)}
-else{var g=ctx.createLinearGradient(0,0,720,1280);g.addColorStop(0,'#1a0b2e');g.addColorStop(1,'#04121a');ctx.fillStyle=g;ctx.fillRect(0,0,720,1280)}
-var vg=ctx.createLinearGradient(0,760,0,1280);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.82)');ctx.fillStyle=vg;ctx.fillRect(0,760,720,520);
+ctx.fillStyle='#05050a';ctx.fillRect(0,0,W,H);
+if(img){var z=1.05+0.08*p;var w=W*z,h=H*z;ctx.drawImage(img,(W-w)/2,(H-h)/2,w,h)}
+else{var g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#1a0b2e');g.addColorStop(1,'#04121a');ctx.fillStyle=g;ctx.fillRect(0,0,W,H)}
+var vg=ctx.createLinearGradient(0,H*0.6,0,H);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.82)');ctx.fillStyle=vg;ctx.fillRect(0,H*0.6,W,H*0.4);
 if(MODE==='chat'){drawChat(s)}else{drawCap(s,p)}
-if(MODE==='reddit'){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,60,720,150);ctx.fillStyle='#ffc933';ctx.font='700 44px monospace';wrap(META.title,44,720-80,0,120)}
-ctx.fillStyle='#00e5ff';ctx.font='600 22px monospace';ctx.fillText('SHORTFORGE · '+(si+1)+'/'+SCENES.length,28,1240);
+if(MODE==='reddit'){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,H*0.05,W,H*0.13);ctx.fillStyle='#ffc933';wrap(META.title,44,W-80,H*0.09,54)}
+if(MODE==='quotes'){ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,H*0.05,W,H*0.11);ctx.fillStyle='#00e5ff';wrap(META.title.toUpperCase(),40,W-80,H*0.08,50)}
+ctx.fillStyle='#00e5ff';ctx.font='600 22px monospace';ctx.fillText('SHORTFORGE · '+(si+1)+'/'+SCENES.length,28,H-40);
 if(playing&&p>=1){si++;if(si>=SCENES.length){stopPlay();return}st=Date.now();speakScene()}
 raf=requestAnimationFrame(draw);
 }
-function wrap(txt,fs,maxw,y,lineh){var words=txt.split(' ');var line='';var self=this;var lines=[];ctx.font='700 '+fs+'px monospace';words.forEach(function(w){var t=line?line+' '+w:w;if(ctx.measureText(t).width>maxw){lines.push(line);line=w}else line=t});if(line)lines.push(line);lines.forEach(function(l){ctx.fillText(l,40,y);y+=lineh});return y}
+function wrap(txt,fs,maxw,y,lineh){var words=txt.split(' ');var line='';var lines=[];ctx.font='700 '+fs+'px monospace';words.forEach(function(w){var t=line?line+' '+w:w;if(ctx.measureText(t).width>maxw){lines.push(line);line=w}else line=t});if(line)lines.push(line);lines.forEach(function(l){ctx.fillText(l,40,y);y+=lineh});return y}
 function drawCap(s,p){
 var words=(s.cap||'').split(' ');var idx=Math.min(words.length-1,Math.floor(p*words.length));
-ctx.font='700 52px monospace';
-var lines=[];var linec='';words.forEach(function(w){var t=linec?linec+' '+w:w;if(ctx.measureText(t.toUpperCase()).width>640){lines.push(linec);linec=w}else linec=t});if(linec)lines.push(linec);
-var n=0;lines.forEach(function(l){var yy=1050+n*60;n++;var x=40;
-l.split(' ').forEach(function(w){var full=w.toUpperCase()+' ';var ww=ctx.measureText(full).width;var hit=words.indexOf(w)===idx&&words[idx].toUpperCase()===w.toUpperCase();
-ctx.fillStyle=hit?'#ffc933':'#ffffff';ctx.fillText(full,x,yy);x+=ww})});
+var style=document.getElementById('capstyle').value;
+var maxw=W-80;var fs=52;if(style==='pop')fs=54;
+ctx.font='700 '+fs+'px monospace';
+var lines=[];var linec='';
+words.forEach(function(w){var t=linec?linec+' '+w:w;if(ctx.measureText(t.toUpperCase()).width>maxw){lines.push(linec);linec=w}else linec=t});if(linec)lines.push(linec);
+var y0=H-260;var n=0;var reveal=style==='typewriter'?Math.ceil(s.cap.length*Math.min(1,p*1.25)):s.cap.length;
+lines.forEach(function(l){var yy=y0+n*(fs+8);n++;var x=40;
+l.split(' ').forEach(function(w){
+if(style==='typewriter'){var upto=s.cap.indexOf(w);if(upto>=reveal)return}
+var hit=style!=='typewriter'&&words[idx].toUpperCase()===w.toUpperCase()&&words.indexOf(w)===idx;
+var size=hit&&style==='pop'?fs+8:fs;
+ctx.font='700 '+size+'px monospace';
+ctx.fillStyle=hit?'#ffc933':'#ffffff';
+var full=w.toUpperCase()+' ';ctx.fillText(full,x,yy);x+=ctx.measureText(full).width;
+ctx.font='700 '+fs+'px monospace';
+})});
 }
 function drawChat(s){
 var cap=s.cap||'';var me=cap.slice(0,3).toUpperCase()==='ME:';
 var txt=cap.replace(/^(ME:|THEM:)\s*/i,'');
-ctx.font='600 34px monospace';var w=Math.min(560,ctx.measureText(txt).width+44);
-var x=me?720-40-w:40;var lines=[];var lc='';txt.split(' ').forEach(function(wd){var t=lc?lc+' '+wd:wd;if(ctx.measureText(t).width>w-44){lines.push(lc);lc=wd}else lc=wd});if(lc)lines.push(lc);
-var h=lines.length*44+36;var y=880;
+ctx.font='600 34px monospace';var w=Math.min(W-160,ctx.measureText(txt).width+44);
+var x=me?W-40-w:40;var lines=[];var lc='';txt.split(' ').forEach(function(wd){var t=lc?lc+' '+wd:wd;if(ctx.measureText(t).width>w-44){lines.push(lc);lc=wd}else lc=wd});if(lc)lines.push(lc);
+var h=lines.length*44+36;var y=H*0.68;
 ctx.fillStyle=me?'#00b14a':'#262637';roundRect(x,y,w,h,18);ctx.fill();
 ctx.fillStyle='#fff';lines.forEach(function(l,ix){ctx.fillText(l,x+22,y+34+ix*44)});
 }
 function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
-function speakScene(){if(!voiceOn)return;try{speechSynthesis.cancel();var s=SCENES[si];var u=new SpeechSynthesisUtterance(s.t||s.cap);u.rate=1.12;u.pitch=1;speechSynthesis.speak(u)}catch(e){}}
+var voices=[];
+function fillVoices(){
+try{voices=speechSynthesis.getVoices().filter(function(v){return v.lang.indexOf('en')===0});
+var sel=document.getElementById('voice');sel.innerHTML='';
+voices.forEach(function(v,i){var o=document.createElement('option');o.value=i;o.textContent=v.name.replace(/^Microsoft |^Google /,'').slice(0,26);sel.appendChild(o)});
+var gi=voices.map(function(v){return v.name}).findIndex(function(n){return/Google US English|Samantha|Zira/i.test(n)});
+if(gi>=0)sel.value=gi;
+}catch(e){}}
+try{fillVoices();speechSynthesis.onvoiceschanged=fillVoices}catch(e){}
+document.getElementById('rate').addEventListener('input',function(){document.getElementById('ratev').textContent=this.value});
+function speakScene(){
+if(!voiceOn)return;
+try{speechSynthesis.cancel();var s=SCENES[si];var u=new SpeechSynthesisUtterance(s.t||s.cap);
+var vi=parseInt(document.getElementById('voice').value,10);if(voices[vi])u.voice=voices[vi];
+u.rate=parseFloat(document.getElementById('rate').value)||1.12;u.pitch=1;speechSynthesis.speak(u)}catch(e){}}
 function startPlay(){if(!SCENES.length)return;playing=true;si=0;st=Date.now();speakScene();startMusic();cancelAnimationFrame(raf);draw()}
 function stopPlay(){playing=false;cancelAnimationFrame(raf);stopMusic();try{speechSynthesis.cancel()}catch(e){}}
 document.getElementById('play').addEventListener('click',startPlay);
 document.getElementById('stop').addEventListener('click',stopPlay);
-document.getElementById('voicetoggle').addEventListener('click',function(){voiceOn=!voiceOn;this.textContent='VOICE: '+(voiceOn?'ON':'OFF')});
 
 /* music */
 var actx=null,mgain=null,sdest=null,mtimer=null,stepn=0;
@@ -233,7 +303,19 @@ stepn++;
 }
 function stopMusic(){if(mtimer){clearInterval(mtimer);mtimer=null}}
 
-/* export */
+/* exports */
+function dl(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+document.getElementById('srt').addEventListener('click',function(){
+if(!SCENES.length)return;function f(t){var s=Math.floor(t),ms=Math.round((t-s)*1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;return('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+sec).slice(-2)+','+('00'+ms).slice(-3)}
+var out='',t0=0;
+SCENES.forEach(function(s,i){var t1=t0+SDUR[i];out+=(i+1)+'\n'+f(t0)+' --> '+f(t1)+'\n'+s.cap+'\n\n';t0=t1});
+dl(new Blob([out],{type:'text/plain'}),'shortforge.srt');step('subtitles downloaded',1);
+});
+document.getElementById('thumb').addEventListener('click',function(){
+if(!SCENES.length)return;
+si=0;st=Date.now()-SDUR[0]*600;var keep=playing;playing=false;cancelAnimationFrame(raf);draw();
+setTimeout(function(){try{cv.toBlob(function(b){if(b){dl(b,'shortforge-thumb.png');step('thumbnail saved',1)}},'image/png')}catch(e){step('thumbnail blocked: images still loading, try again',0)}if(keep){playing=true}},700);
+});
 var rec=null,chunks=[];
 document.getElementById('rec').addEventListener('click',function(){
 if(!SCENES.length||playing)return;
@@ -241,7 +323,7 @@ var stream=cv.captureStream(30);
 try{startMusic();if(sdest)sdest.stream.getAudioTracks().forEach(function(t){stream.addTrack(t)})}catch(e){}
 var mime='video/webm;codecs=vp9';try{rec=new MediaRecorder(stream,{mimeType:mime})}catch(e){rec=new MediaRecorder(stream)}
 chunks=[];rec.ondataavailable=function(e){if(e.data.size)chunks.push(e.data)};
-rec.onstop=function(){stopMusic();try{speechSynthesis.cancel()}catch(e){};var b=new Blob(chunks,{type:'video/webm'});var url=URL.createObjectURL(b);var a=document.getElementById('dl');a.href=url;a.style.display='';step('export done — tap SAVE VIDEO',1)};
+rec.onstop=function(){stopMusic();try{speechSynthesis.cancel()}catch(e){};var b=new Blob(chunks,{type:'video/webm'});var a=document.getElementById('dl');a.href=URL.createObjectURL(b);a.style.display='';step('export done — tap SAVE VIDEO',1)};
 this.disabled=true;
 si=0;st=Date.now();playing=true;startMusic();speakScene();cancelAnimationFrame(raf);draw();
 var total=SDUR.reduce(function(a,b){return a+b},0)*1000;
