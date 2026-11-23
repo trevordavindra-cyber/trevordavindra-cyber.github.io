@@ -11,13 +11,13 @@ function log(m,loud){try{(window.log||window.addLog||function(){})(m,loud)}catch
 function saveE(){try{if(typeof save==='function')save()}catch(e){}}
 function S(){try{return window.S||window.state||window.APPSTATE||{}}catch(e){return {}}}
 function clipDur(c){var st=parseFloat(c.start),en=parseFloat(c.end);if(!isFinite(st)||!isFinite(en))return 0;return Math.max(0,(en-st))/(c.speed||1)}
-function clips(){var s=S();var a=(s&&s.clips)||[];var out=[];for(var i=0;i<a.length;i++){var d=clipDur(a[i]);if(d>0.05)out.push({c:a[i],d:d,src:a[i]})}return out}
+function clips(){var s=S();var a=(s&&s.clips)||[];var out=[],t=0;for(var i=0;i<a.length;i++){var d=clipDur(a[i]);if(d>0.05){t+=d;out.push({c:a[i],d:d,src:a[i],st:t-d})}}return out}
 function total(){var a=clips(),t=0;for(var i=0;i<a.length;i++)t+=a[i].d;return t}
 function needClips(){var a=clips();if(!a.length){log('story lab: add clips to the timeline first');return null}return a}
 function dl(name,text){try{var b=new Blob([text],{type:'text/plain'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a)},300);return true}catch(e){log('download failed: '+e.message);return false}}
 function uniqueName(base,ext){var n=base+'.'+ext;try{var t=new Date();var s=(''+t.getHours()).padStart(2,'0')+(''+t.getMinutes()).padStart(2,'0')+(''+t.getSeconds()).padStart(2,'0');n=base+'_'+s+'.'+ext}catch(e){}return n}
-// energy model: cut density + speed + short-clip boost
-function segEnergy(cs,from,to){var e=0;for(var i=0;i<cs.length;i++){var seg=cs[i];var a=from,b=to;if(seg.d<=0)continue;var s0=0,s1=seg.d,x0=Math.max(0,Math.min(s1,a-s0)),x1=Math.max(0,Math.min(s1,b-s0));var hit=x1-x0;if(hit<=0)continue;var local=(seg.d<1.2?1.25:seg.d<2?1.1:seg.d<3.5?1:0.85);var sp=(seg.src.speed||1);e+=hit*(0.6+0.5*Math.min(2.5,sp))*local}return e}
+// energy model: cut density + speed + short-clip boost; positions are absolute
+function segEnergy(cs,from,to){var e=0;for(var i=0;i<cs.length;i++){var seg=cs[i];if(seg.d<=0)continue;var s0=seg.st,s1=seg.st+seg.d;var hit=Math.max(0,Math.min(s1,to)-Math.max(s0,from));if(hit<=0)continue;var local=(seg.d<1.2?1.25:seg.d<2?1.1:seg.d<3.5?1:0.85);var sp=(seg.src.speed||1);e+=hit*(0.6+0.5*Math.min(2.5,sp))*local}return e}
 function arcCheck(){var cs=needClips();if(!cs)return;var t=total();if(t<=0){log('story lab: timeline has no length');return}var a1=0,a2=0,a3=0,acc=0;for(var i=0;i<cs.length;i++){var st=acc,en=acc+cs[i].d;acc=en;if(st<t*0.35)a1+=Math.min(cs[i].d,t*0.35-st);if(en>t*0.35&&st<t*0.7)a2+=Math.min(en,t*0.7)-Math.max(st,t*0.35);if(en>t*0.7)a3+=en-Math.max(st,t*0.7)}
 var pct=Math.round(a1/t*100);var grade=pct<=35?'good arc shape':'slow open: act 1 is '+pct+'% of the cut';
 log('STORY ARC - act1 '+Math.round(a1*10)/10+'s ('+pct+'%), act2 '+Math.round(a2*10)/10+'s, act3 '+Math.round(a3*10)/10+'s of '+Math.round(t*10)/10+'s total: '+grade,true);saveE()}
