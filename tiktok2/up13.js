@@ -7,19 +7,13 @@
 function $(id){return document.getElementById(id)}
 function lsGet(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function mkBtn(txt,fn,flex,id){var b=document.createElement('button');b.className='ghost small';b.textContent=txt;b.style.flex=flex||'0 0 30%';if(id)b.id=id;b.onclick=fn;return b}
+function mkRow(btns){var r=document.createElement('div');r.className='btnrow';btns.forEach(function(b){r.appendChild(b)});return r}
+function mkSel(id,opts,vals){var s=document.createElement('select');s.id=id;s.className='inp';s.style.marginTop='6px';opts.forEach(function(o,i){var el=document.createElement('option');el.value=vals?vals[i]:o;el.textContent=o;s.appendChild(el)});return s}
 var SAFE={on:lsGet('tk2safe',false)};
 var WF={cv:null,on:lsGet('tk2wf',true)};
 
 // ---------- 1. SMART TRIM: cut the weakest edges using real scene scores ----------
-function clipScore(c){
-  var m=M[c.src];if(!m||!m.scenes||!m.scenes.length)return null;
-  var mid=c.start+(c.end-c.start)*0.5,dur=c.end-c.start;
-  var best=null;
-  for(var i=0;i<m.scenes.length;i++){var sc=m.scenes[i];
-    if(sc.start<=mid&&sc.end>=mid){best=sc.score;break}
-    if(sc.start>mid){best=sc.score;break}}
-  return best===null?null:best;
-}
 function sceneScoreAt(m,t){
   if(!m||!m.scenes||!m.scenes.length)return null;
   for(var i=0;i<m.scenes.length;i++){if(t>=m.scenes[i].start&&t<=m.scenes[i].end)return m.scenes[i].score}
@@ -279,7 +273,7 @@ window.fxFrameHook=function(ctx,t,W,H){
   }
 };
 
-// ---------- drawTimeline wrap: waveform strip + safe-zone label refresh ----------
+// ---------- drawTimeline wrap: waveform strip ----------
 var prevDT=window.drawTimeline;
 window.drawTimeline=function(){
   if(prevDT)try{prevDT()}catch(e){}
