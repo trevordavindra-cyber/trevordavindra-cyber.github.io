@@ -13,6 +13,7 @@ function mkBtn(txt,fn,flex,id){var b=document.createElement('button');b.classNam
 function mkRow(btns){var r=document.createElement('div');r.className='btnrow';btns.forEach(function(b){r.appendChild(b)});return r}
 function mkNote(id){var n=document.createElement('div');n.className='note';if(id)n.id=id;return n}
 function mkInp(id,ph,type){var i=document.createElement('input');i.id=id;i.className='inp';i.placeholder=ph;i.style.marginTop='6px';if(type)i.type=type;return i}
+// ---------- share link ----------
 function buildLink(){
   if(!S.clips.length){log('nothing to share — the timeline is empty');return}
   try{
@@ -39,6 +40,7 @@ function loadFromLink(){
     log('shared project loaded: '+(d.name||'unnamed')+', '+(d.clips.length||0)+' clips (footage stays on the uploader device — re-add your own copies of the files)',true)
   }catch(e){log('load failed: '+e.message)}
 }
+// ---------- draft library ----------
 function drafts(){return lsGet('tk2drafts',{})}
 function saveDraft(){
   var nm=($('ecDraftName').value||'').trim();
@@ -65,6 +67,7 @@ function delDraft(){
   if(!k||!d[k]){log('pick a draft to delete');return}
   delete d[k];lsSet('tk2drafts',d);fillDrafts();log('draft deleted: '+k)
 }
+// ---------- project templates ----------
 function tpls(){return lsGet('tk2templates',{})}
 function saveTpl(){
   var nm=($('ecTplName').value||'').trim();
@@ -96,6 +99,7 @@ function applyTpl(){
   drawTimeline();syncStyleChips();save();
   log('template applied: '+k+' — structure rebuilt on '+S.clips.length+' clips (re-fit captions if lengths changed)',true)
 }
+// ---------- creator tag ----------
 var TAGG=lsGet('tk2tag',{on:false,text:''});
 function saveTag(){
   var t=($('ecTag').value||'').trim();
@@ -121,6 +125,7 @@ function tagOnCover(){
   ctx.restore();
   log('tag drawn on the cover bottom-right',true)
 }
+// ---------- brand kit ----------
 function brand(){return lsGet('tk2brand',{c:'',f:''})}
 function applyBrand(){
   var c=$('ecBrandColor').value||'';
@@ -136,6 +141,7 @@ function brandOff(){
   window.tk2BrandCap=null;document.documentElement.style.removeProperty('--cyan');
   log('brand color off — captions and accent back to default')
 }
+// ---------- series planner ----------
 function series(){return lsGet('tk2series',null)}
 function serLine(){
   var s=series();var o=$('ecSeriesOut');if(!o)return;
@@ -168,6 +174,7 @@ function serReset(){
   s.done=s.topics.map(function(){return false});lsSet('tk2series',s);serLine();
   log('series progress reset')
 }
+// ---------- edit notes ----------
 function notes(){return lsGet('tk2notes',[])}
 function addNote(){
   var txt=($('ecNoteTxt').value||'').trim();
@@ -201,6 +208,7 @@ function exportNotes(){
   var o=$('ecNoteOut');o.innerHTML='';o.appendChild(a);
   log('notes ready to download',true)
 }
+// ---------- content calendar ----------
 function cal(){return lsGet('tk2cal',[])}
 function addPlan(){
   var dv=$('ecCalDate').value;
@@ -226,6 +234,7 @@ function renderCal(){
     r.appendChild(b1);r.appendChild(b2);box.appendChild(r)
   })
 }
+// ---------- creator goals ----------
 function goal(){return lsGet('tk2goal',{week:5})}
 function setGoal(){
   var v=parseInt($('ecGoalWeek').value);
@@ -245,6 +254,7 @@ function goalLine(){
   }
   o.textContent='this week: '+wk+' of '+g.week+' posts done · streak: '+s+' week'+(s===1?'':'s')+' at goal'
 }
+// ---------- 1440p + bitrate ----------
 function resUp(){
   var sel=$('exRes');
   if(sel){
@@ -280,6 +290,20 @@ window.drawCaption=function(ctx,cap,t,W,H,mode){
   ctx.fillStyle=window.tk2BrandCap||'#fff';ctx.fillText(cap.text,0,0);ctx.restore();
 };
 // selectable export bitrate: MediaRecorder wrapper honors S.bps when the engine records
+// creator tag watermark: draws bottom-right on preview + export when the tag is on
+var oldFH=window.fxFrameHook;
+window.fxFrameHook=function(ctx,t,W,H){
+  if(oldFH)try{oldFH(ctx,t,W,H)}catch(e){}
+  if(!TAGG.on||!TAGG.text)return;
+  var fs=Math.max(14,W*0.045);
+  ctx.save();
+  ctx.font='800 '+fs+'px '+(window.tk2BrandFont||'Arial, sans-serif');
+  ctx.globalAlpha=.75;ctx.textAlign='right';ctx.textBaseline='bottom';
+  ctx.shadowColor='rgba(0,0,0,.85)';ctx.shadowBlur=6;
+  ctx.fillStyle=window.tk2BrandCap||'#fff';
+  ctx.fillText(TAGG.text,W-W*0.03,H-H*0.02);
+  ctx.restore();
+};
 var OrigRec=window.MediaRecorder;
 if(OrigRec&&OrigRec.isTypeSupported){
   var BRRec=function(stream,opts){
