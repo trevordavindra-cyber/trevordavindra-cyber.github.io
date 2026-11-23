@@ -94,7 +94,7 @@ async function detectBeats(m){
   for(var i=0;i+hop<ch.length;i+=hop){var s=0;for(var j=0;j<hop;j+=4){s+=ch[i+j]*ch[i+j]}env.push(Math.sqrt(s/(hop/4)))}
   var W=43,beats=[],last=-9;
   for(var i=W;i<env.length-W;i++){
-    var loc=0;for(var j=-W;j<=W;j+=3)loc+=env[i+j];loc/= (2*W/3+1);
+    var loc=0;for(var j=-W;j<=W;j+=3)loc+=env[i+j];loc/=(2*W/3+1);
     if(env[i]>loc*1.4&&env[i]>0.012&&(i/sr)-last>0.22){beats.push(i/sr);last=i/sr}
   }
   // bpm: median gap
@@ -388,6 +388,7 @@ async function renderProject(opts){
       if(st.vig){var vg=ctx.createRadialGradient(W/2,H/2,H*0.25,W/2,H/2,H*0.78);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,'+st.vig+')');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H)}
       if(st.bars){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H*st.bars);ctx.fillRect(0,H*(1-st.bars),W,H*st.bars)}
       clipFX(ctx,c,local,od,W,H);
+      if(window.fxClipHook)try{fxClipHook(ctx,c,local,od,W,H)}catch(e){}
       if(c.trans==='flash'&&local<trDur){ctx.fillStyle='rgba(255,255,255,'+(0.85*(1-local/trDur))+')';ctx.fillRect(0,0,W,H)}
       if(c.trans==='fade'&&local<trDur){ctx.fillStyle='rgba(0,0,0,'+(0.85*(1-local/trDur))+')';ctx.fillRect(0,0,W,H)}
       if(c.fadeIn&&local<0.3){ctx.fillStyle='rgba(0,0,0,'+(1-local/0.3)+')';ctx.fillRect(0,0,W,H)}
@@ -396,6 +397,7 @@ async function renderProject(opts){
       var cap=null;
       for(var k=0;k<S.captions.length;k++){if(t>=S.captions[k].t0&&t<S.captions[k].t1){cap=S.captions[k];break}}
       if(cap)drawCaption(ctx,cap,t,W,H,S.capStyle);
+      if(window.fxFrameHook)try{fxFrameHook(ctx,t,W,H)}catch(e){}
       ctx.restore();
       if(opts.onprogress)opts.onprogress(t/total);
       requestAnimationFrame(frame);
