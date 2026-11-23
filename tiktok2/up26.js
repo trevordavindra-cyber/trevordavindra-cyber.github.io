@@ -19,7 +19,7 @@ if(!E.f26)E.f26={vars:[],mark:null,day:null,mins:0,focus:false,hiddenCards:[]};
 var SNAPKEYS=['clips','captions','style','capStyle','res','fps','musicId','musicGain','musicOffset'];
 function snap(){var o={};SNAPKEYS.forEach(function(k){o[k]=JSON.parse(JSON.stringify(S[k]===undefined?null:S[k]))});return o}
 function applySnap(o){SNAPKEYS.forEach(function(k){if(o[k]!==null&&o[k]!==undefined)S[k]=o[k]})}
-function mediaList(){return S.media||S.assets||S.library||[]}
+function mediaList(){var m=S.media||S.assets||S.library; if(Array.isArray(m))return m; if(m&&typeof m==='object')return Object.keys(m); return []}
 
 // 1) project stats
 function stats(){
