@@ -1,7 +1,7 @@
-/* deepagent51 up30.js - upgrade pack 30: chat stats (v1.0) */
+/* deepagent51 up30.js - upgrade pack 30: chat stats (v1.1) */
 (function(){
-if(window.__u30)return;window.__u30=1;
-if(!window.CG){console.log('[up30.js v1.0] core api missing, upgrade inert');return}
+if(window.__u30)return;window.__u30=2;
+if(!window.CG){console.log('[up30.js v1.1] core api missing, upgrade inert');return}
 var ur=document.getElementById('upd');
 if(ur){var vv=ur.querySelector('.val');if(vv)vv.textContent='2.9.22(37)';ur.onclick=function(){sys('2.9.22(37) - you are up to date')}}
 var st=document.createElement('style');st.id='u30style';document.head.appendChild(st);
@@ -17,14 +17,13 @@ function open(){
 }
 function close(){ov.classList.remove('on')}
 function curMsgs(){
- var h=[];
- try{h=window.CG.hist()||[]}catch(e){}
- if(h&&h.length){return h.map(function(m){return{r:m.role==='user'?'u':'a',c:m.content}}),'current'}
  var t='';try{t=localStorage.getItem('ds_chat_last')||''}catch(e){}
- if(!t)return null,'none';
- var a=[];try{a=JSON.parse(localStorage.getItem('ds_chats')||'[]')}catch(e){}
- for(var i=0;i<a.length;i++){if(a[i].t===t)return (a[i].m||[]),'saved'}
- return null,'none';
+ var a=[];
+ try{a=JSON.parse(localStorage.getItem('ds_chats')||'[]')}catch(e){}
+ if(t){for(var i=0;i<a.length;i++){if(a[i].t===t&&(a[i].m||[]).length){return [a[i].m.map(function(m){return{r:m.r==='u'?'u':'a',c:m.c||''}}),'saved']}}}
+ var h=[];try{h=window.CG.hist()||[]}catch(e){}
+ if(h&&h.length){var ms=h.map(function(m){return{r:m.role==='user'?'u':'a',c:m.content||''}}).filter(function(m){return m.c});if(ms.length){return [ms,'current']}}
+ return [null,'none'];
 }
 function run(){
  var body=document.getElementById('u30body');
@@ -54,5 +53,5 @@ if(!document.getElementById('u30stats')){
  var dshare=document.getElementById('dshare');
  if(dshare){var s=document.createElement('div');s.id='u30stats';s.className='sitem';s.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Chat stats';dshare.parentNode.insertBefore(s,dshare)}
 }
-console.log('[chatgpt up30.js v1.0] chat stats loaded: open-chat message, word and token counts in the drawer');
+console.log('[chatgpt up30.js v1.1] chat stats loaded: open-chat message, word and token counts in the drawer');
 })();
