@@ -1,4 +1,4 @@
-/* deepagent47 up26.js - upgrade pack 26: projects (chat folders) v1.0 */
+/* deepagent47 up26.js - upgrade pack 26: projects (chat folders) v1.1 */
 (function(){
 if(window.__u26)return;window.__u26=1;
 var DC=document.getElementById('dchats');
@@ -44,7 +44,8 @@ function sweep(){
  var ch=false;for(var n in p){var arr=(p[n]||[]).filter(function(t){return live[t]});if(arr.length!==(p[n]||[]).length){p[n]=arr;ch=true}if(!arr.length){delete p[n];ch=true}}
  if(ch)saveP(p);
  var rows=DC.querySelectorAll('.dchat');
- for(var i=0;i<rows.length;i++){var sp=rows[i].querySelector('span');rows[i].style.display=(sp&&inP[sp.textContent])?'none':''}
+ for(var i=0;i<rows.length;i++){var sp=rows[i].querySelector('span');rows[i].style.display=(sp&&inP[sp.textContent])?'none':'';
+  if(sp&&!rows[i].querySelector('.u26mv')){var mv=document.createElement('span');mv.className='u26mv';mv.textContent='\uD83D\uDCC1';mv.title='move to a project';rows[i].appendChild(mv)}}
  return inP;
 }
 function paint(){
@@ -78,5 +79,5 @@ function paint(){
 new MutationObserver(function(){setTimeout(function(){sweep();paint()},0)}).observe(DC,{childList:true});
 (function(){try{var v=document.querySelector('#upd .val');if(v)v.textContent='2.9.21(33)'}catch(e){}})();
 paint();
-console.log('[chatgpt up26.js v1.0] projects loaded');
+console.log('[chatgpt up26.js v1.1] projects loaded');
 })();
