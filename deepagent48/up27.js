@@ -1,4 +1,4 @@
-/* deepagent48 up27.js - upgrade pack 27: inline rename (chats + projects) v1.0 */
+/* deepagent48 up27.js - upgrade pack 27: inline rename (chats + projects) v1.1 */
 (function(){
 if(window.__u27)return;window.__u27=1;
 var DC=document.getElementById('dchats');
@@ -7,7 +7,7 @@ var WRAP=document.getElementById('u26proj');
 function jget(k,d){try{var v=JSON.parse(localStorage.getItem(k)||d);return v}catch(e){return null}}
 function jset(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var st=document.createElement('style');
-st.textContent='.u27rn,.u27prn{display:none;color:var(--dim);cursor:pointer;padding:0 4px;font-size:12px;flex-shrink:0}.dchat:hover .u27rn,.u26p:hover .u27prn{display:inline}.u27in{flex:1;min-width:50px;padding:2px 6px;border:1px solid rgba(128,128,128,.4);border-radius:6px;font-size:13px;outline:none;background:var(--panel,#fff);color:var(--fg)}';
+st.textContent='.u27prn{display:none;color:var(--dim);cursor:pointer;padding:0 4px;font-size:12px;flex-shrink:0}.u26p:hover .u27prn{display:inline}.u27in{flex:1;min-width:50px;padding:2px 6px;border:1px solid rgba(128,128,128,.4);border-radius:6px;font-size:13px;outline:none;background:var(--panel,#fff);color:var(--fg)}';
 document.head.appendChild(st);
 function renameChatEverywhere(oldT,newT){
  ['ds_chats','ds_h'].forEach(function(k){var a=jget(k,'[]');if(!Array.isArray(a))return;var ch=false;a.forEach(function(r){if(r&&r.t===oldT){r.t=newT;ch=true}});if(ch)jset(k,a)});
@@ -29,7 +29,7 @@ function editChat(row){
   var v=inp.value.trim();
   if(inp.parentNode)inp.remove();
   sp.style.display='';
-  if(save&&v&&v!==oldT){renameChatEverywhere(oldT,v);sp.textContent=v;poke()}
+  if(save&&v&&v!==oldT){renameChatEverywhere(oldT,v);sp.textContent=v;poke();console.log('[up27] chat renamed "'+oldT+'" -> "'+v+'"')}
  }
  inp.addEventListener('keydown',function(ev){ev.stopPropagation();if(ev.key==='Enter')fin(true);else if(ev.key==='Escape')fin(false)});
  inp.addEventListener('click',function(ev){ev.stopPropagation()});
@@ -61,6 +61,7 @@ function editProject(pr){
    if(oldN in o){o[v]=o[oldN];delete o[oldN];jset('u26open',o)}
    nm.textContent=v;
    poke();
+   console.log('[up27] project renamed "'+oldN+'" -> "'+v+'"')
   }
  }
  inp.addEventListener('keydown',function(ev){ev.stopPropagation();if(ev.key==='Enter')fin(true);else if(ev.key==='Escape')fin(false)});
@@ -68,12 +69,6 @@ function editProject(pr){
  inp.addEventListener('blur',function(){setTimeout(function(){fin(true)},0)});
 }
 function sweep(){
- var rows=DC.querySelectorAll('.dchat');
- for(var i=0;i<rows.length;i++){
-  if(!rows[i].querySelector('.u27rn')){
-   var b=document.createElement('span');b.className='u27rn';b.textContent='\u270E';b.title='rename chat';rows[i].appendChild(b);
-  }
- }
  if(WRAP){
   var ps=WRAP.querySelectorAll('.u26p');
   for(var j=0;j<ps.length;j++){
@@ -88,13 +83,23 @@ if(WRAP){new MutationObserver(function(){setTimeout(sweep,0)}).observe(WRAP,{chi
 document.addEventListener('click',function(ev){
  var t=ev.target;
  if(!t||!t.closest)return;
- var rn=t.closest('.u27rn,.u27prn');
- if(!rn)return;
- ev.preventDefault();ev.stopImmediatePropagation();
- var row=rn.closest('.dchat'),pr=rn.closest('.u26p');
- if(row)editChat(row);else if(pr)editProject(pr);
+ var prn=t.closest('.u27prn');
+ if(prn){
+  ev.preventDefault();ev.stopImmediatePropagation();
+  var pr=prn.closest('.u26p');
+  if(pr)editProject(pr);
+  return;
+ }
+ var rb=t.closest('b[title="rename"]');
+ if(rb){
+  var row=rb.closest('.dchat');
+  if(row){
+   ev.preventDefault();ev.stopImmediatePropagation();
+   editChat(row);
+  }
+ }
 },true);
 (function(){try{var v=document.querySelector('#upd .val');if(v)v.textContent='2.9.22(34)'}catch(e){}})();
 sweep();
-console.log('[chatgpt up27.js v1.0] inline rename loaded');
+console.log('[chatgpt up27.js v1.1] inline rename loaded');
 })();
