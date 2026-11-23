@@ -52,7 +52,7 @@ function versionInit(){
   sb.onclick=function(){
     if(!S.clips.length){log('nothing to save');return}
     var nm=$('verName').value.trim()||('version '+(hist().length+1));
-    pushHistory(nm);$('verName').value='';log('version saved: '+nm,true);
+    pushHistory(nm);$('verName').value='';renderVersions();log('version saved: '+nm,true);
   };
   row.appendChild(inp);row.appendChild(sb);card.appendChild(row);
   var list=document.createElement('div');list.id='verList';card.appendChild(list);
