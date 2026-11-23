@@ -25,7 +25,7 @@ async function musicBuf(){
       try{actx.close()}catch(e){}
     }catch(e){log('music could not be decoded');return null}
   }
-  return mm;
+  return mm.buf;
 }
 
 // 1 music balance (engine music gain)
@@ -50,6 +50,7 @@ function drawWave(){
     var ctx=cv.getContext('2d');ctx.fillStyle='#05090f';ctx.fillRect(0,0,320,64);
     var ch=buf.getChannelData(0),sr=buf.sampleRate,cols=160,td=totalDur()||1;
     for(var i=0;i<cols;i++){
+      // timeline second mapped back to music source second (offset applied, loops)
       var ts=td*i/cols;
       var src=((S.musicOffset||0)+ts)%buf.duration;
       var a=Math.max(0,Math.round((src-0.08)*sr)),b=Math.min(ch.length,Math.round((src+0.08)*sr));
