@@ -20,6 +20,11 @@ h1 span{color:var(--cyan)}
 .stat b{color:var(--cyan)}
 #q{width:100%;max-width:460px;display:block;margin:16px auto 0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:12px 14px;font:inherit;outline:none}
 #q:focus{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(0,229,255,.35)}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0 0}
+.fchip{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:999px;padding:7px 16px;font:inherit;font-size:11px;letter-spacing:.14em}
+.fchip.on{color:#04222b;background:var(--cyan);border-color:var(--cyan);font-weight:700}
+.fchip:hover{border-color:var(--cyan);color:var(--cyan)}
+.fchip.on:hover{color:#04222b}
 .sec{margin-top:26px}
 .sec h2{font-size:13px;letter-spacing:.22em;color:var(--red);text-transform:uppercase;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
@@ -44,7 +49,7 @@ footer b{color:var(--cyan)}
 #ovbar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border-bottom:1px solid var(--line)}
 #ovbar span{font-size:12px;color:var(--cyan);letter-spacing:.1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 #ovframe{flex:1;border:0;width:100%;background:#000}
-@media(max-width:480px){.grid{grid-template-columns:1fr}.stat{font-size:11px;padding:6px 10px}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.stat{font-size:11px;padding:6px 10px}.fchip{padding:6px 12px;font-size:10px}}
 </style>
 </head>
 <body>
@@ -55,6 +60,7 @@ footer b{color:var(--cyan)}
 <div class="stats" id="stats"></div>
 </header>
 <input id="q" placeholder="search the vault" autocomplete="off">
+<div class="chips"><button class="fchip on" data-c="all">ALL</button><button class="fchip" data-c="ai">AI</button><button class="fchip" data-c="tools">TOOLS</button><button class="fchip" data-c="games">GAMES</button><button class="fchip" data-c="infra">INFRA</button><button class="fchip" id="rand">SURPRISE ME 🎲</button></div>
 <div class="sec" id="featsec"><h2>current builds</h2><div class="grid" id="feat"></div></div>
 <div class="sec"><h2>the full arsenal</h2><div class="grid" id="rest"></div></div>
 <div class="sec"><h2>series archive</h2>
@@ -65,7 +71,7 @@ footer b{color:var(--cyan)}
 <button class="btn" id="a_go" style="max-width:110px">OPEN →</button>
 <span id="a_max" style="align-self:center"></span>
 </div></div></div>
-<footer>built by <b>FO</b> for trevor · every site stays live at its own path · nothing was removed</footer>
+<footer>built by <b>FO</b> for trevor · every site stays live at its own path · nothing was removed · v2</footer>
 </div>
 <div id="ov"><div id="ovbar"><span id="ovname"></span><button class="btn" style="flex:0 0 auto;max-width:90px" id="ovclose">CLOSE ✕</button><a class="btn open" style="flex:0 0 auto;max-width:120px" id="ovpop" target="_blank" href="#">FULL ↗</a></div><iframe id="ovframe" title="embedded site"></iframe></div>
 <script>
@@ -104,14 +110,19 @@ d.innerHTML='<div class="chip">'+(feat?'current build':s.c)+'</div><div class="n
 d.querySelector('.embed').addEventListener('click',function(){openOv(s.n,url(s))});
 return d;
 }
+var CAT='all';
+function setCat(c){CAT=c;document.querySelectorAll('.fchip[data-c]').forEach(function(b){b.classList.toggle('on',b.dataset.c===c)});render(document.getElementById('q').value)}
+document.querySelectorAll('.fchip[data-c]').forEach(function(b){b.addEventListener('click',function(){setCat(b.dataset.c)})});
+document.getElementById('rand').addEventListener('click',function(){var s=SITES[Math.floor(Math.random()*SITES.length)];openOv(s.n,url(s))});
+document.addEventListener('keydown',function(e){var q=document.getElementById('q');if(e.key==='/'&&document.activeElement!==q){e.preventDefault();q.focus()}});
 function render(q){
 q=(q||'').toLowerCase();
 var f=document.getElementById('feat'),r=document.getElementById('rest');f.innerHTML='';r.innerHTML='';
 var shown=0;
-SITES.forEach(function(s){if(q&&!(s.n+' '+s.d).toLowerCase().includes(q))return;shown++;(s.f&&!q?f:r).appendChild(card(s,s.f&&!q))});
+SITES.forEach(function(s){if(CAT!=='all'&&s.c!==CAT)return;if(q&&!(s.n+' '+s.d).toLowerCase().includes(q))return;shown++;(CAT==='all'&&!q&&s.f?f:r).appendChild(card(s,CAT==='all'&&!q&&s.f))});
 if(!shown){f.innerHTML='<div class="desc" style="color:var(--dim)">nothing matches that — the vault runs deep, try a shorter word</div>'}
 document.getElementById('stats').innerHTML='<div class="stat"><b>398</b> hell builds live</div><div class="stat"><b>51</b> deepagents</div><div class="stat"><b>8</b> jarvis · <b>7</b> friday</div><div class="stat"><b>'+SITES.length+'</b> sites linked</div>';
-document.getElementById('featsec').style.display=f.children.length?'':'none';
+document.getElementById('featsec').style.display=(CAT==='all'&&!q&&f.children.length)?'':'none';
 }
 function openOv(n,u){document.getElementById('ovname').textContent=n+' — '+u;document.getElementById('ovpop').href=u;document.getElementById('ovframe').src=u;document.getElementById('ov').classList.add('on')}
 document.getElementById('q').addEventListener('input',function(e){render(e.target.value)});
