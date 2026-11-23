@@ -128,7 +128,7 @@ return d;
 }
 var LC={};try{LC=JSON.parse(localStorage.getItem('illv3launches')||'{}')}catch(e){}
 var FEED=[];try{FEED=JSON.parse(localStorage.getItem('illv3feed')||'[]')}catch(e){}
-function logLaunch(n){LC[n]=(LC[n]||0)+1;FEED.unshift({n:n,t:Date.now()});FEED=FEED.slice(0,6);try{localStorage.setItem('illv3launches',JSON.stringify(LC));localStorage.setItem('illv3feed',JSON.stringify(FEED))}catch(e){}render(document.getElementById('q').value)}
+function logLaunch(n){LC[n]=(LC[n]||0)+1;FEED.unshift({n:n,t:Date.now()});FEED=FEED.slice(0,6);try{localStorage.setItem('illv3launches',JSON.stringify(LC));localStorage.setItem('illv3feed',JSON.stringify(FEED))}catch(e){}renderDeck();render(document.getElementById('q').value)}
 function renderDeck(){var d=document.getElementById('deckgrid'),f=document.getElementById('feedbox');if(!d)return;var top=Object.keys(LC).sort(function(a,b){return LC[b]-LC[a]}).slice(0,3);d.innerHTML=top.length?top.map(function(n,i){return '<div class="lcard"><span class="rank">#'+(i+1)+'</span><span class="nm">'+esc(n)+'</span><span class="ct">\u00d7'+LC[n]+'</span></div>'}).join(''):'<div class="lcard"><span class="nm" style="color:var(--dim)">no launches yet — open something, it counts here</span></div>';f.innerHTML=FEED.length?FEED.map(function(e){var m=Math.floor((Date.now()-e.t)/60000);var ago=m<1?'just now':(m<60?m+' min ago':Math.floor(m/60)+'h '+(m%60)+'m ago');return '<div><b>'+esc(e.n)+'</b> \u00b7 '+ago+'</div>'}).join(''):'<div>no activity yet</div>'}
 var CAT='all';
 function setCat(c){CAT=c;document.querySelectorAll('.fchip[data-c]').forEach(function(b){b.classList.toggle('on',b.dataset.c===c)});render(document.getElementById('q').value)}
