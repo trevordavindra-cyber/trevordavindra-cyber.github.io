@@ -43,6 +43,17 @@ h1 span{color:var(--cyan)}
 .arch select,.arch input{background:#07070d;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px;font:inherit;font-size:12px;max-width:150px}
 .arch .btn{flex:0 0 auto;padding:8px 14px}
 footer{text-align:center;color:var(--dim);font-size:11px;letter-spacing:.14em;margin-top:44px}
+.ictile{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#04141a;flex:0 0 auto;box-shadow:0 0 14px rgba(0,229,255,.12)}
+.crow{display:flex;gap:10px;align-items:flex-start}
+.crow>div:last-of-type{flex:1;min-width:0}
+.bdg{font-size:10px;color:var(--cyan);border:1px solid rgba(0,229,255,.4);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.launches{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.lcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center;min-width:0}
+.lcard .rank{font-size:11px;color:var(--red);font-weight:800;letter-spacing:.1em}
+.lcard .nm{font-size:12px;color:#fff;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lcard .ct{font-size:12px;color:var(--cyan);font-weight:800}
+.feed{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:11px;color:var(--dim);line-height:1.8}
+.feed b{color:var(--cyan);font-weight:700}
 footer b{color:var(--cyan)}
 #ov{position:fixed;inset:0;background:rgba(3,3,8,.92);display:none;z-index:50;flex-direction:column}
 #ov.on{display:flex}
@@ -63,6 +74,7 @@ footer b{color:var(--cyan)}
 <div class="chips"><button class="fchip on" data-c="all">ALL</button><button class="fchip" data-c="ai">AI</button><button class="fchip" data-c="tools">TOOLS</button><button class="fchip" data-c="games">GAMES</button><button class="fchip" data-c="infra">INFRA</button><button class="fchip" id="rand">SURPRISE ME 🎲</button></div>
 <div class="sec" id="featsec"><h2>current builds</h2><div class="grid" id="feat"></div></div>
 <div class="sec"><h2>the full arsenal</h2><div class="grid" id="rest"></div></div>
+<div class="sec" id="decksec"><h2>launch deck</h2><div class="launches" id="deckgrid"></div><div class="feed" id="feedbox" style="margin-top:10px"></div></div>
 <div class="sec"><h2>series archive</h2>
 <div class="arch">every version of every series is still live. pick one:
 <div class="row" style="margin-top:10px;flex-wrap:wrap">
@@ -71,7 +83,7 @@ footer b{color:var(--cyan)}
 <button class="btn" id="a_go" style="max-width:110px">OPEN →</button>
 <span id="a_max" style="align-self:center"></span>
 </div></div></div>
-<footer>built by <b>FO</b> for trevor · every site stays live at its own path · nothing was removed · v2</footer>
+<footer>built by <b>FO</b> for trevor · every site stays live at its own path · nothing was removed · v3</footer>
 </div>
 <div id="ov"><div id="ovbar"><span id="ovname"></span><button class="btn" style="flex:0 0 auto;max-width:90px" id="ovclose">CLOSE ✕</button><a class="btn open" style="flex:0 0 auto;max-width:120px" id="ovpop" target="_blank" href="#">FULL ↗</a></div><iframe id="ovframe" title="embedded site"></iframe></div>
 <script>
@@ -103,14 +115,21 @@ var SITES=[
 {n:'VOCABLIFT',u:'vocablift/',d:'VocabLift — say it plain, leave it polished.',c:'tools'}
 ];
 var MAXS={hell:398,jarvis:8,friday:7,deepagent:51,fleet:4,tiktok:3};
-function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function esc(s){return s.replace(/[&<>"/]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function url(s){return s.u.indexOf('http')===0?s.u:BASE+s.u}
+var ICOL={ai:'#00e5ff',tools:'#ff2d55',games:'#ffb02e',infra:'#a78bfa'};
 function card(s,feat){
 var d=document.createElement('div');d.className='card'+(feat?' feat':'');
-d.innerHTML='<div class="chip">'+(feat?'current build':s.c)+'</div><div class="name">'+esc(s.n)+'</div><div class="desc">'+esc(s.d)+'</div><div class="row"><a class="btn open" href="'+url(s)+'" target="_blank" rel="noopener">OPEN ↗</a><button class="btn embed" data-n="'+esc(s.n)+'" data-u="'+url(s)+'">EMBED ▣</button></div>';
+var ini=esc(((s.n||'?').replace(/[^A-Za-z0-9]/g,'').charAt(0)||'?').toUpperCase());
+d.innerHTML='<div class="crow"><div class="ictile" style="background:'+(ICOL[s.c]||'#00e5ff')+'">'+ini+'</div><div><div class="chip">'+(feat?'current build':s.c)+'</div><div class="name">'+esc(s.n)+'</div></div>'+(LC[s.n]?'<span class="bdg">\u00d7'+LC[s.n]+'</span>':'')+'</div><div class="desc">'+esc(s.d)+'</div><div class="row"><a class="btn open" href="'+url(s)+'" target="_blank" rel="noopener">OPEN ↗</a><button class="btn embed" data-n="'+esc(s.n)+'" data-u="'+url(s)+'">EMBED ▣</button></div>';
 d.querySelector('.embed').addEventListener('click',function(){openOv(s.n,url(s))});
+d.querySelector('.open').addEventListener('click',function(){logLaunch(s.n)});
 return d;
 }
+var LC={};try{LC=JSON.parse(localStorage.getItem('illv3launches')||'{}')}catch(e){}
+var FEED=[];try{FEED=JSON.parse(localStorage.getItem('illv3feed')||'[]')}catch(e){}
+function logLaunch(n){LC[n]=(LC[n]||0)+1;FEED.unshift({n:n,t:Date.now()});FEED=FEED.slice(0,6);try{localStorage.setItem('illv3launches',JSON.stringify(LC));localStorage.setItem('illv3feed',JSON.stringify(FEED))}catch(e){}render(document.getElementById('q').value)}
+function renderDeck(){var d=document.getElementById('deckgrid'),f=document.getElementById('feedbox');if(!d)return;var top=Object.keys(LC).sort(function(a,b){return LC[b]-LC[a]}).slice(0,3);d.innerHTML=top.length?top.map(function(n,i){return '<div class="lcard"><span class="rank">#'+(i+1)+'</span><span class="nm">'+esc(n)+'</span><span class="ct">\u00d7'+LC[n]+'</span></div>'}).join(''):'<div class="lcard"><span class="nm" style="color:var(--dim)">no launches yet — open something, it counts here</span></div>';f.innerHTML=FEED.length?FEED.map(function(e){var m=Math.floor((Date.now()-e.t)/60000);var ago=m<1?'just now':(m<60?m+' min ago':Math.floor(m/60)+'h '+(m%60)+'m ago');return '<div><b>'+esc(e.n)+'</b> \u00b7 '+ago+'</div>'}).join(''):'<div>no activity yet</div>'}
 var CAT='all';
 function setCat(c){CAT=c;document.querySelectorAll('.fchip[data-c]').forEach(function(b){b.classList.toggle('on',b.dataset.c===c)});render(document.getElementById('q').value)}
 document.querySelectorAll('.fchip[data-c]').forEach(function(b){b.addEventListener('click',function(){setCat(b.dataset.c)})});
@@ -125,12 +144,13 @@ if(!shown){f.innerHTML='<div class="desc" style="color:var(--dim)">nothing match
 document.getElementById('stats').innerHTML='<div class="stat"><b>398</b> hell builds live</div><div class="stat"><b>51</b> deepagents</div><div class="stat"><b>8</b> jarvis · <b>7</b> friday</div><div class="stat"><b>'+SITES.length+'</b> sites linked</div>';
 document.getElementById('featsec').style.display=(CAT==='all'&&!q&&f.children.length)?'':'none';
 }
-function openOv(n,u){document.getElementById('ovname').textContent=n+' — '+u;document.getElementById('ovpop').href=u;document.getElementById('ovframe').src=u;document.getElementById('ov').classList.add('on')}
+function openOv(n,u){logLaunch(n);document.getElementById('ovname').textContent=n+' — '+u;document.getElementById('ovpop').href=u;document.getElementById('ovframe').src=u;document.getElementById('ov').classList.add('on')}
 document.getElementById('q').addEventListener('input',function(e){render(e.target.value)});
 document.getElementById('ovclose').addEventListener('click',function(){document.getElementById('ov').classList.remove('on');document.getElementById('ovframe').src='about:blank'});
 document.getElementById('a_max').textContent='latest: '+MAXS.hell+' hell · '+MAXS.jarvis+' jarvis · '+MAXS.friday+' friday · '+MAXS.deepagent+' deepagent · '+MAXS.fleet+' fleet · '+MAXS.tiktok+' tiktok';
 document.getElementById('a_go').addEventListener('click',function(){var s=document.getElementById('a_series').value,n=Math.max(1,Math.min(MAXS[s],parseInt(document.getElementById('a_num').value||'1',10)));window.open(BASE+s+n+'/','_blank','noopener')});
 render('');
+renderDeck();
 </script>
 </body>
 </html>
