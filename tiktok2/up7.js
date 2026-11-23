@@ -30,11 +30,11 @@ function urPush(){
 }
 function urUndo(){
   if(UR.idx<=0){log('nothing to undo');return}
-  UR.idx--;urRestore(UR.states[UR.idx]);urButtons();log('undo');
+  UR.idx--;urRestore(UR.states[UR.idx]);if(typeof renderLyList==='function')try{renderLyList()}catch(e){}urButtons();log('undo');
 }
 function urRedo(){
   if(UR.idx>=UR.states.length-1){log('nothing to redo');return}
-  UR.idx++;urRestore(UR.states[UR.idx]);urButtons();log('redo');
+  UR.idx++;urRestore(UR.states[UR.idx]);if(typeof renderLyList==='function')try{renderLyList()}catch(e){}urButtons();log('redo');
 }
 function urButtons(){
   var u=$('urUndo'),r=$('urRedo');
