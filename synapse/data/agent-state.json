@@ -1,8 +1,20 @@
 {
   "v": "0.6-server",
-  "cycle": 48,
+  "cycle": 49,
   "startedAt": 1794228560595,
   "events": [
+    {
+      "t": 1795435150812,
+      "type": "act",
+      "src": "server",
+      "text": "SCOUT → Knowledge graph: In knowledge representation and reasoning, a knowledge graph is a knowledge base that uses a graph-structured data model or topology to represent and operate on data. Kno"
+    },
+    {
+      "t": 1795435150423,
+      "type": "think",
+      "src": "server",
+      "text": "SCOUT (server) — verify one new research topic and file it"
+    },
     {
       "t": 1795402456507,
       "type": "act",
@@ -583,6 +595,11 @@
   "memory": {
     "long": [
       {
+        "t": 1795435150812,
+        "text": "research: Knowledge graph — In knowledge representation and reasoning, a knowledge graph is a knowledge base that uses a graph-structured data model or topology to represent and operate on data. Knowledge graphs are often used to store interlinked descriptions of entities – objects, events, situatio",
+        "kind": "fact"
+      },
+      {
         "t": 1795384835094,
         "text": "research: Artificial general intelligence — Artificial general intelligence (AGI) is a hypothetical type of artificial intelligence that matches or surpasses human capabilities across most or all cognitive tasks. Unlike artificial narrow intelligence (ANI), whose competence is confined to well‑defin",
         "kind": "fact"
@@ -595,11 +612,6 @@
       {
         "t": 1795294191191,
         "text": "research: Mixture of experts — Mixture of experts (MoE) is a machine learning technique where multiple expert networks (learners) are used to divide a problem space into homogeneous regions. MoE represents a form of ensemble learning",
-        "kind": "fact"
-      },
-      {
-        "t": 1795218496915,
-        "text": "research: Knowledge graph — In knowledge representation and reasoning, a knowledge graph is a knowledge base that uses a graph-structured data model or topology to represent and operate on data. Knowledge graphs are often used to store interlinked descriptions of entities – objects, events, situatio",
         "kind": "fact"
       },
       {
@@ -727,7 +739,7 @@
     "Mixture of experts"
   ],
   "metrics": {
-    "done": 43,
+    "done": 44,
     "failed": 5,
     "toolStats": {}
   },
