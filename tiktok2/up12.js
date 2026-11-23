@@ -1,0 +1,1 @@
+{UP12_CONTENT}
