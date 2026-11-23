@@ -49,7 +49,7 @@ function fxInit(){
   brow.appendChild(bab);panel.appendChild(brow);
   var tol=document.createElement('div');tol.className='slider';tol.innerHTML='key tolerance <input type="range" id="fxTol" min="0.05" max="0.5" step="0.01" value="0.22"><output id="fxTolV">0.22</output>';
   panel.appendChild(tol);
-  $('fxTol').oninput=function(){var c=cur();if(!c)return;if(!c.key)c.key={color:[0,0.69,0.25],ready:true};c.key.tol=parseFloat(this.value);$('fxTolV').textContent=c.key.tol.toFixed(2);save()};
+  var _ti=tol.querySelector('input'),_to=tol.querySelector('output');_ti.oninput=function(){var c=cur();if(!c)return;if(!c.key)c.key={color:[0,0.69,0.25],ready:true};c.key.tol=parseFloat(_ti.value);_to.textContent=c.key.tol.toFixed(2);save()};
   var lock=document.createElement('div');lock.className='kv';lock.innerHTML='<span>Subject lock (needs tracking)</span>';
   var lb=document.createElement('button');lb.className='ghost small';lb.style.width='74px';lb.id='fxLock';lb.textContent='OFF';
   lb.onclick=function(){var c=cur();if(!c)return;c.lock=c.lock?0:1;lb.textContent=c.lock?'ON':'OFF';save()};
