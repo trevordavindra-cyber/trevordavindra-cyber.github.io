@@ -16,8 +16,16 @@ function mkSel(id,opts,vals){var s=document.createElement('select');s.id=id;s.cl
 // ---------- 1. BEAT CUT: snap timeline cut points onto the music beat grid ----------
 function beatTimes(){
   var mm=S.musicId&&M[S.musicId];
-  if(!mm||!mm.beats||mm.beats.length<4)return null;
-  return mm.beats.map(function(b){return b-(S.musicOffset||0)}).filter(function(b){return b>0.15});
+  if(!mm)return null;
+  var off=S.musicOffset||0;
+  if(mm.beats&&mm.beats.length>=4)return mm.beats.map(function(b){return b-off}).filter(function(b){return b>0.15});
+  if(mm.bpm&&mm.dur){ // synthesized loops carry their own grid — no detection needed
+    var per=60/mm.bpm,out=[],t=0;
+    while(t<mm.dur-0.05){out.push(t);t+=per}
+    out=out.map(function(b){return b-off}).filter(function(b){return b>0.15});
+    if(out.length>=2)return out;
+  }
+  return null;
 }
 function beatCut(){
   if(!S.clips.length){log('timeline is empty — nothing to snap');return}
@@ -331,7 +339,7 @@ async function genLoop(g){
     function snare(t,vol){var s=oc.createBufferSource();s.buffer=noiseBuf(oc,0.2);var f=oc.createBiquadFilter();f.type='bandpass';f.frequency.value=1800;var gn=oc.createGain();gn.gain.setValueAtTime(vol||0.6,t);gn.gain.exponentialRampToValueAtTime(0.001,t+0.18);s.connect(f);f.connect(gn);gn.connect(bus);s.start(t)}
     function hat(t,vol){var s=oc.createBufferSource();s.buffer=noiseBuf(oc,0.06);var f=oc.createBiquadFilter();f.type='highpass';f.frequency.value=7500;var gn=oc.createGain();gn.gain.setValueAtTime(vol||0.22,t);gn.gain.exponentialRampToValueAtTime(0.001,t+0.05);s.connect(f);f.connect(gn);gn.connect(bus);s.start(t)}
     function bass(t,f,dur){var o=oc.createOscillator();o.type='sine';o.frequency.setValueAtTime(f,t);var gn=oc.createGain();gn.gain.setValueAtTime(0.42,t);gn.gain.setValueAtTime(0.42,t+dur*0.6);gn.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(gn);gn.connect(bus);o.start(t);o.stop(t+dur+0.05)}
-    function cowbell(t,f){var o1=oc.createOscillator(),o2=oc.createOscillator();o1.type='square';o2.type='square';o1.frequency.value=f;o2.frequency.value=f*1.48;var fl=oc.createBiquadFilter();fl.type='bandpass';fl.frequency.value=f*1.2;var gn=oc.createGain();gn.gain.setValueAtTime(0.16,t);gn.gain.exponentialRampToValueAtTime(0.001,t+0.12);o1.connect(fl);o2.connect(fl);fl.connect(gn);gn.connect(bus);o1.start(t);o2.start(t);o1.stop(t+0.14);o2.stop(t+0.14)}
+    function cowbell(t,f){var o1=oc.createOscillator(),o2=oc.createOscillator();o1.type='square';o2.type='square';o1.frequency.value=f;o2.frequency.value=f*1.48;var fl=oc.createBiquadFilter();fl.type='bandpass';fl.frequency.value=f*1.2;var gn=oc.createGain();gn.gain.setValueAtTime(0.16,t);gn.gain.exponentialRampToValueAtTime(0.001,t+0.12);o1.connect(fl);fl.connect(gn);gn.connect(bus);o1.start(t);o2.start(t);o1.stop(t+0.14);o2.stop(t+0.14)}
     function pad(t,freqs,dur){
       freqs.forEach(function(f,i){
         var o=oc.createOscillator();o.type='triangle';o.frequency.value=f;o.detune.value=(i-1)*7;
@@ -374,8 +382,12 @@ async function genLoop(g){
     var wav=wavBlob(buf);
     wav.name='tk2-'+g+'-loop.wav';
     var m=await addMedia(wav,'audio');
+    if(m){ // seed the beat grid from the known bpm — beat cut works instantly
+      m.bpm=G.bpm;var grid=[],k;for(k=0;k<steps;k++)grid.push(k*beat);m.beats=grid;
+      if(m.dur==null)m.dur=len;
+    }
     if(m&&m.id){S.musicId=m.id;save()}
-    log(G.label+' loop generated ('+G.bpm+' bpm) and set as music — beats detect in a moment',true);
+    log(G.label+' loop generated ('+G.bpm+' bpm) and set as music, beat grid ready',true);
   }catch(e){log('soundtrack: '+(e&&e.message||e))}
 }
 
