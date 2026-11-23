@@ -98,21 +98,21 @@ footer{text-align:center;color:#33405c;font-size:10px;letter-spacing:1px;margin-
 <div class="card">
   <h2>Editing style</h2>
   <div class="chips" id="styleChips"></div>
-  <div class="kv" style="margin-top:9px"><span id="styleDesc">—</span></div>
+  <div class="kv" style="margin-top:9px"><span id="styleDesc">&mdash;</span></div>
 </div>
 <div class="card">
   <h2>Timeline</h2>
   <div class="tl">
-    <div class="track"><div class="tlabel">VIDEO</div><div class="trow" id="trVideo"><span class="tempty">empty — auto edit or add clips from library</span></div></div>
+    <div class="track"><div class="tlabel">VIDEO</div><div class="trow" id="trVideo"><span class="tempty">empty &mdash; auto edit or add clips from library</span></div></div>
     <div class="track"><div class="tlabel">MUSIC</div><div class="trow" id="trMusic"><span class="tempty">no music</span></div></div>
     <div class="track"><div class="tlabel">CAPTIONS</div><div class="trow" id="trCaps"><span class="tempty">no captions</span></div></div>
   </div>
   <div class="panel" id="clipPanel" style="display:none">
-    <div class="kv"><span>Clip</span><b id="cpName">—</b></div>
+    <div class="kv"><span>Clip</span><b id="cpName">&mdash;</b></div>
     <div class="slider">in <input type="range" id="cpIn" min="0" max="100" step="0.05"><output id="cpInV">0</output></div>
     <div class="slider">out <input type="range" id="cpOut" min="0" max="100" step="0.05"><output id="cpOutV">0</output></div>
     <div class="slider">speed <input type="range" id="cpSpeed" min="0.25" max="3" step="0.05" value="1"><output id="cpSpeedV">1.0</output></div>
-    <div class="slider">zoom in→out <input type="range" id="cpZoom" min="-3" max="3" step="0.1" value="1"><output id="cpZoomV">1.0</output></div>
+    <div class="slider">zoom in&rightarrow;out <input type="range" id="cpZoom" min="-3" max="3" step="0.1" value="1"><output id="cpZoomV">1.0</output></div>
     <div class="row" style="margin:7px 0">
       <select id="cpTrans"><option value="cut">transition: cut</option><option value="flash">flash</option><option value="fade">fade in</option><option value="punch">zoom punch</option><option value="whip">whip pan</option><option value="shake">camera shake</option></select>
       <select id="cpKeep"><option value="0">original audio off</option><option value="1">original audio on</option></select>
@@ -122,7 +122,7 @@ footer{text-align:center;color:#33405c;font-size:10px;letter-spacing:1px;margin-
     </div>
   </div>
   <div class="panel" id="capPanel" style="display:none">
-    <textarea id="capText" rows="3" placeholder="one line per caption — tap a caption to edit"></textarea>
+    <textarea id="capText" rows="3" placeholder="one line per caption &mdash; tap a caption to edit"></textarea>
     <div class="btnrow">
       <button class="ghost small" id="capSave">SAVE LINE</button><button class="ghost small" id="capAdd">ADD LINE</button>
     </div>
@@ -134,7 +134,7 @@ footer{text-align:center;color:#33405c;font-size:10px;letter-spacing:1px;margin-
 </div>
 <div class="card" id="refCard" style="display:none">
   <h2>Reference video analysis</h2>
-  <div class="kv"><span id="refReport">—</span></div>
+  <div class="kv"><span id="refReport">&mdash;</span></div>
   <div class="btnrow"><button class="ghost small" id="btnRefApply">APPLY ITS PACING + GRADE</button></div>
 </div>
 </div>
@@ -163,7 +163,7 @@ footer{text-align:center;color:#33405c;font-size:10px;letter-spacing:1px;margin-
   <input id="genTopic" placeholder="topic, e.g. 3 habits that build discipline" autocomplete="off">
   <select id="genVoice"><option value="Matthew">Matthew (US male)</option><option value="Brian">Brian (UK male)</option><option value="Amy">Amy (UK female)</option><option value="Joanna">Joanna (US female)</option></select>
   <div class="btnrow"><button id="btnGen">GENERATE AI CLIP</button></div>
-  <div class="note">writes the script, makes ai images, records the voice and renders a vertical clip — it lands in your library ready to cut</div>
+  <div class="note">writes the script, makes ai images, records the voice and renders a vertical clip &mdash; it lands in your library ready to cut</div>
 </div>
 </div>
 
@@ -186,7 +186,7 @@ footer{text-align:center;color:#33405c;font-size:10px;letter-spacing:1px;margin-
     <select id="exFps"><option value="30">30 fps</option><option value="60">60 fps</option></select>
   </div>
   <div class="btnrow"><button id="btnExport">RENDER + DOWNLOAD</button></div>
-  <div class="note" id="exNote">9:16 tiktok format. render runs in real time — keep the tab open until it finishes.</div>
+  <div class="note" id="exNote">9:16 tiktok format. render runs in real time &mdash; keep the tab open until it finishes.</div>
   <div id="exOut"></div>
 </div>
 <div class="card">
@@ -219,7 +219,7 @@ footer{text-align:center;color:#33405c;font-size:10px;letter-spacing:1px;margin-
 </div>
 
 <div id="log"></div>
-<footer>FREE STACK · NO API KEYS · RUNS IN YOUR BROWSER</footer>
+<footer>FREE STACK &middot; NO API KEYS &middot; RUNS IN YOUR BROWSER</footer>
 </div>
 <script src="app.js"></script>
 <script src="app2.js"></script>
@@ -245,5 +245,5 @@ footer{text-align:center;color:#33405c;font-size:10px;letter-spacing:1px;margin-
 <script src="up22.js?v=2"></script>
 <script src="up23.js?v=1"></script>
 <script src="up24.js?v=2"></script><script src="up25.js?v=2"></script><script src="up26.js?v=2"></script><script src="up27.js?v=1"></script>
-<script src="up28.js?v=2"></script><script src="up29.js?v=1"></script><script src="up30.js?v=1"></script></body>
+<script src="up28.js?v=2"></script><script src="up29.js?v=1"></script><script src="up30.js?v=1"></script><script src="up31.js?v=1"></script></body>
 </html>
