@@ -243,10 +243,10 @@ function mkNote(id){
 }
 function mkSpan(t){var s=document.createElement('span');s.style.display='block';s.style.margin='12px 0 6px';s.style.fontSize='12px';s.style.color='#7fd8e8';s.textContent=t;return s}
 function retCard(){
-  if($('tk9Hook'))return;
+  if($('tk9HookOut'))return true;
   var anchor=$('tk8Hype')||$('tk8Qc');
   var card0=anchor?anchor.closest('.card'):(document.querySelector('.card'));
-  if(!card0)return;
+  if(!card0)return false;
   var card=document.createElement('div');card.className='card';
   var h=document.createElement('h2');h.textContent='Retention + publishing';card.appendChild(h);
   var r1=document.createElement('div');r1.className='btnrow';
@@ -280,12 +280,13 @@ function retCard(){
   if(card0.nextSibling)card0.parentElement.insertBefore(card,card0.nextSibling);
   else card0.parentElement.appendChild(card);
   renderTags();
+  return true;
 }
 function init(){
   var tries=0;
   var iv=setInterval(function(){
     tries++;
-    if(retCard()||$('tk9Hook')||tries>40)clearInterval(iv);
+    if(retCard()||tries>40)clearInterval(iv);
   },250);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
