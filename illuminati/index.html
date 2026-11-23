@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ILLUMINATI — the one hub</title>
+<meta name="description" content="Every site we ever built together, one hub.">
+<style>
+:root{--cyan:#00e5ff;--red:#ff2d55;--bg:#07070d;--card:#0d0d17;--line:#1c1c2e;--txt:#e6f7ff;--dim:#7a8aa0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:100vh;
+background-image:radial-gradient(circle at 15% 10%,rgba(255,45,85,.08),transparent 40%),radial-gradient(circle at 85% 20%,rgba(0,229,255,.07),transparent 45%),linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 16px 60px}
+header{text-align:center;padding:26px 0 10px}
+h1{font-size:clamp(30px,7vw,52px);letter-spacing:.14em;color:#fff;text-shadow:0 0 18px rgba(0,229,255,.45),0 0 44px rgba(255,45,85,.25)}
+h1 span{color:var(--cyan)}
+.tag{color:var(--dim);letter-spacing:.28em;text-transform:uppercase;font-size:11px;margin-top:8px}
+.stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0 6px}
+.stat{border:1px solid var(--line);background:rgba(13,13,23,.8);border-radius:10px;padding:8px 14px;font-size:12px}
+.stat b{color:var(--cyan)}
+#q{width:100%;max-width:460px;display:block;margin:16px auto 0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:12px 14px;font:inherit;outline:none}
+#q:focus{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(0,229,255,.35)}
+.sec{margin-top:26px}
+.sec h2{font-size:13px;letter-spacing:.22em;color:var(--red);text-transform:uppercase;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;transition:.18s}
+.card:hover{border-color:rgba(0,229,255,.5);box-shadow:0 0 24px rgba(0,229,255,.08)}
+.card.feat{border-color:rgba(255,45,85,.35)}
+.name{font-size:14px;font-weight:700;color:#fff;letter-spacing:.04em}
+.desc{font-size:12px;color:var(--dim);line-height:1.45;flex:1}
+.row{display:flex;gap:8px}
+.btn{flex:1;cursor:pointer;border-radius:8px;padding:9px 10px;font:inherit;font-size:11px;letter-spacing:.08em;border:1px solid var(--line);background:transparent;color:var(--txt);text-decoration:none;text-align:center}
+.btn.open{background:var(--cyan);color:#04222b;border-color:var(--cyan);font-weight:700}
+.btn.embed{color:var(--cyan)}
+.btn:hover{filter:brightness(1.2)}
+.chip{font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
+.arch{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:10px;font-size:12px;color:var(--dim)}
+.arch select,.arch input{background:#07070d;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px;font:inherit;font-size:12px;max-width:150px}
+.arch .btn{flex:0 0 auto;padding:8px 14px}
+footer{text-align:center;color:var(--dim);font-size:11px;letter-spacing:.14em;margin-top:44px}
+footer b{color:var(--cyan)}
+#ov{position:fixed;inset:0;background:rgba(3,3,8,.92);display:none;z-index:50;flex-direction:column}
+#ov.on{display:flex}
+#ovbar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border-bottom:1px solid var(--line)}
+#ovbar span{font-size:12px;color:var(--cyan);letter-spacing:.1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+#ovframe{flex:1;border:0;width:100%;background:#000}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.stat{font-size:11px;padding:6px 10px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>ILLUMIN<span>ATI</span></h1>
+<div class="tag">one hub · every site · zero removals</div>
+<div class="stats" id="stats"></div>
+</header>
+<input id="q" placeholder="search the vault" autocomplete="off">
+<div class="sec" id="featsec"><h2>current builds</h2><div class="grid" id="feat"></div></div>
+<div class="sec"><h2>the full arsenal</h2><div class="grid" id="rest"></div></div>
+<div class="sec"><h2>series archive</h2>
+<div class="arch">every version of every series is still live. pick one:
+<div class="row" style="margin-top:10px;flex-wrap:wrap">
+<select id="a_series"><option value="hell">hell</option><option value="jarvis">jarvis</option><option value="friday">friday</option><option value="deepagent">deepagent</option><option value="fleet">fleet</option><option value="tiktok">tiktok</option></select>
+<input id="a_num" type="number" min="1" placeholder="version #">
+<button class="btn" id="a_go" style="max-width:110px">OPEN →</button>
+<span id="a_max" style="align-self:center"></span>
+</div></div></div>
+<footer>built by <b>FO</b> for trevor · every site stays live at its own path · nothing was removed</footer>
+</div>
+<div id="ov"><div id="ovbar"><span id="ovname"></span><button class="btn" style="flex:0 0 auto;max-width:90px" id="ovclose">CLOSE ✕</button><a class="btn open" style="flex:0 0 auto;max-width:120px" id="ovpop" target="_blank" href="#">FULL ↗</a></div><iframe id="ovframe" title="embedded site"></iframe></div>
+<script>
+'use strict';
+var BASE='https://trevordavindra-cyber.github.io/';
+var SITES=[
+{n:'HELL 398',u:'hell398/',d:'The ILLUMINATI core. 398 builds deep — the newest hell path, catch-all 404 routes dead links here.',c:'ai',f:1},
+{n:'J.A.R.V.I.S. 8',u:'jarvis8/',d:'Stark Industries HUD. Voice, arc-reactor status, global map, full-HUD phone view with view switcher.',c:'ai',f:1},
+{n:'FRIDAY 7',u:'friday7/',d:"Trevor's personal AI. Chat, deep research, weather, games, voice both ways, memory vault, help + chat export.",c:'ai',f:1},
+{n:'FRIDAYCHAT',u:'https://fridaychat.surge.sh/',d:'Full NextChat build on its own rail. ChatGPT-style app, model forced to the free relay.',c:'ai',f:1},
+{n:'TIKTOK 2',u:'tiktok2/',d:'The ULTIMATE AI TIKTOK EDIT MAKER. 151 of 1000 features shipped — agents, styles, finishing lab, creator analytics.',c:'tools',f:1},
+{n:'TIKTOK 1',u:'tiktok1/',d:'The original TikTok edit generator. Topic to finished vertical video with captions and hashtags.',c:'tools',f:1},
+{n:'DEEPAGENT 51',u:'deepagent51/',d:'Deep agent chat, 51 builds. Prompt chips, search-all-chats, stats, projects, backup and restore.',c:'ai',f:1},
+{n:'FLEET 4',u:'fleet4/',d:'Fleet command: 100 agents, missions and security audit modes running in the browser.',c:'ai',f:1},
+{n:'UNCENSORED AI',u:'uncensored-ai/',d:'UNCENSORED AI status build. Companion to the AI operating system.',c:'ai'},
+{n:'UNCENSORED OS',u:'uncensored/',d:'UNCENSORED — the AI operating system.',c:'ai'},
+{n:'NOVA',u:'nova/',d:'NOVA — the AI that actually helps.',c:'ai'},
+{n:'SYNAPSE',u:'synapse/',d:'SYNAPSE — AI with attitude.',c:'ai'},
+{n:'ORBIT',u:'orbit/',d:'ORBIT — the AI assistant that gets things done. Front end; its backend lives below.',c:'ai'},
+{n:'ORBIT BACKEND',u:'orbit-backend/',d:'ORBIT backend services and API pages.',c:'infra'},
+{n:'CLAUDEMOD',u:'claudemod/',d:'FreeMode — Claude-style multi-model chat.',c:'ai'},
+{n:'HACKERAI',u:'hackerai/',d:'HACKERAI console build.',c:'ai'},
+{n:'WITCH',u:'witch/',d:'WITCH AI. Free-first, open-source powered.',c:'ai'},
+{n:'PRESIDENT',u:'president/',d:'PRESIDENTIAL AI — command of a nation. Political sim.',c:'games'},
+{n:'FORGE',u:'forge/',d:'FORGE — Roblox Studio replica in the browser.',c:'games'},
+{n:'FLIPSIDE',u:'flipside/',d:'FLIPSIDE — flip smarter. Coin-flip decisions.',c:'games'},
+{n:'TITAN 1',u:'titan1/',d:'TITAN-100 command center.',c:'infra'},
+{n:'VOCABLIFT',u:'vocablift/',d:'VocabLift — say it plain, leave it polished.',c:'tools'}
+];
+var MAXS={hell:398,jarvis:8,friday:7,deepagent:51,fleet:4,tiktok:2};
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function url(s){return s.u.indexOf('http')===0?s.u:BASE+s.u}
+function card(s,feat){
+var d=document.createElement('div');d.className='card'+(feat?' feat':'');
+d.innerHTML='<div class="chip">'+(feat?'current build':s.c)+'</div><div class="name">'+esc(s.n)+'</div><div class="desc">'+esc(s.d)+'</div><div class="row"><a class="btn open" href="'+url(s)+'" target="_blank" rel="noopener">OPEN ↗</a><button class="btn embed" data-n="'+esc(s.n)+'" data-u="'+url(s)+'">EMBED ▣</button></div>';
+d.querySelector('.embed').addEventListener('click',function(){openOv(s.n,url(s))});
+return d;
+}
+function render(q){
+q=(q||'').toLowerCase();
+var f=document.getElementById('feat'),r=document.getElementById('rest');f.innerHTML='';r.innerHTML='';
+var shown=0;
+SITES.forEach(function(s){if(q&&!(s.n+' '+s.d).toLowerCase().includes(q))return;shown++;(s.f&&!q?f:r).appendChild(card(s,s.f&&!q))});
+if(!shown){f.innerHTML='<div class="desc" style="color:var(--dim)">nothing matches that — the vault runs deep, try a shorter word</div>'}
+var counts={hell:0,jarvis:0,friday:0,deepagent:0,fleet:0,tiktok:0};SITES.forEach(function(s){if(counts.hasOwnProperty(s.n.split(' ')[0].toLowerCase()))counts[s.n.split(' ')[0].toLowerCase()]++});
+document.getElementById('stats').innerHTML='<div class="stat"><b>'+counts.hell+'</b> hell builds live</div><div class="stat"><b>51</b> deepagents</div><div class="stat"><b>'+counts.jarvis+'</b> jarvis · <b>'+counts.friday+'</b> friday</div><div class="stat"><b>'+SITES.length+'</b> sites linked</div>';
+document.getElementById('featsec').style.display=f.children.length?'':'none';
+}
+function openOv(n,u){document.getElementById('ovname').textContent=n+' — '+u;document.getElementById('ovpop').href=u;document.getElementById('ovframe').src=u;document.getElementById('ov').classList.add('on')}
+document.getElementById('q').addEventListener('input',function(e){render(e.target.value)});
+document.getElementById('ovclose').addEventListener('click',function(){document.getElementById('ov').classList.remove('on');document.getElementById('ovframe').src='about:blank'});
+document.getElementById('a_max').textContent='latest: '+MAXS.hell+' hell · '+MAXS.jarvis+' jarvis · '+MAXS.friday+' friday · '+MAXS.deepagent+' deepagent · '+MAXS.fleet+' fleet · '+MAXS.tiktok+' tiktok';
+document.getElementById('a_go').addEventListener('click',function(){var s=document.getElementById('a_series').value,n=Math.max(1,Math.min(MAXS[s],parseInt(document.getElementById('a_num').value||'1',10)));window.open(BASE+s+n+'/','_blank','noopener')});
+render('');
+</script>
+</body>
+</html>
