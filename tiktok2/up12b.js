@@ -157,7 +157,7 @@ function parseSrt(txt){
   return caps;
 }
 function srtPasteImport(){
-  var v=(($('ctSrtIn')&&$('ctSrtIn').value)||'').trim();
+  var v=($('ctSrtIn')&&$('ctSrtIn').value||'').trim();
   if(!v){log('paste an .srt into the box first');return}
   var caps=parseSrt(v);
   if(!caps.length){log('could not read any srt cues from that text');return}
@@ -172,7 +172,7 @@ var KANIMS=['pop','typewriter','shake','wave','slideup'];
 var kinSel=-1;
 function kinList(){return (S.overlays||[]).filter(function(o){return o.anim&&o.anim!=='none'})}
 function kineticAdd(){
-  var txt=(($('ctKinTxt').value)||'').trim();
+  var txt=($('ctKinTxt').value||'').trim();
   if(!txt){log('type the kinetic text first');return}
   var anim=$('ctKinAnim').value;
   var dur=clamp(parseFloat($('ctKinDur').value)||2.5,0.4,20);
@@ -207,7 +207,6 @@ function renderKinList(){
   if(!ks.length){list.innerHTML='<div class="note">no kinetic layers yet</div>';return}
   ks.forEach(function(o){list.appendChild(kinRow(o))});
 }
-var prevFrame2=null; // kinetic draws ride the same hook chain below
 function drawKinetic(ctx,t,W,H){
   (S.overlays||[]).forEach(function(o){
     if(!o.anim||o.anim==='none')return;
@@ -345,13 +344,13 @@ async function genLoop(g){
     var beat=60/G.bpm,steps=Math.floor(len/beat);
     if(g==='phonk'){
       var notes=[41.2,41.2,46.25,51.9]; // E1 G1 A#1 C#2
-      for(var i=0;i<steps;i++){var t=i*beat;kick(t);if(i%4===2||i%4===0&&i>0)snare(t,0.55);hat(t+beat/2,0.2);if(i%2===0)hat(t,0.12);bass(t,notes[i%4],beat*0.9)}
+      for(var i=0;i<steps;i++){var t=i*beat;kick(t);if(i%4===2||(i%4===0&&i>0))snare(t,0.55);hat(t+beat/2,0.2);if(i%2===0)hat(t,0.12);bass(t,notes[i%4],beat*0.9)}
       var mel=[329.6,392,466.2,392,329.6,293.7,392,466.2];
       for(var i=0;i<mel.length;i++)cowbell(beat*(i+0.5),mel[i]);
     }else if(g==='lofi'){
       var chords=[[174.6,220,261.6,349.2],[220,261.6,329.6,392],[146.8,174.6,220,293.7],[164.8,196,246.9,293.7]];
       for(var i=0;i<steps;i++){var t=i*beat;
-        if(i%4===0||i%4===2)kick(t,0);
+        if(i%4===0||i%4===2)kick(t);
         if(i%4===1||i%4===3)snare(t,0.4);
         if(i%2===1)hat(t+beat*0.5,0.14);
         if(i%4===0)pad(t,chords[(i/4)%4|0],beat*4);
@@ -360,7 +359,7 @@ async function genLoop(g){
     }else if(g==='trap'){
       var root=[36.7,36.7,43.65,32.7]; // D1 D1 F1 C1
       for(var i=0;i<steps;i++){var t=i*beat;
-        if(i%4===0||i%4===7%8)kick(t);
+        if(i%4===0)kick(t);
         if(i%4===2)snare(t,0.5);
         for(var h=0;h<4;h++)hat(t+beat*h/4,h%4===3?0.3:0.16);
         if(i%2===0)hat(t+beat*0.75,0.28);
