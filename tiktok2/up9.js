@@ -233,8 +233,8 @@ function coverPick(){
   log('cover frame set to '+pct+'% — highest motion at '+mid.toFixed(1)+'s in the opener',true);
 }
 // ---------- card UI ----------
-function mkBtn(label,fn,w){
-  var b=document.createElement('button');b.className='ghost small';b.textContent=label;
+function mkBtn(label,fn,w,id){
+  var b=document.createElement('button');b.className='ghost small';b.textContent=label;if(id)b.id=id;
   b.style.flex=w||'0 0 30%';b.onclick=fn;return b;
 }
 function mkNote(id){
@@ -250,19 +250,19 @@ function retCard(){
   var card=document.createElement('div');card.className='card';
   var h=document.createElement('h2');h.textContent='Retention + publishing';card.appendChild(h);
   var r1=document.createElement('div');r1.className='btnrow';
-  r1.appendChild(mkBtn('HOOK CHECK',hookCheck,'0 0 24%'));
-  r1.appendChild(mkBtn('PUT BEST FIRST',bestFirst,'0 0 24%'));
-  r1.appendChild(mkBtn('CUT DEAD WEIGHT',cutDead,'0 0 26%'));
-  r1.appendChild(mkBtn('LOOP ENDING',loopEnd,'0 0 24%'));
+  r1.appendChild(mkBtn('HOOK CHECK',hookCheck,'0 0 24%','tk9Hook'));
+  r1.appendChild(mkBtn('PUT BEST FIRST',bestFirst,'0 0 24%','tk9Best'));
+  r1.appendChild(mkBtn('CUT DEAD WEIGHT',cutDead,'0 0 26%','tk9Dead'));
+  r1.appendChild(mkBtn('LOOP ENDING',loopEnd,'0 0 24%','tk9Loop'));
   card.appendChild(r1);card.appendChild(mkNote('tk9HookOut'));
   var r2=document.createElement('div');r2.className='btnrow';
-  r2.appendChild(mkBtn('RETENTION CURVE',curve,'0 0 30%'));
+  r2.appendChild(mkBtn('RETENTION CURVE',curve,'0 0 30%','tk9CurveBtn'));
   card.appendChild(r2);card.appendChild(mkNote('tk9CurveOut'));
   var r3=document.createElement('div');r3.className='btnrow';
-  r3.appendChild(mkBtn('PUBLISH CHECKLIST',checklist,'0 0 30%'));
+  r3.appendChild(mkBtn('PUBLISH CHECKLIST',checklist,'0 0 30%','tk9Chk'));
   card.appendChild(r3);card.appendChild(mkNote('tk9ChkOut'));
   var r4=document.createElement('div');r4.className='btnrow';
-  r4.appendChild(mkBtn('BEST POST TIMES',postTimes,'0 0 30%'));
+  r4.appendChild(mkBtn('BEST POST TIMES',postTimes,'0 0 30%','tk9Times'));
   card.appendChild(r4);card.appendChild(mkNote('tk9TimesOut'));
   card.appendChild(mkSpan('Hashtag packs (tap a style, then copy)'));
   var chips=document.createElement('div');chips.id='tk9TagsChips';chips.className='chips';chips.style.display='flex';chips.style.flexWrap='wrap';chips.style.gap='6px';card.appendChild(chips);
@@ -271,11 +271,11 @@ function retCard(){
   var cb=document.createElement('button');cb.className='ghost small';cb.id='tk9Copy';cb.textContent='COPY TAGS';cb.style.flex='0 0 30%';cb.onclick=copyTags;r5.appendChild(cb);
   card.appendChild(r5);
   var r6=document.createElement('div');r6.className='btnrow';
-  r6.appendChild(mkBtn('5 CAPTION VARIANTS',capVariants,'0 0 30%'));
+  r6.appendChild(mkBtn('5 CAPTION VARIANTS',capVariants,'0 0 30%','tk9Caps'));
   card.appendChild(r6);card.appendChild(mkNote('tk9CapsOut'));
   var r7=document.createElement('div');r7.className='btnrow';
-  r7.appendChild(mkBtn('POST KIT (.TXT)',kit,'0 0 30%'));
-  r7.appendChild(mkBtn('COVER FRAME PICK',coverPick,'0 0 30%'));
+  r7.appendChild(mkBtn('POST KIT (.TXT)',kit,'0 0 30%','tk9Kit'));
+  r7.appendChild(mkBtn('COVER FRAME PICK',coverPick,'0 0 30%','tk9Cov'));
   card.appendChild(r7);card.appendChild(mkNote('tk9KitOut'));
   if(card0.nextSibling)card0.parentElement.insertBefore(card,card0.nextSibling);
   else card0.parentElement.appendChild(card);
