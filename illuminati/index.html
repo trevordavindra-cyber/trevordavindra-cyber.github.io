@@ -110,8 +110,7 @@ var f=document.getElementById('feat'),r=document.getElementById('rest');f.innerH
 var shown=0;
 SITES.forEach(function(s){if(q&&!(s.n+' '+s.d).toLowerCase().includes(q))return;shown++;(s.f&&!q?f:r).appendChild(card(s,s.f&&!q))});
 if(!shown){f.innerHTML='<div class="desc" style="color:var(--dim)">nothing matches that — the vault runs deep, try a shorter word</div>'}
-var counts={hell:0,jarvis:0,friday:0,deepagent:0,fleet:0,tiktok:0};SITES.forEach(function(s){if(counts.hasOwnProperty(s.n.split(' ')[0].toLowerCase()))counts[s.n.split(' ')[0].toLowerCase()]++});
-document.getElementById('stats').innerHTML='<div class="stat"><b>'+counts.hell+'</b> hell builds live</div><div class="stat"><b>51</b> deepagents</div><div class="stat"><b>'+counts.jarvis+'</b> jarvis · <b>'+counts.friday+'</b> friday</div><div class="stat"><b>'+SITES.length+'</b> sites linked</div>';
+document.getElementById('stats').innerHTML='<div class="stat"><b>398</b> hell builds live</div><div class="stat"><b>51</b> deepagents</div><div class="stat"><b>8</b> jarvis · <b>7</b> friday</div><div class="stat"><b>'+SITES.length+'</b> sites linked</div>';
 document.getElementById('featsec').style.display=f.children.length?'':'none';
 }
 function openOv(n,u){document.getElementById('ovname').textContent=n+' — '+u;document.getElementById('ovpop').href=u;document.getElementById('ovframe').src=u;document.getElementById('ov').classList.add('on')}
