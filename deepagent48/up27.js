@@ -1,4 +1,4 @@
-/* deepagent48 up27.js - upgrade pack 27: inline rename (chats + projects) v1.1 */
+/* deepagent48 up27.js - upgrade pack 27: inline rename (chats + projects) v1.2 - reload-safe: stamped u27name survives up2's load-time title reset */
 (function(){
 if(window.__u27)return;window.__u27=1;
 var DC=document.getElementById('dchats');
@@ -10,7 +10,7 @@ var st=document.createElement('style');
 st.textContent='.u27prn{display:none;color:var(--dim);cursor:pointer;padding:0 4px;font-size:12px;flex-shrink:0}.u26p:hover .u27prn{display:inline}.u27in{flex:1;min-width:50px;padding:2px 6px;border:1px solid rgba(128,128,128,.4);border-radius:6px;font-size:13px;outline:none;background:var(--panel,#fff);color:var(--fg)}';
 document.head.appendChild(st);
 function renameChatEverywhere(oldT,newT){
- ['ds_chats','ds_h'].forEach(function(k){var a=jget(k,'[]');if(!Array.isArray(a))return;var ch=false;a.forEach(function(r){if(r&&r.t===oldT){r.t=newT;ch=true}});if(ch)jset(k,a)});
+ ['ds_chats','ds_h'].forEach(function(k){var a=jget(k,'[]');if(!Array.isArray(a))return;var ch=false;a.forEach(function(r){if(r&&r.t===oldT){r.t=newT;if(k==='ds_chats')r.u27name=newT;ch=true}});if(ch)jset(k,a)});
  ['ds_titled','ds_pins'].forEach(function(k){var a=jget(k,'[]');if(!Array.isArray(a))return;var i=a.indexOf(oldT);if(i>-1){a[i]=newT;jset(k,a)}});
  try{if(localStorage.getItem('ds_chat_last')===oldT)localStorage.setItem('ds_chat_last',newT)}catch(e){}
  var p=jget('u26projects','{}');if(p&&typeof p==='object'&&!Array.isArray(p)){var ch=false;for(var n in p){var i=(p[n]||[]).indexOf(oldT);if(i>-1){p[n][i]=newT;ch=true}}if(ch)jset('u26projects',p)}
@@ -99,7 +99,8 @@ document.addEventListener('click',function(ev){
   }
  }
 },true);
+function reconcile(){var a=jget('ds_chats','[]');if(!Array.isArray(a))return;var ch=false;a.forEach(function(r){if(r&&r.u27name&&r.t!==r.u27name){r.t=r.u27name;ch=true}});if(ch){jset('ds_chats',a);poke();console.log('[up27] restored renamed chat titles')}}
 (function(){try{var v=document.querySelector('#upd .val');if(v)v.textContent='2.9.22(34)'}catch(e){}})();
-sweep();
-console.log('[chatgpt up27.js v1.1] inline rename loaded');
+sweep();reconcile();
+console.log('[chatgpt up27.js v1.2] inline rename loaded');
 })();
