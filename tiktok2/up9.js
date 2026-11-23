@@ -223,7 +223,7 @@ function coverPick(){
   if(!S.clips.length){log('timeline is empty');return}
   var c=S.clips[0],m=M[c.src],best=null;
   if(m&&m.scenes){
-    m.scenes.forEach(function(sc){if(sc.start>=c.start&&sc.end<=c.end&&(!best||sc.score>best.score))best=sc});
+    m.scenes.forEach(function(sc){if(sc.start<c.end&&sc.end>c.start&&(!best||sc.score>best.score))best=sc});
   }
   if(!best){log('no scene analysis on the opener yet — run ANALYZE FOOTAGE first');return}
   var mid=(best.start+best.end)/2;
@@ -246,7 +246,7 @@ function retCard(){
   if($('tk9HookOut'))return true;
   var anchor=$('tk8Hype')||$('tk8Qc');
   var card0=anchor?anchor.closest('.card'):(document.querySelector('.card'));
-  if(!card0)return false;
+  if(!card0)return;
   var card=document.createElement('div');card.className='card';
   var h=document.createElement('h2');h.textContent='Retention + publishing';card.appendChild(h);
   var r1=document.createElement('div');r1.className='btnrow';
@@ -280,7 +280,6 @@ function retCard(){
   if(card0.nextSibling)card0.parentElement.insertBefore(card,card0.nextSibling);
   else card0.parentElement.appendChild(card);
   renderTags();
-  return true;
 }
 function init(){
   var tries=0;
