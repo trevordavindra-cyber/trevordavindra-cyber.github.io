@@ -67,18 +67,19 @@ function trimTo(){
   if(!v){log('pick a length preset first (15/30/60)');return}
   var t=totalDur();
   if(Math.abs(t-v)<0.05){log('already on target ('+t.toFixed(1)+'s)');return}
-  var last=S.clips[S.clips.length-1];
+  var last=S.clips[S.clips.length-1];var sp=last.speed||1;
   if(t>v){
-    var d=t-v;var src=last.end-last.start;
+    var d=(t-v)*sp;var src=last.end-last.start;
     if(src-d<0.3){log('cannot trim: last clip only '+src.toFixed(2)+'s of source left');return}
     last.end=+(last.end-d).toFixed(3);saveE();redraw();
-    log('trimmed to target: cut '+d.toFixed(2)+'s off the tail — now '+totalDur().toFixed(1)+'s',true);
+    log('trimmed to target: cut '+(t-totalDur()).toFixed(2)+'s off the tail — now '+totalDur().toFixed(1)+'s',true);
   }else{
-    var d=v-t;var m=M[last.src];
-    if(m&&m.dur){d=Math.min(d,Math.max(0,m.dur-last.end))}
-    if(d<0.05){log('cannot extend: last clip already uses its full source');return}
-    last.end=+(last.end+d).toFixed(3);saveE();redraw();
-    log('extended tail by '+d.toFixed(2)+'s toward target — now '+totalDur().toFixed(1)+'s',true);
+    var d=v-t;var m=M[last.src];var avail=Infinity;
+    if(m&&m.dur)avail=Math.max(0,m.dur-last.end);
+    var srcAdd=Math.min(d*sp,avail);
+    if(srcAdd<0.05){log('cannot extend: last clip already uses its full source');return}
+    last.end=+(last.end+srcAdd).toFixed(3);saveE();redraw();
+    log('extended tail by '+(totalDur()-t).toFixed(2)+'s toward target — now '+totalDur().toFixed(1)+'s',true);
   }
 }
 // 5) size estimate
