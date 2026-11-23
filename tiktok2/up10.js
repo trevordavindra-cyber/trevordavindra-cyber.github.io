@@ -99,6 +99,12 @@ function applyTpl(){
   drawTimeline();syncStyleChips();save();
   log('template applied: '+k+' — structure rebuilt on '+S.clips.length+' clips (re-fit captions if lengths changed)',true)
 }
+function delTpl(){
+  var k=$('ecTplSel').value;var t=tpls();
+  if(!k||!t[k]){log('no template selected to delete');return}
+  delete t[k];lsSet('tk2templates',t);fillTpls();
+  log('template deleted: '+k,true)
+}
 // ---------- creator tag ----------
 var TAGG=lsGet('tk2tag',{on:false,text:''});
 function saveTag(){
@@ -271,6 +277,7 @@ function resUp(){
     }
   }
 }
+
 // ---------- engine overrides (app.js stays untouched) ----------
 // brand-aware captions: same layout as the engine's drawCaption, brand font + color
 window.drawCaption=function(ctx,cap,t,W,H,mode){
@@ -323,15 +330,19 @@ function ecoCard(){
   if(!card0)return false;
   var card=document.createElement('div');card.className='card';
   var h=document.createElement('h2');h.textContent='Ecosystem';card.appendChild(h);
+  // drafts
   card.appendChild(mkInp('ecDraftName','draft name'));
   var selD=document.createElement('select');selD.id='ecDraftSel';selD.className='inp';selD.style.marginTop='6px';card.appendChild(selD);
   card.appendChild(mkRow([mkBtn('SAVE DRAFT',saveDraft,'0 0 32%','ecSvD'),mkBtn('LOAD DRAFT',loadDraft,'0 0 32%','ecLdD'),mkBtn('DELETE DRAFT',delDraft,'0 0 30%','ecDlD')]));
+  // templates
   card.appendChild(mkInp('ecTplName','template name'));
   var selT=document.createElement('select');selT.id='ecTplSel';selT.className='inp';selT.style.marginTop='6px';card.appendChild(selT);
-  card.appendChild(mkRow([mkBtn('SAVE TEMPLATE',saveTpl,'0 0 47%','ecSvT'),mkBtn('APPLY TEMPLATE',applyTpl,'0 0 47%','ecApT')]));
+  card.appendChild(mkRow([mkBtn('SAVE TEMPLATE',saveTpl,'0 0 31%','ecSvT'),mkBtn('APPLY TEMPLATE',applyTpl,'0 0 31%','ecApT'),mkBtn('DELETE TEMPLATE',delTpl,'0 0 31%','ecDlT')]));
   card.appendChild(mkNote('ecTplOut'));
+  // creator tag
   card.appendChild(mkInp('ecTag','@yourhandle (watermark)'));
   card.appendChild(mkRow([mkBtn('SAVE TAG',saveTag,'0 0 32%','ecSvTag'),mkBtn('TAG ON/OFF',tagToggle,'0 0 32%','ecTagTg'),mkBtn('TAG ON COVER',tagOnCover,'0 0 30%','ecTagCv')]));
+  // brand kit
   var brow=document.createElement('div');brow.className='btnrow';
   var ci=document.createElement('input');ci.id='ecBrandColor';ci.type='color';ci.className='inp';ci.style.flex='0 0 22%';ci.style.height='34px';
   var fs=document.createElement('select');fs.id='ecBrandFont';fs.className='inp';fs.style.flex='0 0 38%';
@@ -340,9 +351,11 @@ function ecoCard(){
   brow.appendChild(mkBtn('APPLY BRAND',applyBrand,'0 0 22%','ecBrAp'));
   brow.appendChild(mkBtn('BRAND OFF',brandOff,'0 0 16%','ecBrOff'));
   card.appendChild(brow);
+  // series
   card.appendChild(mkInp('ecSeriesName','series name (once)'));
   card.appendChild(mkRow([mkBtn('ADD TO SERIES',serAdd,'0 0 32%','ecSerA'),mkBtn('NEXT IN SERIES',serNext,'0 0 32%','ecSerN'),mkBtn('RESET PROGRESS',serReset,'0 0 30%','ecSerR')]));
   card.appendChild(mkNote('ecSeriesOut'));
+  // notes
   var nrow=document.createElement('div');nrow.className='btnrow';
   var nt=document.createElement('input');nt.id='ecNoteT';nt.type='number';nt.min='0';nt.step='0.1';nt.placeholder='sec';nt.className='inp';nt.style.flex='0 0 18%';
   var nx=document.createElement('input');nx.id='ecNoteTxt';nx.placeholder='note (what to fix, why)';nx.className='inp';nx.style.flex='1 1 auto';
@@ -351,11 +364,13 @@ function ecoCard(){
   card.appendChild(mkRow([mkBtn('ADD NOTE',addNote,'0 0 32%','ecNoA'),mkBtn('EXPORT NOTES',exportNotes,'0 0 32%','ecNoE')]));
   card.appendChild(mkNote('ecNoteList'));
   card.appendChild(mkNote('ecNoteOut'));
+  // calendar
   var crow=document.createElement('div');crow.className='btnrow';
   var cd=document.createElement('input');cd.id='ecCalDate';cd.type='date';cd.className='inp';cd.style.flex='0 0 46%';
   crow.appendChild(cd);crow.appendChild(mkBtn('ADD PLAN',addPlan,'0 0 30%','ecCalA'));
   card.appendChild(crow);
   card.appendChild(mkNote('ecCalList'));
+  // goals + bitrate
   var grow=document.createElement('div');grow.className='btnrow';
   var bs=document.createElement('select');bs.id='ecBps';bs.className='inp';bs.style.flex='0 0 26%';
   [5,8,12,16].forEach(function(v){var o=document.createElement('option');o.value=String(v);o.textContent=v+' Mbps';bs.appendChild(o)});
@@ -364,6 +379,7 @@ function ecoCard(){
   grow.appendChild(mkBtn('SET GOAL',setGoal,'0 0 26%','ecGoS'));
   card.appendChild(grow);
   card.appendChild(mkNote('ecGoalOut'));
+  // share link
   card.appendChild(mkRow([mkBtn('BUILD SHARE LINK',buildLink,'0 0 32%','ecShB'),mkBtn('COPY LINK',copyLink,'0 0 30%','ecShC'),mkBtn('LOAD FROM LINK',loadFromLink,'0 0 32%','ecShL')]));
   var ta=document.createElement('textarea');ta.id='ecShare';ta.rows=2;ta.className='inp';ta.placeholder='share link appears here';ta.style.width='100%';ta.style.marginTop='6px';card.appendChild(ta);
   card.appendChild(mkNote('ecShareOut'));
