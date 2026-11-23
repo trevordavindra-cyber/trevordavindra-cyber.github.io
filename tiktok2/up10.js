@@ -261,6 +261,37 @@ function resUp(){
     }
   }
 }
+// ---------- engine overrides (app.js stays untouched) ----------
+// brand-aware captions: same layout as the engine's drawCaption, brand font + color
+window.drawCaption=function(ctx,cap,t,W,H,mode){
+  if(!cap)return;
+  var fs,box=false;
+  if(mode==='bar'){fs=44;box=true}else{fs=58}
+  ctx.font='900 '+fs+'px '+(window.tk2BrandFont||'Arial, sans-serif');
+  while(ctx.measureText(cap.text).width>W-70&&fs>26){fs-=3;ctx.font='900 '+fs+'px '+(window.tk2BrandFont||'Arial, sans-serif')}
+  var y=mode==='bar'?H-190:H-250;
+  if(box){ctx.fillStyle='rgba(0,0,0,.55)';var w=ctx.measureText(cap.text).width+30;ctx.fillRect(W/2-w/2,y-fs*0.75,w,fs*1.5)}
+  var sc=1;
+  var dt=t-cap.t0;
+  if(mode==='karaoke'&&dt<0.14)sc=1.35-2.5*dt;
+  ctx.save();ctx.translate(W/2,y);ctx.scale(sc,sc);
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
+  ctx.lineWidth=fs*0.18;ctx.strokeStyle='#000';ctx.strokeText(cap.text,0,0);
+  ctx.fillStyle=window.tk2BrandCap||'#fff';ctx.fillText(cap.text,0,0);ctx.restore();
+};
+// selectable export bitrate: MediaRecorder wrapper honors S.bps when the engine records
+var OrigRec=window.MediaRecorder;
+if(OrigRec&&OrigRec.isTypeSupported){
+  var BRRec=function(stream,opts){
+    opts=opts||{};
+    if(S.bps&&opts.videoBitsPerSecond)opts.videoBitsPerSecond=S.bps*1000000;
+    return new OrigRec(stream,opts);
+  };
+  BRRec.prototype=OrigRec.prototype;
+  BRRec.isTypeSupported=function(t){return OrigRec.isTypeSupported(t)};
+  window.MediaRecorder=BRRec;
+}
+// ---------- card ----------
 function ecoCard(){
   var anchor=document.getElementById('tk9Kit');
   if(!anchor)return false;
