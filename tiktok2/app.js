@@ -310,6 +310,14 @@ async function renderProject(opts){
     var mg=actx.createGain();mg.gain.value=S.musicGain;
     musSrc.connect(mg);mg.connect(master);
   }
+  var voSrc=null;
+  if(S.voId&&M[S.voId]){
+    var vm=M[S.voId];
+    if(!vm.buf)vm.buf=await actx.decodeAudioData(await vm.blob.arrayBuffer());
+    voSrc=actx.createBufferSource();voSrc.buffer=vm.buf;
+    var vg2=actx.createGain();vg2.gain.value=(typeof S.voGain==='number'?S.voGain:1);
+    voSrc.connect(vg2);vg2.connect(master);
+  }
   if(window.fxAudioHook)window.fxAudioHook(actx,master,musSrc?mg:null);
   var elMES={};
   // recorder
@@ -333,6 +341,7 @@ async function renderProject(opts){
   var total=t+0.12;
   var t0=actx.currentTime+0.4;
   if(musSrc)musSrc.start(t0+S.musicOffset%(mm?mm.buf.duration:1e9));
+  if(voSrc)voSrc.start(t0);
   if(window.fxTimelineHook)window.fxTimelineHook(actx,master,t0,starts,total);
   S.clips.forEach(function(c){try{var el=els[c.src];if(!elMES[c.src]){elMES[c.src]=actx.createMediaElementSource(el);elMES[c.src].connect(elGains[c.src])}}catch(e){}});
   if(rec)rec.start(500);
@@ -355,6 +364,7 @@ async function renderProject(opts){
       // find clip
       var idx=0;while(idx<S.clips.length-1&&t>=starts[idx+1])idx++;
       var c=S.clips[idx],local=t-starts[idx],od=clipOutDur(c),p=clamp(local/od,0,1);
+      if((c.afIn||c.afOut)&&elGains[c.src]){var g0=(c.keep?1:0)*(c.again||1);if(c.afIn&&local<c.afIn)g0*=local/c.afIn;if(c.afOut&&(od-local)<c.afOut)g0*=(od-local)/c.afOut;elGains[c.src].gain.value=g0}
       if(idx!==lastIdx){
         if(curEl&&curEl!==els[c.src]){try{curEl.pause()}catch(x){}}
         var el=els[c.src];curEl=el;
@@ -371,6 +381,9 @@ async function renderProject(opts){
       // rate
       var rate=c.speed;
       if(c.ramp)rate=c.speed*(0.55+0.9*p);
+      if(c.ease==='in')rate=c.speed*(0.55+0.9*p*p);
+      else if(c.ease==='out')rate=c.speed*(0.55+0.9*Math.sqrt(p));
+      else if(c.ease==='inout')rate=c.speed*(0.55+0.9*(0.5-0.5*Math.cos(Math.PI*p)));
       try{curEl.playbackRate=clamp(rate,0.07,4)}catch(x){}
       // draw
       var zoom=1+ (c.zoom||1)*0.12*p*st.zoom*0.35 + 0.06*st.zoom;
@@ -379,9 +392,11 @@ async function renderProject(opts){
       var trDur=0.28;
       if(c.trans==='whip'&&local<trDur){ctx.translate((1-local/trDur)*W*0.9,0)}
       if(c.trans==='shake'&&local<0.35){ctx.translate((Math.random()-0.5)*14,(Math.random()-0.5)*14)}
-      ctx.filter=(st.grade||'none')+(c.gradeExtra||'');
+      ctx.filter=(window.gradeApply?window.gradeApply(st.grade):(st.grade||'none'))+(c.gradeExtra||'');
       var pn=(c.lock&&window.trackPan&&M[c.src]&&M[c.src].track)?window.trackPan(M[c.src].track,c):{x:0,y:0};
+      if(c.flipH){ctx.save();ctx.translate(W,0);ctx.scale(-1,1)}
       try{drawCover(ctx,curEl,W,H,zoom,pn.x,pn.y,(c.key&&c.key.ready)?c.key:null)}catch(x){ctx.fillStyle='#0a0e1a';ctx.fillRect(0,0,W,H)}
+      if(c.flipH){ctx.restore()}
       ctx.filter='none';
       if(st.tint){ctx.fillStyle=st.tint;ctx.fillRect(0,0,W,H)}
       if(st.grain){ctx.globalAlpha=st.grain;ctx.drawImage(grain,Math.random()*-60,Math.random()*-60,W+120,H+120);ctx.globalAlpha=1}
