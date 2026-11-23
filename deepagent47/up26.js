@@ -1,4 +1,4 @@
-/* deepagent47 up26.js - upgrade pack 26: projects (chat folders) v1.2 */
+/* deepagent47 up26.js - upgrade pack 26: projects (chat folders) v1.3 */
 (function(){
 if(window.__u26)return;window.__u26=1;
 var DC=document.getElementById('dchats');
@@ -57,7 +57,7 @@ document.addEventListener('click',function(ev){if(!ev.target.closest||!ev.target
 function sweep(){
  var p=loadP(),inP={};for(var n in p){(p[n]||[]).forEach(function(t){inP[t]=n})}
  var live={};chats().forEach(function(r){live[r.t]=1});
- var ch=false;for(var n in p){var arr=(p[n]||[]).filter(function(t){return live[t]});if(arr.length!==(p[n]||[]).length){p[n]=arr;ch=true}if(!arr.length){delete p[n];ch=true}}
+ var ch=false;for(var n in p){var arr=(p[n]||[]).filter(function(t){return live[t]});if(arr.length!==(p[n]||[]).length){p[n]=arr;ch=true}}
  if(ch)saveP(p);
  var rows=DC.querySelectorAll('.dchat');
  for(var i=0;i<rows.length;i++){var sp=rows[i].querySelector('span');rows[i].style.display=(sp&&inP[sp.textContent])?'none':'';
@@ -73,7 +73,7 @@ function paint(){
  nb.onclick=function(){askName(function(n){var q=loadP();if(!q[n])q[n]=[];saveP(q);paint()})};
  head.appendChild(nb);WRAP.appendChild(head);
  Object.keys(p).forEach(function(n){
-  var titles=p[n]||[];if(!titles.length)return;
+  var titles=p[n]||[];
   var pr=document.createElement('div');pr.className='u26p'+(o[n]?' open':'');
   var ch=document.createElement('span');ch.className='chev';ch.textContent='\u25B8';pr.appendChild(ch);
   var nm=document.createElement('span');nm.className='pname';nm.textContent=n;pr.appendChild(nm);
@@ -86,6 +86,9 @@ function paint(){
   var kids=document.createElement('div');kids.className='u26kids'+(o[n]?' show':'');
   titles.forEach(function(t){
    var d=document.createElement('div');d.className='dchat';var sp=document.createElement('span');sp.textContent=t;d.appendChild(sp);
+   var mv=document.createElement('span');mv.className='u26mv';mv.textContent='\uD83D\uDCC1';mv.title='move to a project';
+   mv.onclick=function(ev){ev.stopPropagation();menu(t,ev.clientX,ev.clientY)};
+   d.appendChild(mv);
    d.onclick=function(){var rows=DC.querySelectorAll('.dchat');for(var i=0;i<rows.length;i++){var s=rows[i].querySelector('span');if(s&&s.textContent===t){rows[i].click();return}}};
    kids.appendChild(d)});
   WRAP.appendChild(kids);
@@ -95,5 +98,5 @@ function paint(){
 new MutationObserver(function(){setTimeout(function(){sweep();paint()},0)}).observe(DC,{childList:true});
 (function(){try{var v=document.querySelector('#upd .val');if(v)v.textContent='2.9.21(33)'}catch(e){}})();
 paint();
-console.log('[chatgpt up26.js v1.2] projects loaded');
+console.log('[chatgpt up26.js v1.3] projects loaded');
 })();
