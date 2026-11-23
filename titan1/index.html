@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TITAN-100 COMMAND CENTER</title>
+<style>
+:root{--bg:#0b0d10;--panel:#12161d;--panel2:#0d1117;--rd:#ef4444;--bl:#3b82f6;--gr:#22c55e;--am:#f59e0b;--dim:#6b7a8d;--txt:#cbd5e1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--txt);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;min-height:100%}
+body{background-image:linear-gradient(rgba(59,130,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(239,68,68,.04) 1px,transparent 1px);background-size:34px 34px}
+#wrap{max-width:1240px;margin:0 auto;padding:12px}
+header{display:flex;align-items:center;gap:10px;border:1px solid rgba(239,68,68,.4);background:linear-gradient(180deg,rgba(239,68,68,.09),rgba(18,22,29,.95));padding:10px 14px;margin-bottom:8px;flex-wrap:wrap}
+header h1{font-size:17px;letter-spacing:3px;color:#fff;font-weight:700}
+header h1 span{color:var(--rd)}
+header .tag{font-size:10px;color:var(--dim);letter-spacing:2px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gr);box-shadow:0 0 8px var(--gr);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.4}}
+#tabs{display:flex;gap:6px;margin-bottom:8px}
+.tab{flex:1;font-size:11px;letter-spacing:2px;border:1px solid rgba(107,122,141,.5);color:var(--dim);padding:8px 0;text-align:center;cursor:pointer;background:var(--panel2)}
+.tab.on{border-color:var(--bl);color:var(--bl);background:rgba(59,130,246,.12)}
+.tb{display:none}.tb.on{display:block}
+#cmd{display:grid;grid-template-columns:340px 1fr;gap:10px}
+@media(max-width:820px){#cmd{grid-template-columns:1fr}}
+.panel{border:1px solid rgba(59,130,246,.3);background:rgba(18,22,29,.94);padding:10px}
+.panel h2{font-size:11px;letter-spacing:2px;color:var(--bl);margin-bottom:8px;border-bottom:1px solid rgba(59,130,246,.25);padding-bottom:5px}
+#modes{display:flex;gap:6px;margin-bottom:8px}
+.mode{flex:1;font-size:10px;letter-spacing:1px;border:1px solid rgba(107,122,141,.5);color:var(--dim);padding:7px 0;text-align:center;cursor:pointer;background:#0b0f15}
+.mode.on{border-color:var(--bl);color:var(--bl);background:rgba(59,130,246,.12)}
+.mode.on-audit{border-color:var(--rd);color:var(--rd);background:rgba(239,68,68,.12)}
+textarea{width:100%;height:70px;background:#0b0f15;color:var(--txt);border:1px solid rgba(59,130,246,.3);padding:8px;font-family:inherit;font-size:13px;resize:vertical}
+#authz{width:100%;margin-top:6px;display:none;background:#0b0f15;color:var(--txt);border:1px solid var(--rd);padding:8px;font-family:inherit;font-size:12px}
+button{font-family:inherit;letter-spacing:2px;font-size:12px;border:1px solid var(--bl);background:rgba(59,130,246,.12);color:var(--bl);padding:9px 0;width:100%;cursor:pointer;margin-top:8px}
+button:active{background:rgba(59,130,246,.3)}
+#stop{border-color:var(--rd);color:var(--rd);background:rgba(239,68,68,.08)}
+#stats{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.stat{flex:1;min-width:56px;border:1px solid rgba(59,130,246,.25);padding:6px 4px;text-align:center;background:#0b0f15}
+.stat b{display:block;font-size:15px;color:var(--bl)}
+.stat span{font-size:8px;color:var(--dim);letter-spacing:1px}
+#note{font-size:10px;color:var(--dim);margin-top:6px;line-height:1.5}
+#grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-bottom:8px}
+.tile{border:1px solid rgba(107,122,141,.4);background:#0b0f15;font-size:8px;padding:3px 2px;text-align:center;cursor:pointer;min-height:30px;overflow:hidden;border-top:3px solid var(--dim)}
+.tile b{display:block;font-size:9px;color:#8fa3b8}
+.tile .st{width:6px;height:6px;border-radius:50%;display:inline-block;background:#39424e;margin-top:2px}
+.tile.idle .st{background:#39424e}
+.tile.queued .st{background:var(--am);box-shadow:0 0 5px var(--am)}
+.tile.booting .st{background:var(--bl);box-shadow:0 0 5px var(--bl);animation:pulse 1s infinite}
+.tile.running .st{background:var(--bl);box-shadow:0 0 6px var(--bl);animation:pulse .7s infinite}
+.tile.done .st{background:var(--gr);box-shadow:0 0 5px var(--gr)}
+.tile.error .st{background:var(--rd);box-shadow:0 0 5px var(--rd)}
+.tile.sel{outline:2px solid #fff}
+#legend{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.lg{font-size:8px;letter-spacing:.5px;padding:3px 5px;border:1px solid rgba(107,122,141,.4);cursor:pointer;background:#0b0f15}
+.lg.on{border-color:#fff}
+#insp{font-size:11px;background:#0b0f15;border:1px solid rgba(59,130,246,.25);padding:7px;margin-bottom:8px;display:none;line-height:1.6}
+#insp button{width:auto;padding:4px 10px;margin:4px 6px 0 0;font-size:10px}
+#feed{height:250px;overflow-y:auto;font-size:11px;line-height:1.55;background:#0b0f15;border:1px solid rgba(59,130,246,.2);padding:8px}
+#feed .ag{font-weight:bold} #feed .lbl{color:var(--am)} #feed .out{color:#9fb3c8;white-space:pre-wrap;word-break:break-word} #feed .err{color:var(--rd)}
+#dlog{height:130px;overflow-y:auto;font-size:11px;line-height:1.5;margin-top:8px;background:#0b0f15;border:1px solid rgba(59,130,246,.2);padding:6px}
+#dlog div{border-bottom:1px dashed rgba(107,122,141,.25);padding:2px 0}
+.t{color:var(--dim)} .ok{color:var(--gr)} .bad{color:var(--rd)} .warn{color:var(--am)}
+#depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.dcard{border:1px solid rgba(107,122,141,.4);background:var(--panel2);padding:8px;border-top:3px solid var(--dim)}
+.dcard h3{font-size:10px;letter-spacing:1px;margin-bottom:6px}
+.dcard .row{font-size:9px;color:var(--dim);line-height:1.7}
+.dcard .row b{color:var(--txt)}
+#intel{background:#0b0f15;border:1px solid rgba(239,68,68,.3);padding:10px;min-height:200px}
+#icounts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ic{border:1px solid rgba(107,122,141,.4);padding:5px 8px;font-size:10px;background:var(--panel2)}
+#ilist{max-height:340px;overflow-y:auto;font-size:10px;line-height:1.5}
+#ilist div{border-bottom:1px dashed rgba(107,122,141,.25);padding:3px 0}
+.sevCRITICAL{color:#fff;background:var(--rd);padding:1px 4px;font-size:9px}
+.sevHIGH{color:var(--rd);font-weight:bold}
+.sevMEDIUM{color:var(--am)}
+.sevLOW{color:var(--bl)}
+.sevINFO{color:var(--dim)}
+.sevREPORT{color:#a78bfa}
+footer{margin-top:10px;font-size:10px;color:var(--dim);letter-spacing:1px;text-align:center}
+</style>
+</head>
+<body>
+<div id="wrap">
+<header><div class="dot"></div><h1>TITAN-100 <span>COMMAND</span></h1><div class="tag">100 AGENTS // 10 DEPARTMENTS // 1 CENTRAL CONTROLLER // SHARED INTELLIGENCE</div></header>
+<div id="tabs">
+  <div class="tab on" data-t="cmd">COMMAND</div>
+  <div class="tab" data-t="dep">DEPARTMENTS</div>
+  <div class="tab" data-t="int">INTELLIGENCE</div>
+  <div class="tab" data-t="dep2">DEPLOY PLAN</div>
+</div>
+
+<div class="tb on" id="tab-cmd">
+<div id="cmd">
+  <div class="panel">
+    <h2>CENTRAL CONTROLLER</h2>
+    <div id="modes">
+      <div class="mode on" id="m-gen">GENERAL MISSION</div>
+      <div class="mode" id="m-aud">SECURITY AUDIT</div>
+    </div>
+    <textarea id="task" placeholder="mission for the 100 agents. audit: paste the site you own, e.g. https://mysite.github.io/"></textarea>
+    <input id="authz" placeholder="authorization: type the target domain to allowlist, e.g. mysite.github.io">
+    <button id="deploy">DEPLOY FLEET</button>
+    <button id="stop">EMERGENCY SHUTDOWN</button>
+    <div id="stats">
+      <div class="stat"><b id="s-run">0</b><span>ACTIVE</span></div>
+      <div class="stat"><b id="s-idle">100</b><span>IDLE</span></div>
+      <div class="stat"><b id="s-err">0</b><span>FAILED</span></div>
+      <div class="stat"><b id="s-q">0</b><span>QUEUED</span></div>
+      <div class="stat"><b id="s-find">0</b><span>FINDINGS</span></div>
+    </div>
+    <div id="note">audit mode needs explicit authorization: type the target domain in the red box and it must match the site in your mission. read-only, no brute force, no flooding, no exploits. anything the browser can't reach comes back as an expert report, never a fake result.</div>
+  </div>
+  <div class="panel">
+    <h2>AGENT FLEET</h2>
+    <div id="legend"></div>
+    <div id="grid"></div>
+    <div id="insp"></div>
+    <h2>RESULTS FEED</h2>
+    <div id="feed"><div class="t">TITAN-100 online. 100 agents across 10 departments, idle and awaiting orders.</div></div>
+    <h2 style="margin-top:8px">ACTIVITY CENTER</h2>
+    <div id="dlog"></div>
+  </div>
+</div>
+</div>
+
+<div class="tb" id="tab-dep">
+  <div class="panel"><h2>DEPARTMENT DASHBOARDS</h2><div id="depts"></div></div>
+</div>
+
+<div class="tb" id="tab-int">
+  <div class="panel"><h2>SHARED INTELLIGENCE DATABASE</h2>
+    <div id="icounts"></div>
+    <button id="export">EXPORT REPORT</button>
+    <button id="clearintel" style="border-color:#ef4444;color:#ef4444">CLEAR DATABASE</button>
+    <div id="ilist"></div>
+  </div>
+</div>
+
+<div class="tb" id="tab-dep2">
+  <div class="panel"><h2>PRODUCTION DEPLOY BLUEPRINT (server edition, for when this leaves the browser)</h2>
+    <div style="font-size:10px;line-height:1.9;color:#9fb3c8">
+    <b style="color:#3b82f6">STACK</b><br>
+    backend: FastAPI (Python) on CPU servers — controller API, task queues, auth, report engine<br>
+    databases: PostgreSQL (agents, tasks, findings, audit records, permissions) + Redis (live agent state, task queues) + vector DB (historical findings, semantic search) + object storage (reports, evidence)<br>
+    agents: 100 worker containers in Docker, one per agent identity, orchestrated by Kubernetes with health checks, auto-restart and horizontal scaling<br>
+    message bus: broker between controller and agent containers with authenticated, encrypted messaging<br>
+    model gateway: one shared gateway serving all agents — GPT / Claude / Gemini / Llama / Qwen / DeepSeek / local models, with fallback chains, rate limits, token and cost tracking<br>
+    tools: the real binaries (nmap, burp, zap, nuclei, nessus, openvas, wireshark, zeek, suricata, yara, volatility, autopsy, prowler, trivy, checkov...) inside isolated sandbox containers, allowlisted targets only<br>
+    monitoring: Prometheus + Grafana + OpenTelemetry + Wazuh for fleet health and security alerts<br>
+    <b style="color:#ef4444">BOUNDARIES (unchanged from the browser edition)</b><br>
+    per-agent identities and least-privilege permissions, target allowlists, human approval for sensitive actions, emergency shutdown, full audit logging, prompt-injection protection, no uncontrolled scanning, no destructive testing, no credential theft, no malware, no unauthorized access<br>
+    <b style="color:#22c55e">MIGRATION PATH</b><br>
+    this browser edition is phase 1: the controller logic, department structure, check menus, two-tier rule, findings schema and report format here are the same ones the server build uses, so the frontend and mission logic carry over and only the execution layer moves to containers
+    </div>
+  </div>
+</div>
+
+<footer>TITAN-100 // PYODIDE COMPUTE CORES // FETCH BRIDGE // FREE RELAY BRAIN // NOTHING STORED OFF THIS BROWSER</footer>
+</div>
+
+<script id="workersrc" type="text/plain">
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js");
+var py=null, buf=[], ebuf=[];
+var PRE = `
+import json, re, base64, hashlib, urllib.parse, statistics, math, datetime, textwrap
+from pyodide.http import pyfetch
+
+async def http_get(url, method="GET"):
+    try:
+        r = await pyfetch(url, method=method)
+        try:
+            hdrs = {str(k): str(v) for k, v in r.headers}
+        except Exception:
+            hdrs = {}
+        try:
+            body = await r.string()
+        except Exception:
+            body = ""
+        return r.status, hdrs, body
+    except Exception as e:
+        return None, {}, "FETCH_BLOCKED (browser CORS or network): " + str(e)
+
+def report(sev, title, detail):
+    print("[" + str(sev) + "] " + str(title) + " :: " + str(detail))
+`;
+async function boot(){
+  try{
+    py = await loadPyodide({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"});
+    py.setStdout({batched:function(s){ buf.push(s); }});
+    py.setStderr({batched:function(s){ ebuf.push(s); }});
+    await py.runPythonAsync(PRE);
+    post({type:"ready"});
+  }catch(ex){ post({type:"bootfail", error:String(ex)}); }
+}
+onmessage = async function(e){
+  var d=e.data;
+  if(d.cmd==="run"){
+    buf=[]; ebuf=[];
+    try{
+      var r = await py.runPythonAsync(d.code);
+      post({type:"done", tid:d.tid, out:buf.join("\n"), err:ebuf.join("\n"), ret:(r===undefined||r===null)?"":String(r)});
+    }catch(ex){
+      post({type:"error", tid:d.tid, out:buf.join("\n"), error:String(ex)});
+    }
+  }
+};
+boot();
+</script>
+
+<script>
+(function(){
+"use strict";
+var RELAY="https://text.pollinations.ai/openai";
+var N=100;
+var DEPTS=[
+ {n:1,name:"RECON & ASSET INVENTORY",c:10,col:"#22d3ee",spec:"reconnaissance and asset inventory"},
+ {n:2,name:"WEBSITE SECURITY",c:15,col:"#ef4444",spec:"website security"},
+ {n:3,name:"API SECURITY",c:10,col:"#f59e0b",spec:"API security"},
+ {n:4,name:"NETWORK SECURITY",c:10,col:"#3b82f6",spec:"network security"},
+ {n:5,name:"CLOUD SECURITY",c:10,col:"#a78bfa",spec:"cloud security"},
+ {n:6,name:"SOURCE-CODE SECURITY",c:10,col:"#22c55e",spec:"source-code security"},
+ {n:7,name:"THREAT INTELLIGENCE",c:10,col:"#eab308",spec:"threat intelligence"},
+ {n:8,name:"INCIDENT RESPONSE",c:10,col:"#ec4899",spec:"incident response"},
+ {n:9,name:"DIGITAL FORENSICS",c:5,col:"#14b8a6",spec:"digital forensics"},
+ {n:10,name:"QA & VERIFICATION",c:5,col:"#94a3b8",spec:"quality assurance and verification"}
+];
+var EDGES=[];(function(){var t=0;for(var i=0;i<DEPTS.length;i++){t+=DEPTS[i].c;EDGES.push(t);} })();
+function deptOf(id){for(var i=0;i<EDGES.length;i++){if(id<=EDGES[i])return i+1;}return 10;}
+function deptObj(d){return DEPTS[d-1];}
+
+var AUDMENUS={
+ 1:"target inventory: security headers, server and version banners, technology fingerprints, meta generator, robots.txt, sitemap.xml, security.txt, .well-known paths, 404 page fingerprint, favicon, page title, HTTPS redirect behavior",
+ 2:"website surface: exposed sensitive files (.git/config, .env, backups, config files, package.json, composer.json), directory listing, common admin or login paths (single probes only), cookie attributes, cache-control, mixed content, HTML/JS comments, custom error pages, information disclosure",
+ 3:"API surface: swagger/openapi files, API endpoints referenced in JS bundles, API-key-looking strings in pages, CORS policy, OPTIONS and HEAD behavior, rate-limit headers, authentication scheme hints in headers",
+ 4:"network-visible layer: redirect chains, response-time baseline, content-length sanity, CDN or proxy detection via headers, HSTS and TLS header posture; deeper network checks come back as REPORT",
+ 5:"cloud-visible layer: CDN and cloud headers, cloud-storage-style paths on the target domain (single probes only), security headers that cloud configs control; full AWS/Azure/GCP account audits come back as REPORT",
+ 6:"source exposure: source maps (.map files), package.json/composer.json, source comments, dependency hints in file names, exposed config files; full static code review comes back as REPORT",
+ 7:"threat intelligence (REPORT): classify the target's technology stack risks against known vulnerability patterns for those technologies, name the databases to check (NVD, CISA KEV, MITRE ATT&CK) and what to search for",
+ 8:"incident response (REPORT): what to monitor on this target, log sources, alert thresholds, triage steps, incident classification",
+ 9:"digital forensics (REPORT): what evidence would matter for this target, collection steps, tools (autopsy, volatility, sleuth kit), timeline reconstruction approach",
+ 10:"verification and QA (REPORT): which finding types should be re-verified and how, likely false-positive traps, a security regression checklist, final report outline"
+};
+
+var grid=document.getElementById("grid"), feed=document.getElementById("feed"),
+    dlog=document.getElementById("dlog"), taskEl=document.getElementById("task"),
+    authzEl=document.getElementById("authz"), insp=document.getElementById("insp");
+var agents=[], queue=[], active=0, maxRun=Math.min(6,(navigator.hardwareConcurrency||4)+2),
+    stopFlag=false, deployed=false, doneC=0, errC=0, missionDone=false, mode="gen",
+    currentTask="", selAgent=null;
+var mGen=document.getElementById("m-gen"), mAud=document.getElementById("m-aud");
+mGen.addEventListener("click",function(){mode="gen";mGen.className="mode on";mAud.className="mode";authzEl.style.display="none";});
+mAud.addEventListener("click",function(){mode="aud";mAud.className="mode on-audit";mGen.className="mode";authzEl.style.display="block";});
+
+var tabs=document.querySelectorAll(".tab");
+for(var i=0;i<tabs.length;i++){
+ tabs[i].addEventListener("click",function(){
+   for(var j=0;j<tabs.length;j++){tabs[j].className="tab";}
+   this.className="tab on";
+   document.getElementById("tab-cmd").className="tb"+(this.dataset.t==="cmd"?" on":"");
+   document.getElementById("tab-dep").className="tb"+(this.dataset.t==="dep"?" on":"");
+   document.getElementById("tab-int").className="tb"+(this.dataset.t==="int"?" on":"");
+   document.getElementById("tab-dep2").className="tb"+(this.dataset.t==="dep2"?" on":"");
+   if(this.dataset.t==="dep")renderDepts();
+   if(this.dataset.t==="int")renderIntel();
+ });
+}
+
+var intel=[];
+try{ intel=JSON.parse(localStorage.getItem("titan100_intel")||"[]"); }catch(e){ intel=[]; }
+function saveIntel(){ try{ localStorage.setItem("titan100_intel",JSON.stringify(intel.slice(-500))); }catch(e){} }
+
+for(var i=0;i<N;i++){
+  var d=deptOf(i+1);
+  var t=document.createElement("div");
+  t.className="tile idle";
+  t.style.borderTopColor=deptObj(d).col;
+  t.innerHTML="<b>"+pad(i+1)+"</b><span class='st'></span>";
+  t.title="AGENT-"+pad(i+1)+" // "+deptObj(d).name;
+  t.addEventListener("click",function(){ var id=parseInt(this.querySelector("b").textContent,10); inspect(id); });
+  grid.appendChild(t);
+  agents.push({id:i+1,el:t,state:"idle",worker:null,label:"",code:"",dept:d});
+}
+function pad(n){return (n<10?"00":n<100?"0":"")+n;}
+function setSt(a,s){a.state=s;a.el.className="tile "+s+(selAgent===a.id?" sel":"");renderStats();}
+function renderStats(){
+  var r=0,q=0,idle=0;for(var i=0;i<N;i++){var s=agents[i].state;if(s==="running"||s==="booting")r++;if(s==="queued")q++;if(s==="idle")idle++;}
+  document.getElementById("s-run").textContent=r;
+  document.getElementById("s-idle").textContent=idle;
+  document.getElementById("s-err").textContent=errC;
+  document.getElementById("s-q").textContent=q;
+  document.getElementById("s-find").textContent=intel.length;
+}
+function log(msg,cls){
+  var d=document.createElement("div");if(cls)d.className=cls;
+  var ts=new Date().toLocaleTimeString([], {hour12:false});
+  d.innerHTML="<span class='t'>["+ts+"]</span> "+msg;
+  dlog.appendChild(d);while(dlog.childNodes.length>200)dlog.removeChild(dlog.firstChild);
+  dlog.scrollTop=dlog.scrollHeight;
+}
+function feedLine(agentId,dept,label,text,cls){
+  var d=document.createElement("div");
+  var tag=agentId===0?"[CONTROLLER]":"[D"+dept+" AGT-"+pad(agentId)+"]";
+  d.innerHTML="<span class='ag' style='color:"+deptObj(dept||1).col+"'>"+tag+"</span> <span class='lbl'>"+esc(label)+"</span><br><span class='"+(cls||"out")+"'>"+esc(text)+"</span>";
+  feed.appendChild(d);
+  while(feed.childNodes.length>500)feed.removeChild(feed.firstChild);
+  feed.scrollTop=feed.scrollHeight;
+}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+var WSRC=document.getElementById("workersrc").textContent;
+function bootWorker(a){
+  return new Promise(function(res,rej){
+    var w;
+    try{ w=new Worker(URL.createObjectURL(new Blob([WSRC],{type:"application/javascript"}))); }
+    catch(e){ rej(e);return; }
+    a.worker=w;
+    var to=setTimeout(function(){cleanup();rej(new Error("computer boot timeout"));},180000);
+    function cleanup(){clearTimeout(to);w.onmessage=null;w.onerror=null;}
+    w.onmessage=function(e){
+      var d=e.data;
+      if(d.type==="ready"){cleanup();res(w);}
+      else if(d.type==="bootfail"){cleanup();rej(new Error(d.error));}
+    };
+    w.onerror=function(e){cleanup();rej(new Error(e.message||"worker error"));};
+  });
+}
+function runOn(a){
+  return new Promise(function(res){
+    var w=a.worker, tid=a.id;
+    var to=setTimeout(function(){
+      try{w.terminate();}catch(e){}
+      a.worker=null;
+      res({type:"error",error:"task timeout (150s)"});
+    },150000);
+    w.onmessage=function(e){
+      var d=e.data;
+      if(d.tid!==tid)return;
+      clearTimeout(to);res(d);
+    };
+    w.postMessage({cmd:"run",code:a.code,tid:tid});
+  });
+}
+
+function harvest(agentId,dept,out){
+  if(!out)return;
+  var lines=out.split("\n");
+  for(var i=0;i<lines.length;i++){
+    var m=/^\[(CRITICAL|HIGH|MEDIUM|MED|LOW|INFO|INFORMATIONAL|REPORT)\]\s*(.*)$/.exec(lines[i].trim());
+    if(!m)continue;
+    var sev=m[1]==="MED"?"MEDIUM":m[1]==="INFORMATIONAL"?"INFO":m[1];
+    var rest=m[2];
+    var sp=rest.indexOf("::");
+    var title=sp>0?rest.slice(0,sp).trim():rest.trim();
+    var detail=sp>0?rest.slice(sp+2).trim():"";
+    intel.push({ts:Date.now(),dept:dept,agent:agentId,sev:sev,title:title.slice(0,160),detail:detail.slice(0,600)});
+  }
+  if(intel.length>500)intel=intel.slice(-500);
+  saveIntel();renderStats();
+}
+
+function baseRules(){
+  return "Every agent has its own computer: a real Python 3.12 runtime. A helper is ALREADY defined in every agent: status, headers, body = await http_get(url, method='GET'). It returns (status int or None, headers dict, body text); when the browser blocks the request it returns (None, {}, 'FETCH_BLOCKED: reason') — handle that case gracefully and report it. There are NO raw sockets, NO ports, NO DNS lookups. Snippets run with top-level await, so use: status, headers, body = await http_get(...). Use report(sev, title, detail) to print findings (sev is CRITICAL/HIGH/MED/LOW/INFO or REPORT for expert knowledge reports). Only python stdlib. Each snippet must start by setting url to its target and must print with report().";
+}
+function hardRules(){
+  return " HARD RULES: READ-ONLY work. GET/HEAD/OPTIONS only. Max 6 requests per agent. NO brute force, NO flooding or load testing, NO payload injection, NO exploit attempts, NO login or password guessing, NO password or hash cracking, NO modifying anything. TWO-TIER EXECUTION RULE: anything the browser sandbox CAN reach (HTTP-layer web checks via http_get) is written as an EXECUTABLE python check; anything it CANNOT touch (network capture, host/OS/cloud accounts, wireless, forensics, malware binaries, tools like nmap/wireshark/burp) is instead an expert KNOWLEDGE REPORT printed with report('REPORT',...): what to check, the exact tool and commands an operator would run on an authorized machine, and what findings would mean. Never pretend to have executed what the sandbox cannot do. If the browser blocks a request (FETCH_BLOCKED), report it plainly. Reply with ONLY a valid JSON array, no markdown, items {\"label\":\"short label\",\"code\":\"python code\"}.";
+}
+function deptSys(d,aud){
+  var o=deptObj(d);
+  var head="You are the CENTRAL CONTROLLER of TITAN-100, a 100-agent defensive security platform. You are tasking DEPARTMENT "+d+" ("+o.name+"), "+o.c+" agents specialized in "+o.spec+". ";
+  if(aud)head+="The target website is one the user owns or has written permission to test; this is an authorized, defensive audit. ";
+  head+=baseRules();
+  if(aud)head+=" Assign each agent ONE distinct non-destructive check from this department menu: "+AUDMENUS[d]+".";
+  else head+=" Break the MISSION into "+o.c+" independent subtasks this department can genuinely do; if the mission has fewer natural subtasks for this specialty, include expert REPORT subtasks that still add real value (plans, checklists, analyses).";
+  return head+hardRules();
+}
+function parseJSON(txt){
+  try{
+    var s=txt.indexOf("["),e=txt.lastIndexOf("]");
+    if(s<0||e<=s)return null;
+    var arr=JSON.parse(txt.slice(s,e+1));
+    if(!Array.isArray(arr))return null;
+    return arr.filter(function(x){return x&&typeof x.code==="string"&&x.code.trim();});
+  }catch(err){return null;}
+}
+var curModel="openai";
+async function relayCall(messages){
+  for(var i=0;i<10;i++){
+    if(stopFlag)throw new Error("aborted");
+    try{
+      var res=await fetch(RELAY,{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({model:curModel,messages:messages})});
+      if(res.status===402||res.status===429){
+        log("relay cooling down (45s free limit), holding...","warn");
+        await sleep(45000);continue;
+      }
+      if(res.status===404&&curModel!=="openai-fast"){curModel="openai-fast";log("primary model gone, switching to fallback model","warn");continue;}
+      var j=await res.json();
+      var txt=j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;
+      if(txt)return txt;
+      log("relay gave an empty reply, retrying...","warn");
+    }catch(e){ log("relay hiccup: "+esc(e.message)+" , retrying...","warn"); }
+    await sleep(45000);
+  }
+  throw new Error("relay unavailable after retries");
+}
+function firstFreeOfDept(d){
+  for(var i=0;i<N;i++){var a=agents[i];if(a.dept===d&&a.state==="idle")return a;}
+  return null;
+}
+async function dispatchLoop(task){
+  for(var d=1;d<=10;d++){
+    if(stopFlag)return;
+    var o=deptObj(d);
+    log("CONTROLLER: tasking DEPARTMENT "+d+" — "+o.name+" ("+o.c+" agents)...","warn");
+    var up="MISSION: "+task+"\n\nProduce "+o.c+" items for department "+d+" ("+o.name+"). JSON array only.";
+    var txt;
+    try{ txt=await relayCall([{role:"system",content:deptSys(d,mode==="aud")},{role:"user",content:up}]); }
+    catch(e){ if(stopFlag)return; log("department "+d+" dispatch failed: "+esc(e.message),"bad"); continue; }
+    if(stopFlag)return;
+    var items=parseJSON(txt);
+    if(!items||!items.length){ log("department "+d+": controller reply unusable, department skipped","warn"); continue; }
+    var used=0;
+    for(var k=0;k<items.length;k++){
+      var a=firstFreeOfDept(d);
+      if(!a)break;
+      a.label="D"+d+" "+String(items[k].label||("task "+(k+1))).slice(0,54);
+      a.code=items[k].code;
+      setSt(a,"queued");queue.push(a);used++;
+    }
+    log("CONTROLLER: department "+d+" assigned "+used+"/"+o.c+" agents","ok");
+    pump();
+    if(d<10)await sleep(45000);
+  }
+  if(!stopFlag)log("CONTROLLER: all departments tasked. fleet working. consolidated report when the fleet stands down.","ok");
+}
+
+function pump(){
+  while(active<maxRun&&queue.length&&!stopFlag){
+    var a=queue.shift();
+    if(a.state!=="queued")continue;
+    active++;setSt(a,"booting");
+    launch(a);
+  }
+  renderStats();
+}
+async function launch(a){
+  try{
+    if(!a.worker){ feedLine(a.id,a.dept,"booting computer core...","pyodide loading (first boot is slow)...","t"); await bootWorker(a); }
+    setSt(a,"running");
+    var r=await runOn(a);
+    if(r.type==="done"){
+      doneC++;setSt(a,"done");
+      var out=(r.out||"")+(r.ret?(" | return: "+r.ret):"");
+      harvest(a.id,a.dept,r.out||"");
+      feedLine(a.id,a.dept,a.label,out||"(no output)","out");
+    }else{
+      errC++;setSt(a,"error");
+      feedLine(a.id,a.dept,a.label,(r.out?r.out+"\n":"")+("ERROR: "+r.error),"err");
+    }
+  }catch(e){
+    errC++;setSt(a,"error");
+    feedLine(a.id,a.dept,a.label||"boot","ERROR: "+e.message,"err");
+  }
+  active--;pump();renderStats();checkEnd();
+}
+function busyCount(){var b=0;for(var i=0;i<N;i++){var s=agents[i].state;if(s==="running"||s==="booting"||s==="queued")b++;}return b;}
+function checkEnd(){
+  if(!deployed||missionDone||stopFlag)return;
+  if(busyCount()===0){
+    missionDone=true;
+    genReport();
+  }
+}
+function genReport(){
+  var counts={},byDept={},top=[];
+  for(var i=0;i<intel.length;i++){
+    var f=intel[i];
+    counts[f.sev]=(counts[f.sev]||0)+1;
+    byDept[f.dept]=(byDept[f.dept]||0)+1;
+    if(f.sev==="CRITICAL"||f.sev==="HIGH")top.push(f);
+  }
+  var sevs=["CRITICAL","HIGH","MEDIUM","LOW","INFO","REPORT"];
+  var parts=[];
+  for(var s=0;s<sevs.length;s++){ if(counts[sevs[s]])parts.push(sevs[s]+": "+counts[sevs[s]]); }
+  var dp=[];
+  for(var d=1;d<=10;d++){ if(byDept[d])dp.push("D"+d+" "+deptObj(d).name+": "+byDept[d]); }
+  var lines=[];
+  lines.push("TITAN-100 CONSOLIDATED REPORT — "+new Date().toLocaleString());
+  lines.push("mission: "+currentTask.slice(0,140));
+  lines.push("agents: "+doneC+" completed, "+errC+" failed");
+  lines.push("findings: "+(parts.join(", ")||"none recorded"));
+  lines.push("by department:");
+  lines.push(dp.join("\n")||"none");
+  if(top.length){
+    lines.push("priority findings:");
+    for(var t=0;t<Math.min(top.length,8);t++){ lines.push("  [D"+top[t].dept+" AGT-"+pad(top[t].agent)+"] "+top[t].title); }
+  }
+  var rep=lines.join("\n");
+  try{ localStorage.setItem("titan100_report",rep); }catch(e){}
+  var hist=[];try{hist=JSON.parse(localStorage.getItem("titan100_history")||"[]");}catch(e){}
+  hist.push({ts:Date.now(),mission:currentTask.slice(0,120),done:doneC,failed:errC,findings:intel.length});
+  try{ localStorage.setItem("titan100_history",JSON.stringify(hist.slice(-30))); }catch(e){}
+  feedLine(0,1,"consolidated report",rep,"out");
+  log("FLEET MISSION COMPLETE: "+doneC+" succeeded, "+errC+" failed. report ready in INTELLIGENCE tab.","ok");
+}
+function inspect(id){
+  selAgent=id;
+  var a=agents[id-1];
+  for(var i=0;i<N;i++)agents[i].el.className="tile "+agents[i].state+(agents[i].id===id?" sel":"");
+  insp.style.display="block";
+  insp.innerHTML="<b style='color:"+deptObj(a.dept).col+"'>AGENT-"+pad(a.id)+"</b> — "+deptObj(a.dept).name+
+    " | status: "+a.state+" | task: "+esc(a.label||"none")+
+    " <button id='retask'>RESTART AGENT TASK</button><button id='release'>STAND DOWN</button>";
+  document.getElementById("retask").addEventListener("click",function(){
+    if(!a.code){log("agent "+a.id+" has no task to restart.","warn");return;}
+    if(a.state==="queued"||a.state==="running"||a.state==="booting"){log("agent "+a.id+" is already working.","warn");return;}
+    setSt(a,"queued");queue.push(a);pump();
+    log("CONTROLLER: agent "+a.id+" restarted.","ok");
+  });
+  document.getElementById("release").addEventListener("click",function(){
+    if(a.worker){try{a.worker.terminate();}catch(e){}a.worker=null;}
+    var qi=queue.indexOf(a);if(qi>=0)queue.splice(qi,1);
+    if(a.state==="queued"||a.state==="booting"||a.state==="running")setSt(a,"idle");
+    log("CONTROLLER: agent "+a.id+" stood down.","warn");
+  });
+}
+function renderDepts(){
+  var host=document.getElementById("depts");host.innerHTML="";
+  for(var d=1;d<=10;d++){
+    var o=deptObj(d);
+    var st={idle:0,queued:0,booting:0,running:0,done:0,error:0};
+    for(var i=0;i<N;i++){ if(agents[i].dept===d&&st[agents[i].state]!==undefined)st[agents[i].state]++; }
+    var fi=0;
+    for(var j=0;j<intel.length;j++){ if(intel[j].dept===d)fi++; }
+    var el=document.createElement("div");
+    el.className="dcard";el.style.borderTopColor=o.col;
+    el.innerHTML="<h3 style='color:"+o.col+"'>TEAM "+o.n+" — "+esc(o.name)+"</h3>"+
+      "<div class='row'>agents: <b>"+o.c+"</b> | idle: <b>"+st.idle+"</b> | active: <b>"+(st.booting+st.running)+"</b> | queued: <b>"+st.queued+"</b><br>"+
+      "done: <b>"+st.done+"</b> | failed: <b>"+st.error+"</b> | findings: <b>"+fi+"</b></div>";
+    host.appendChild(el);
+  }
+}
+function renderIntel(){
+  var counts={};
+  for(var i=0;i<intel.length;i++){counts[intel[i].sev]=(counts[intel[i].sev]||0)+1;}
+  var sevs=["CRITICAL","HIGH","MEDIUM","LOW","INFO","REPORT"];
+  var ic=document.getElementById("icounts");ic.innerHTML="";
+  for(var s=0;s<sevs.length;s++){
+    var el=document.createElement("div");el.className="ic";
+    el.innerHTML="<span class='sev"+sevs[s]+"'>"+sevs[s]+"</span> <b>"+(counts[sevs[s]]||0)+"</b>";
+    ic.appendChild(el);
+  }
+  var il=document.getElementById("ilist");il.innerHTML="";
+  var rep=null;try{rep=localStorage.getItem("titan100_report");}catch(e){}
+  if(rep){
+    var pre=document.createElement("div");
+    pre.innerHTML="<pre style='white-space:pre-wrap;font-size:10px;color:#9fb3c8;border:1px solid rgba(59,130,246,.3);padding:8px;margin-bottom:8px'>"+esc(rep)+"</pre>";
+    il.appendChild(pre);
+  }
+  for(var k=intel.length-1;k>=0;k--){
+    var f=intel[k];
+    var al=(f.sev==="CRITICAL"||f.sev==="HIGH")?"<br><span style='color:#ef4444'>ALERT: verify by hand, remediate, then re-test</span>":"";
+    var d=document.createElement("div");
+    d.innerHTML="<span class='sev"+f.sev+"'>"+f.sev+"</span> <span style='color:"+deptObj(f.dept).col+"'>D"+f.dept+" AGT-"+pad(f.agent)+"</span> "+esc(f.title)+
+      (f.detail?"<br><span style='color:#6b7a8d'>"+esc(f.detail)+"</span>":"")+al;
+    il.appendChild(d);
+  }
+  if(!intel.length&&!rep)il.innerHTML="<div class='t'>no findings yet. run a mission.</div>";
+}
+document.getElementById("export").addEventListener("click",function(){
+  var rep=null;try{rep=localStorage.getItem("titan100_report");}catch(e){}
+  if(!rep){log("no report yet.","warn");return;}
+  var blob=new Blob([rep],{type:"text/plain"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="titan100-report.txt";a.click();
+});
+document.getElementById("clearintel").addEventListener("click",function(){
+  intel=[];saveIntel();
+  try{localStorage.removeItem("titan100_report");}catch(e){}
+  renderIntel();renderStats();
+  log("intelligence database cleared.","warn");
+});
+document.getElementById("deploy").addEventListener("click",async function(){
+  var task=taskEl.value.trim();
+  if(!task){log("type a mission for the fleet first.","warn");return;}
+  if(mode==="aud"){
+    var m=/https?:\/\/([^\/\s]+)/i.exec(task);
+    var host=m?m[1].toLowerCase().replace(/^www\./,""):"";
+    var az=authzEl.value.trim().toLowerCase().replace(/^www\./,"");
+    if(!az||!host||host!==az){log("AUDIT BLOCKED: the authorization box must contain the exact target domain from your mission. type it to confirm you own or are authorized to test that site.","bad");return;}
+    log("authorization confirmed for "+host+". read-only audit only.","warn");
+  }
+  reset();
+  deployed=true;currentTask=task;
+  log("MISSION ("+(mode==="aud"?"SECURITY AUDIT":"GENERAL")+"): "+esc(task.slice(0,120)),"ok");
+  log("central controller online. tasking departments 1-10 in sequence...");
+  dispatchLoop(task).catch(function(e){ if(!stopFlag)log("controller failed: "+esc(e.message),"bad"); });
+});
+document.getElementById("stop").addEventListener("click",function(){
+  stopFlag=true;
+  for(var i=0;i<N;i++){
+    var a=agents[i];
+    if(a.worker){try{a.worker.terminate();}catch(e){} a.worker=null;}
+    if(a.state!=="idle"&&a.state!=="done"&&a.state!=="error")setSt(a,"idle");
+  }
+  queue=[];active=0;renderStats();
+  log("EMERGENCY SHUTDOWN: all agents stood down.","bad");
+});
+function reset(){
+  stopFlag=false;deployed=false;missionDone=false;doneC=0;errC=0;queue=[];active=0;
+  for(var i=0;i<N;i++){
+    var a=agents[i];
+    if(a.worker){try{a.worker.terminate();}catch(e){}a.worker=null;}
+    setSt(a,"idle");a.label="";a.code="";
+  }
+  feed.innerHTML="";renderStats();
+}
+renderStats();
+})();
+</script>
+</body>
+</html>
