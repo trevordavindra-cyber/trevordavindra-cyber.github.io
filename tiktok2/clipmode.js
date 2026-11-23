@@ -32,7 +32,7 @@
   function mount(){
     if(document.getElementById('fcBtn'))return;
     var b=document.createElement('button');b.id='fcBtn';b.textContent='FAMOUS CLIPS';
-    b.style.cssText='position:fixed;left:10px;bottom:16px;z-index:9999;padding:9px 14px;border:1px solid #7d5bff88;border-radius:999px;background:linear-gradient(90deg,#2a1a5e,#3a1a4e);color:#e6ddff;font-weight:800;font-size:12px;letter-spacing:.5px;cursor:pointer;box-shadow:0 6px 18px #0009';
+    b.style.cssText='position:fixed;left:10px;bottom:16px;z-index:9999;width:auto;max-width:200px;padding:9px 14px;border:1px solid #7d5bff88;border-radius:999px;background:linear-gradient(90deg,#2a1a5e,#3a1a4e);color:#e6ddff;font-weight:800;font-size:12px;letter-spacing:.5px;cursor:pointer;box-shadow:0 6px 18px #0009';
     b.onclick=toggle;document.body.appendChild(b);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
