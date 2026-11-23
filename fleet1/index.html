@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLEET COMMAND — 100 AGENTS</title>
+<style>
+:root{--bg:#04060c;--panel:#0a0f1a;--cy:#22d3ee;--rd:#ef4444;--gr:#22c55e;--am:#f59e0b;--dim:#5b6b7f;--txt:#c9d6e3}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--txt);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;min-height:100%}
+body{background-image:linear-gradient(rgba(34,211,238,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.045) 1px,transparent 1px);background-size:34px 34px}
+#wrap{max-width:1200px;margin:0 auto;padding:12px}
+header{display:flex;align-items:center;gap:10px;border:1px solid rgba(34,211,238,.35);background:linear-gradient(180deg,rgba(34,211,238,.08),rgba(10,15,26,.9));padding:10px 14px;margin-bottom:10px}
+header h1{font-size:17px;letter-spacing:3px;color:var(--cy);font-weight:600}
+header .tag{font-size:10px;color:var(--dim);letter-spacing:2px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gr);box-shadow:0 0 8px var(--gr);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.4}}
+#cols{display:grid;grid-template-columns:340px 1fr;gap:10px}
+@media(max-width:820px){#cols{grid-template-columns:1fr}}
+.panel{border:1px solid rgba(34,211,238,.3);background:rgba(10,15,26,.92);padding:10px}
+.panel h2{font-size:11px;letter-spacing:2px;color:var(--cy);margin-bottom:8px;border-bottom:1px solid rgba(34,211,238,.2);padding-bottom:5px}
+textarea{width:100%;height:74px;background:#060a12;color:var(--txt);border:1px solid rgba(34,211,238,.3);padding:8px;font-family:inherit;font-size:13px;resize:vertical}
+button{font-family:inherit;letter-spacing:2px;font-size:12px;border:1px solid var(--cy);background:rgba(34,211,238,.12);color:var(--cy);padding:9px 0;width:100%;cursor:pointer;margin-top:8px}
+button:active{background:rgba(34,211,238,.3)}
+#stop{border-color:var(--rd);color:var(--rd);background:rgba(239,68,68,.08)}
+#stats{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.stat{flex:1;min-width:60px;border:1px solid rgba(34,211,238,.25);padding:6px 4px;text-align:center}
+.stat b{display:block;font-size:16px;color:var(--cy)}
+.stat span{font-size:9px;color:var(--dim);letter-spacing:1px}
+#dlog{height:150px;overflow-y:auto;font-size:11px;line-height:1.5;margin-top:8px;background:#060a12;border:1px solid rgba(34,211,238,.2);padding:6px}
+#dlog div{border-bottom:1px dashed rgba(91,107,127,.25);padding:2px 0}
+.t{color:var(--dim)} .ok{color:var(--gr)} .bad{color:var(--rd)} .warn{color:var(--am)}
+#grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-bottom:10px}
+.tile{border:1px solid rgba(91,107,127,.4);background:#080d16;font-size:8px;padding:4px 2px;text-align:center;color:var(--dim);min-height:30px;overflow:hidden}
+.tile b{display:block;font-size:9px;color:#8fa3b8}
+.tile .st{width:6px;height:6px;border-radius:50%;display:inline-block;background:#39424e;margin-top:2px}
+.tile.idle .st{background:#39424e}
+.tile.queued .st{background:var(--am);box-shadow:0 0 5px var(--am)}
+.tile.booting .st{background:#3b82f6;box-shadow:0 0 5px #3b82f6;animation:pulse 1s infinite}
+.tile.running .st{background:var(--cy);box-shadow:0 0 6px var(--cy);animation:pulse .7s infinite}
+.tile.done .st{background:var(--gr);box-shadow:0 0 5px var(--gr)}
+.tile.error .st{background:var(--rd);box-shadow:0 0 5px var(--rd)}
+.tile.done{border-color:rgba(34,197,94,.5)}
+.tile.error{border-color:rgba(239,68,68,.5)}
+.tile.running,.tile.booting{border-color:rgba(34,211,238,.6)}
+#feed{height:260px;overflow-y:auto;font-size:11px;line-height:1.55;background:#060a12;border:1px solid rgba(34,211,238,.2);padding:8px}
+#feed .ag{color:var(--cy)} #feed .lbl{color:var(--am)} #feed .out{color:#9fb3c8;white-space:pre-wrap;word-break:break-word} #feed .err{color:var(--rd)}
+footer{margin-top:10px;font-size:10px;color:var(--dim);letter-spacing:1px;text-align:center}
+</style>
+</head>
+<body>
+<div id="wrap">
+<header><div class="dot"></div><h1>FLEET COMMAND</h1><div class="tag">100 AGENTS // EACH WITH ITS OWN COMPUTER // 1 DISPATCHER</div></header>
+<div id="cols">
+  <div class="panel">
+    <h2>MISSION CONTROL</h2>
+    <textarea id="task" placeholder="what do you want the fleet to do?"></textarea>
+    <button id="deploy">DEPLOY FLEET</button>
+    <button id="stop">ABORT ALL</button>
+    <div id="stats">
+      <div class="stat"><b id="s-run">0</b><span>RUNNING</span></div>
+      <div class="stat"><b id="s-done">0</b><span>DONE</span></div>
+      <div class="stat"><b id="s-err">0</b><span>FAILED</span></div>
+      <div class="stat"><b id="s-q">0</b><span>QUEUED</span></div>
+    </div>
+    <h2 style="margin-top:10px">DISPATCHER LOG</h2>
+    <div id="dlog"></div>
+  </div>
+  <div class="panel">
+    <h2>THE FLEET</h2>
+    <div id="grid"></div>
+    <h2>RESULTS FEED</h2>
+    <div id="feed"><div class="t">fleet online. 100 agents idle, awaiting orders.</div></div>
+  </div>
+</div>
+<footer>FLEET v1 // PYODIDE COMPUTE CORES // FREE RELAY BRAIN // NOTHING STORED OFF THIS BROWSER</footer>
+</div>
+
+<script id="workersrc" type="text/plain">
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js");
+var py=null, buf=[], ebuf=[];
+function post(o){ postMessage(o); }
+async function boot(){
+  try{
+    py = await loadPyodide({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"});
+    py.setStdout({batched:function(s){ buf.push(s); }});
+    py.setStderr({batched:function(s){ ebuf.push(s); }});
+    post({type:"ready"});
+  }catch(ex){ post({type:"bootfail", error:String(ex)}); }
+}
+onmessage = async function(e){
+  var d=e.data;
+  if(d.cmd==="run"){
+    buf=[]; ebuf=[];
+    try{
+      var r = await py.runPythonAsync(d.code);
+      post({type:"done", tid:d.tid, out:buf.join("\n"), err:ebuf.join("\n"), ret:(r===undefined||r===null)?"":String(r)});
+    }catch(ex){
+      post({type:"error", tid:d.tid, out:buf.join("\n"), error:String(ex)});
+    }
+  }
+};
+boot();
+</script>
+
+<script>
+(function(){
+"use strict";
+var RELAY="https://text.pollinations.ai/openai";
+var N=100;
+var grid=document.getElementById("grid"), feed=document.getElementById("feed"),
+    dlog=document.getElementById("dlog"), taskEl=document.getElementById("task");
+var agents=[], queue=[], active=0, maxRun=Math.min(6,(navigator.hardwareConcurrency||4)+2),
+    stopFlag=false, deployed=false, doneC=0, errC=0, missionDone=false;
+
+for(var i=0;i<N;i++){
+  var t=document.createElement("div");
+  t.className="tile idle";
+  t.innerHTML="<b>"+pad(i+1)+"</b><span class='st'></span>";
+  grid.appendChild(t);
+  agents.push({id:i+1,el:t,state:"idle",worker:null,label:"",code:"",bootT:0,runT:0});
+}
+function pad(n){return (n<10?"00":n<100?"0":"")+n;}
+function setSt(a,s){a.state=s;a.el.className="tile "+s;renderStats();}
+function renderStats(){
+  var r=0,q=0;for(var i=0;i<N;i++){if(agents[i].state==="running"||agents[i].state==="booting")r++;if(agents[i].state==="queued")q++;}
+  document.getElementById("s-run").textContent=r;
+  document.getElementById("s-done").textContent=doneC;
+  document.getElementById("s-err").textContent=errC;
+  document.getElementById("s-q").textContent=q;
+}
+function log(msg,cls){
+  var d=document.createElement("div");if(cls)d.className=cls;
+  var ts=new Date().toLocaleTimeString([], {hour12:false});
+  d.innerHTML="<span class='t'>["+ts+"]</span> "+msg;
+  dlog.appendChild(d);dlog.scrollTop=dlog.scrollHeight;
+}
+function feedLine(agentId,label,text,cls){
+  var d=document.createElement("div");
+  d.innerHTML="<span class='ag'>[AGT-"+pad(agentId)+"]</span> <span class='lbl'>"+esc(label)+"</span><br><span class='"+(cls||"out")+"'>"+esc(text)+"</span>";
+  feed.appendChild(d);
+  while(feed.childNodes.length>400)feed.removeChild(feed.firstChild);
+  feed.scrollTop=feed.scrollHeight;
+}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+var WSRC=document.getElementById("workersrc").textContent;
+function bootWorker(a){
+  return new Promise(function(res,rej){
+    var w;
+    try{ w=new Worker(URL.createObjectURL(new Blob([WSRC],{type:"application/javascript"}))); }
+    catch(e){ rej(e);return; }
+    a.worker=w;a.bootT=Date.now();
+    var to=setTimeout(function(){cleanup();rej(new Error("computer boot timeout"));},120000);
+    function cleanup(){clearTimeout(to);w.onmessage=null;w.onerror=null;}
+    w.onmessage=function(e){
+      var d=e.data;
+      if(d.type==="ready"){cleanup();res(w);}
+      else if(d.type==="bootfail"){cleanup();rej(new Error(d.error));}
+    };
+    w.onerror=function(e){cleanup();rej(new Error(e.message||"worker error"));};
+  });
+}
+function runOn(a){
+  return new Promise(function(res){
+    var w=a.worker, tid=a.id;
+    var to=setTimeout(function(){
+      try{w.terminate();}catch(e){}
+      a.worker=null;
+      res({type:"error",error:"task timeout (120s)"});
+    },120000);
+    w.onmessage=function(e){
+      var d=e.data;
+      if(d.tid!==tid)return;
+      clearTimeout(to);res(d);
+    };
+    w.postMessage({cmd:"run",code:a.code,tid:tid});
+  });
+}
+
+function sysPrompt(){
+  return "You are DISPATCHER of a fleet of 100 autonomous agents. Every agent has its own computer: a real Python 3.12 runtime with internet access (urllib works, no pip installs). You break the user's TASK into independent subtasks and assign each to one agent as a COMPLETE standalone python3 snippet that does real work and prints its findings with print(). Use only the python standard library. Snippets must be short (max 25 lines), safe, and end with useful print() output. Reply with ONLY a valid JSON array, no markdown fences, no commentary. Each item: {\"label\":\"short label\",\"code\":\"python code\"}.";
+}
+function userPrompt(task,assigned,batch,labels){
+  var extra=labels.length?("Subtasks already assigned (do NOT repeat these): "+labels.slice(-30).join(" | ")):"";
+  return "TASK: "+task+"\n\nSubtasks assigned so far: "+assigned+". Produce the NEXT "+batch+" subtask"+(batch>1?"s":"")+" as a JSON array. "+extra+"\nIf the task is fully covered by fewer subtasks, return only what remains. Vary the work across agents (different angles, different queries, different data) so the fleet works in parallel.";
+}
+function parseJSON(txt){
+  try{
+    var s=txt.indexOf("["),e=txt.lastIndexOf("]");
+    if(s<0||e<=s)return null;
+    var arr=JSON.parse(txt.slice(s,e+1));
+    if(!Array.isArray(arr))return null;
+    return arr.filter(function(x){return x&&typeof x.code==="string"&&x.code.trim();});
+  }catch(err){return null;}
+}
+async function relayCall(messages){
+  for(var i=0;i<10;i++){
+    if(stopFlag)throw new Error("aborted");
+    try{
+      var res=await fetch(RELAY,{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({model:"openai",messages:messages})});
+      if(res.status===402||res.status===429){
+        log("relay cooling down (45s free limit), holding...","warn");
+        await sleep(45000);continue;
+      }
+      var j=await res.json();
+      var txt=j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;
+      if(txt)return txt;
+      log("relay gave an empty reply, retrying...","warn");
+    }catch(e){ log("relay hiccup: "+esc(e.message)+" , retrying...","warn"); }
+    await sleep(45000);
+  }
+  throw new Error("relay unavailable after retries");
+}
+
+async function dispatchLoop(task){
+  var assigned=0, labels=[], emptyStreak=0;
+  while(!stopFlag&&assigned<N){
+    var batch=Math.min(20,N-assigned);
+    log("dispatching round "+(assigned?Math.floor(assigned/20)+2:1)+": next "+batch+" subtasks...");
+    var txt=await relayCall([{role:"system",content:sysPrompt()},{role:"user",content:userPrompt(task,assigned,batch,labels)}]);
+    if(stopFlag)return;
+    var items=parseJSON(txt);
+    if(!items||!items.length){
+      emptyStreak++;log("dispatcher reply unusable, retrying round","warn");
+      if(emptyStreak>=3){log("dispatcher stalled after 3 bad rounds. remaining agents stay idle.","bad");break;}
+      continue;
+    }
+    emptyStreak=0;
+    var used=0;
+    for(var k=0;k<items.length&&assigned<N;k++){
+      var it=items[k];
+      var a=agents[assigned];
+      a.label=String(it.label||("subtask "+(assigned+1))).slice(0,60);
+      a.code=it.code;
+      setSt(a,"queued");
+      queue.push(a);
+      labels.push(a.label);
+      assigned++;used++;
+    }
+    log("dispatcher assigned "+used+" subtasks ("+assigned+"/100 total)","ok");
+    pump();
+    if(items.length<batch)break;
+    await sleep(45000);
+  }
+  if(!stopFlag)log("dispatch complete. "+assigned+" agents tasked. fleet working...","ok");
+}
+
+function pump(){
+  while(active<maxRun&&queue.length&&!stopFlag){
+    var a=queue.shift();
+    if(a.state!=="queued")continue;
+    active++;setSt(a,"booting");
+    launch(a);
+  }
+  renderStats();
+}
+async function launch(a){
+  try{
+    if(!a.worker){ feedLine(a.id,"booting computer core...","pyodide loading (first boot is slow)...","t"); await bootWorker(a); }
+    setSt(a,"running");
+    var r=await runOn(a);
+    if(r.type==="done"){
+      doneC++;setSt(a,"done");
+      var out=(r.out||"")+(r.ret?(" | return: "+r.ret):"");
+      feedLine(a.id,a.label,out||"(no output)","out");
+    }else{
+      errC++;setSt(a,"error");
+      feedLine(a.id,a.label,(r.out?r.out+"\n":"")+("ERROR: "+r.error),"err");
+    }
+  }catch(e){
+    errC++;setSt(a,"error");
+    feedLine(a.id,a.label||"boot","ERROR: "+e.message,"err");
+  }
+  active--;pump();renderStats();checkEnd();
+}
+function checkEnd(){
+  if(!deployed||missionDone)return;
+  if(stopFlag)return;
+  var busy=0;for(var i=0;i<N;i++){var s=agents[i].state;if(s==="running"||s==="booting"||s==="queued")busy++;}
+  if(busy===0){
+    missionDone=true;
+    log("FLEET MISSION COMPLETE: "+doneC+" succeeded, "+errC+" failed.","ok");
+  }
+}
+
+document.getElementById("deploy").addEventListener("click",async function(){
+  var task=taskEl.value.trim();
+  if(!task){log("type a mission for the fleet first.","warn");return;}
+  reset();
+  deployed=true;
+  log("MISSION: "+esc(task.slice(0,120)),"ok");
+  log("dispatcher online. breaking the mission into subtasks...");
+  dispatchLoop(task).catch(function(e){ if(!stopFlag)log("dispatcher failed: "+esc(e.message),"bad"); });
+});
+document.getElementById("stop").addEventListener("click",function(){
+  stopFlag=true;
+  for(var i=0;i<N;i++){
+    var a=agents[i];
+    if(a.worker){try{a.worker.terminate();}catch(e){} a.worker=null;}
+    if(a.state!=="idle"&&a.state!=="done"&&a.state!=="error")setSt(a,"idle");
+  }
+  queue=[];active=0;renderStats();
+  log("ABORT: all agents stood down.","bad");
+});
+function reset(){
+  stopFlag=false;deployed=false;missionDone=false;doneC=0;errC=0;queue=[];active=0;
+  for(var i=0;i<N;i++){
+    var a=agents[i];
+    if(a.worker){try{a.worker.terminate();}catch(e){}a.worker=null;}
+    setSt(a,"idle");a.label="";a.code="";
+  }
+  feed.innerHTML="";renderStats();
+}
+renderStats();
+})();
+</script>
+</body>
+</html>
