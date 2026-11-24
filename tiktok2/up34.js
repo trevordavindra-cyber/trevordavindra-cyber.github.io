@@ -43,28 +43,28 @@ function scan(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;
 if(!a.stills.length){log('STILL FRAME SCAN - every clip has motion (speed, zoom, camera move or transition)',true)}
 else{log('STILL FRAME SCAN - '+a.stills.length+' of '+a.cs.length+' clip(s) are still frames: #'+a.stills.map(function(i){return i+1}).join(', #')+' (no speed, zoom, camera move or motion transition)',true)}
 saveE()}
-function bars(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;
+function bars(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);
 if(!a.bars.length){log('BLACK BAR CHECK - no clip risks black bars (all zoomed in or camera-moved to fill frame)',true)}
 else{log('BLACK BAR CHECK - '+a.bars.length+' clip(s) may show black bars (zoom under 1.0 with no camera move): #'+a.bars.map(function(i){return i+1}).join(', #'),true)}
 saveE()}
-function score(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;
+function score(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);
 log('MOTION SCORE - '+a.score+'/100 ('+Math.round(a.movingShare*100)+'% clips moving, '+Math.round(a.per10*10)/10+' cuts/10s, '+a.shakes+' shake, '+a.moves+' camera moves, '+a.ramps+' speed ramps)',true);saveE()}
-function zoomPass(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;var n=0;
+function zoomPass(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);var n=0;
 for(var k=0;k<a.stills.length;k++){var c=a.cs[a.stills[k]].c;if(!(typeof c.zoom==='number'&&c.zoom>1.05)){c.zoom=1.15;n++}}
 if(n){saveE();log('AUTO ZOOM PASS - pushed 1.15x zoom into '+n+' still clip(s) so every cut moves',true)}
 else{log('AUTO ZOOM PASS - nothing to do, flagged clips already have zoom');}}
-function shakePass(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;var n=0;
+function shakePass(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);var n=0;
 for(var k=0;k<a.stills.length&&n<3;k++){var c=a.cs[a.stills[k]].c;var tr=(c.transition||c.trans||'cut');if(tr==='cut'||tr==='none'||!tr){c.transition='shake';n++}}
 if(n){saveE();log('SHAKE PASS - set camera-shake transitions on '+n+' still clip(s)',true)}
 else{log('SHAKE PASS - nothing to change, still clips already have motion transitions');}}
-function ramps(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;
+function ramps(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);
 var sorted=a.cs.slice().sort(function(p,q){return q.d-p.d}).slice(0,3);
 var out=sorted.map(function(it){return 'clip '+(it.i+1)+' ('+Math.round(it.d*10)/10+'s: ramp 1.0 to 1.3x over it)'}).join(' | ');
 log('RAMP SPOTS (3 longest) - '+out,true);saveE()}
 function density(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);
 var ok=a.per10>=3&&a.per10<=9;
 log('CUT DENSITY - '+Math.round(a.per10*10)/10+' cuts per 10s ('+(ok?'in the 3-9 sweet spot':'outside the sweet spot: '+(a.per10<3?'add cuts or trim long holds':'slow down, it reads chaotic'))+')',true);saveE()}
-function fixes(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;var f=[];
+function fixes(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);var f=[];
 if(a.stills.length)f.push(a.stills.length+' still frame(s): run AUTO ZOOM PASS or SHAKE PASS');
 if(a.bars.length)f.push(a.bars.length+' black-bar risk clip(s): zoom them to 1.1x+');
 if(a.per10<3)f.push('only '+Math.round(a.per10*10)/10+' cuts/10s: split the longest clips');
