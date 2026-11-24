@@ -44,7 +44,9 @@ function hashAudit(){var t=tags();if(!t.length){glog('HASHTAG AUDIT: no hashtags
  var gen=t.filter(function(x){return generic.indexOf(String(x).toLowerCase().replace('#',''))>=0});
  glog('HASHTAG AUDIT: '+t.length+' tags, '+dupes.length+' dupes'+(dupes.length?' ('+dupes.join(' ')+')':'')+', '+gen.length+' over-generic'+(gen.length?' ('+gen.join(' ')+')':'')+' - keep 3 niche tags + 1 broad',1)}
 function subCheck(){var bad=[];SCENES.forEach(function(s,i){var w=words(s.cap).length;var d=SDUR[i]||3;var wps=w/d;if(wps>4)bad.push('scene '+(i+1)+' '+wps.toFixed(1)+'w/s too fast')});
- glog('SUBTITLE CHECK: '+SCENES.length+' captions'+(bad.length?' - flags: '+bad.join(' | '):' - all readable pace'),bad.length?0:1)}
+ var tw=0;SCENES.forEach(function(s){tw+=words(s.cap).length});var td=0;SDUR.forEach(function(d){td+=d});
+ var avg=td>0?tw/td:0;
+ glog('SUBTITLE CHECK: '+SCENES.length+' captions, avg '+avg.toFixed(1)+'w/s'+(bad.length?' - flags: '+bad.join(' | '):' - all readable pace'),bad.length?0:1)}
 function soundCheck(){var bs='phonk';try{bs=document.getElementById('beatstyle').value}catch(e){}
  var tot=0;SDUR.forEach(function(d){tot+=d});
  var fit={phonk:'fast cuts under 141bpm works',hard:'hard hits need cut points on drops',lofi:'lofi wants longer scenes 3s+'}[bs]||'fine';
