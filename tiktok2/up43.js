@@ -66,7 +66,7 @@ function speedRamp(){if(!needClips()){return}
  log('SPEED RAMP GUIDE - '+genre().toLowerCase()+' pace: ramp the longest clip only, the rest stay native speed, and match ramp length to the beat gap',true)}
 function echoTrail(){if(!needClips()){return}
  var cs=clips();var seen={};var first=-1;
- for(var i=0;i<cs.length;i++){var key=(cs[i].c.label||cs[i].c.name||('clip'+(i+1)))+'';if(seen[key]!==undefined&&first<0){first=i}else{seen[key]=1}}
+ for(var i=0;i<cs.length;i++){var key=(cs[i].c.label||cs[i].c.name||('clip'+(i+1)))+'';if(seen[key]!==undefined&&first<0){first=i;seen[key]=1}else{seen[key]=1}}
  if(first<0){log('ECHO TRAIL PLANNER - no clip repeats: duplicate the best 0.6s beat once at the payoff and trail it 3 frames back',true)}
  else{var t=0;for(var k=0;k<first;k++){t+=cs[k].d}
   log('ECHO TRAIL PLANNER - first repeat at clip '+(first+1)+' ('+Math.round(t*10)/10+'s): echo it 2 frames back at 60% opacity, then 2 more at 30%',true)}
