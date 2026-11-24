@@ -38,10 +38,13 @@
 <div class="setrow">
 VOICE <select id="voice"></select>
 SPEED <input type="range" id="rate" min="0.7" max="1.6" step="0.05" value="1.12"><span id="ratev">1.12</span>
-CAPTIONS <select id="capstyle"><option value="highlight">WORD HIGHLIGHT</option><option value="typewriter">TYPEWRITER</option><option value="pop">POP</option></select>
-BEAT <select id="beatstyle"><option value="phonk">PHONK</option><option value="hard">HARD</option><option value="lofi">LOFI</option></select>
+CAPTIONS <select id="capstyle">
+<option value="highlight">WORD HIGHLIGHT</option><option value="typewriter">TYPEWRITER</option><option value="pop">POP</option></select>
+BEAT <select id="beatstyle">
+<option value="phonk">PHONK</option><option value="hard">HARD</option><option value="lofi">LOFI</option></select>
 FX <label style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" id="fx" checked> TRANSITIONS</label>
-RATIO <select id="ratio"><option value="9:16">9:16 TIKTOK</option><option value="1:1">1:1 SQUARE</option><option value="16:9">16:9 WIDE</option></select>
+RATIO <select id="ratio">
+<option value="9:16">9:16 TIKTOK</option><option value="1:1">1:1 SQUARE</option><option value="16:9">16:9 WIDE</option></select>
 </div>
 <div class="steps" id="steps"></div>
 </div>
@@ -71,10 +74,12 @@ RATIO <select id="ratio"><option value="9:16">9:16 TIKTOK</option><option value=
 <input type="file" id="vfile" accept="video/*" style="display:none">
 <div class="setrow">
 <label class="btn cy" style="display:inline-block;padding:6px 12px;font-size:10px" for="afile">+ ADD A SONG (optional)</label><input type="file" id="afile" accept="audio/*" style="display:none"><span id="songName" style="color:var(--gold)"></span>
-STYLE <select id="vstyle"><option value="flashy">FLASHY</option><option value="clean">CLEAN</option><option value="hard">HARDCORE</option></select>
+STYLE <select id="vstyle">
+<option value="flashy">FLASHY</option><option value="clean">CLEAN</option><option value="hard">HARDCORE</option></select>
 POWER <input type="range" id="vint" min="0" max="100" value="70">
 </div>
-<div class="setrow">EDIT STYLE <select id="estyle"><option value="full">FULL — dialogue + beat montage</option><option value="dialog">DIALOGUE — cut per line</option><option value="action">ACTION — beat punches</option></select> MONTAGE <input type="number" id="vmont" value="12" min="4" max="40" style="width:58px">s</div>
+<div class="setrow">EDIT STYLE <select id="estyle">
+<option value="full">FULL — dialogue + beat montage</option><option value="dialog">DIALOGUE — cut per line</option><option value="action">ACTION — beat punches</option></select> MONTAGE <input type="number" id="vmont" value="12" min="4" max="40" style="width:58px">s</div>
 <textarea id="vlines" rows="3" placeholder="dialogue lines, one per line — DR: we are too late for that (paste the dialogue, speaker initials optional)" style="margin-top:8px"></textarea>
 <div class="rowbtns">
 <label style="color:var(--dim);font-size:10px;display:inline-flex;gap:5px;align-items:center"><input type="checkbox" id="vfx" checked> RGB SPLIT ON HITS</label>
@@ -89,10 +94,11 @@ POWER <input type="range" id="vint" min="0" max="100" value="70">
 <div class="steps" id="vsteps"></div>
 </div>
 
-<footer>shortforge <b>v6</b> · built by <b>FO</b> for trevor · combines <b>MoneyPrinterTurbo · short-video-maker · purffle-shorts · ShortGPT · MoneyPrinter · AI-Shorts-Generator</b> · nothing leaves your browser but the prompts</footer>
+<footer>shortforge <b>v7</b> · built by <b>FO</b> for trevor · combines <b>MoneyPrinterTurbo · short-video-maker · purffle-shorts · ShortGPT · MoneyPrinter · AI-Shorts-Generator</b> · nothing leaves your browser but the prompts</footer>
 </div>
 <script src="app6.js"></script>
 <script src="music6.js"></script>
 <script src="edit6.js"></script>
+<script src="up7.js?v=1"></script>
 </body>
 </html>
