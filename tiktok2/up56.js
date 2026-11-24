@@ -118,6 +118,7 @@ function rfix(){
 }
 
 // ---- 10 RETENTION SHEET .TXT ----
+function dl(name,text){try{var b=new Blob([text],{type:'text/plain'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){if(a.parentNode){a.parentNode.removeChild(a)}URL.revokeObjectURL(a.href)},800);log(name+' downloading');}catch(e){log('sheet download failed: '+e.message)}}
 function rsheet(){
  var g=genre(),d=new Date(),c=clips(),L=[];
  L.push('RETENTION SHEET - '+d.toLocaleString());
