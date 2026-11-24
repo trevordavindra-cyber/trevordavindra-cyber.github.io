@@ -108,8 +108,8 @@
         var cap=safe(c.caption||c.text||'');
         var dur=c.dur||3;
         var cps=dur>0?cap.length/dur:0;
-        if(!cap.length){ok++;continue;}
-        if(cps<=17){ok++;}else{tooFast++;}
+        if(!cap.length){ok++;}
+        else if(cps<=17){ok++;}else{tooFast++;}
         rows.push('clip '+(i+1)+' '+Math.round(cps)+' cps');
       });
       log('READ SPEED: '+ok+' clips at readable pace (target under 17 chars/sec), '+tooFast+' too fast. '+rows.slice(0,5).join(', '));
