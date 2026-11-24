@@ -43,17 +43,17 @@ function scan(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;
 if(!a.stills.length){log('STILL FRAME SCAN - every clip has motion (speed, zoom, camera move or transition)',true)}
 else{log('STILL FRAME SCAN - '+a.stills.length+' of '+a.cs.length+' clip(s) are still frames: #'+a.stills.map(function(i){return i+1}).join(', #')+' (no speed, zoom, camera move or motion transition)',true)}
 saveE()}
-function bars(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);
+function bars(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;
 if(!a.bars.length){log('BLACK BAR CHECK - no clip risks black bars (all zoomed in or camera-moved to fill frame)',true)}
 else{log('BLACK BAR CHECK - '+a.bars.length+' clip(s) may show black bars (zoom under 1.0 with no camera move): #'+a.bars.map(function(i){return i+1}).join(', #'),true)}
 saveE()}
-function score(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);
+function score(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;
 log('MOTION SCORE - '+a.score+'/100 ('+Math.round(a.movingShare*100)+'% clips moving, '+Math.round(a.per10*10)/10+' cuts/10s, '+a.shakes+' shake, '+a.moves+' camera moves, '+a.ramps+' speed ramps)',true);saveE()}
-function zoomPass(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);var n=0;
+function zoomPass(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;var n=0;
 for(var k=0;k<a.stills.length;k++){var c=a.cs[a.stills[k]].c;if(!(typeof c.zoom==='number'&&c.zoom>1.05)){c.zoom=1.15;n++}}
 if(n){saveE();log('AUTO ZOOM PASS - pushed 1.15x zoom into '+n+' still clip(s) so every cut moves',true)}
 else{log('AUTO ZOOM PASS - nothing to do, flagged clips already have zoom');}}
-function shakePass(){var x=needClips();if(!x)return;var a=analyze();if(!a.return);var n=0;
+function shakePass(){var x=needClips();if(!x)return;var a=analyze();if(!a)return;var n=0;
 for(var k=0;k<a.stills.length&&n<3;k++){var c=a.cs[a.stills[k]].c;var tr=(c.transition||c.trans||'cut');if(tr==='cut'||tr==='none'||!tr){c.transition='shake';n++}}
 if(n){saveE();log('SHAKE PASS - set camera-shake transitions on '+n+' still clip(s)',true)}
 else{log('SHAKE PASS - nothing to change, still clips already have motion transitions');}}
