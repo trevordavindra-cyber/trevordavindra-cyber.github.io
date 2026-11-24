@@ -27,7 +27,7 @@ function safeZone(){if(!needClips()){return}
  if(bad){log('SAFE ZONE CHECK - '+bad+' clip(s) under 1.2s: any text on them reads as a flash, skip text or extend the hold',true)}}
 function readTime(){if(!needClips()){return}
  var cs=clips();var slow=[];
- for(var i=0;i<cs.length;i++){var words=wc((cs[i].c.text||cs[i].c.caption||cs[i].c.label||''));if(!words){continue}
+ for(var i=0;i<cs.length;i++){var words=wc((cs[i].c.text||cs[i].c.caption||cs[i].c.label||'')+ '');if(!words){continue}
   var need=words*0.4;var have=cs[i].d;
   if(have<need){slow.push({i:i+1,w:words,need:r1(need),have:r1(have)})}}
  if(!slow.length){log('READ TIME CHECK - no on-screen text data on the clips, so run the math on your overlays: 5 words need 2s minimum on screen',true)}
@@ -52,7 +52,7 @@ function captionPop(){
  var c=caps();if(c.length){log('CAPTION POP - '+c.length+' caption span(s) in the project already, keep pops aligned to them, do not double-render',true)}
  else{log('CAPTION POP - project has no captions yet: run the caption lab first, then this spec sits on top',true)}}
 function lineSplit(){var cs=clips();var longest='',who=0;
- for(var i=0;i<cs.length;i++){var t=(cs[i].c.text||cs[i].c.caption||cs[i].c.label||')+'';if(t.length>longest.length){longest=t;who=i+1}}
+ for(var i=0;i<cs.length;i++){var t=(cs[i].c.text||cs[i].c.caption||cs[i].c.label||'')+'';if(t.length>longest.length){longest=t;who=i+1}}
  if(longest.length>20){var parts=splitLine(longest,20);log('LINE SPLIT - clip '+who+' line is '+longest.length+' chars, split it: '+parts.join(' / '),true)}
  else if(longest){log('LINE SPLIT - longest line is '+longest.length+' chars, under the 20-char ceiling, good',true)}
  else{log('LINE SPLIT - rule: any line over 20 chars splits into two lines at the nearest space, max 3 lines, 16px leading',true)}}
@@ -63,7 +63,7 @@ function stickerPlan(){if(!needClips()){return}
  else{log('STICKER PLAN - no clip over 3s, so no sticker layer needed - stickers only earn their place when text sits still for 3s+',true)}
  log('STICKER PLAN - cap it at 3 stickers total and keep them out of the right rail (x 900-1080)',true)}
 function titleCard(){if(!needClips()){return}
- var s=S();var t=(s.title||s.name||')+'';
+ var s=S();var t=(s.title||s.name||'')+'';
  var txt=t.length?t:(genre().toLowerCase()+' edit, 30 chars max, front-load the hook');
  if(t.length>30){log('TITLE CARD - your title is '+t.length+' chars, trim to 30 - only the first 3 words read on a phone',true)}
  log('TITLE CARD - text "'+txt+'", on screen 0.2s-2.8s, upper third (y 320-520), headline font at 64px, white with black outline 4px',true);
