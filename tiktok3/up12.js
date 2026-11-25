@@ -10,7 +10,7 @@ function mkBtn(id,label,fn){var b=document.createElement('button');b.id=id;b.tex
 function dlB(txt,name){try{var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));a.download=name;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a)},200)}catch(e){glog('download blocked: '+e.message,0)}}
 function title(){return String((window.META&&META.title)||'this topic')}
 function tot(){var t=0;SDUR.forEach(function(d){t+=d});return t}
-function textOf(s){return String((s&&(s.text||s.caption||s.vo||s.narration||s.line))||'')}
+function textOf(s){return String((s&&(s.t||s.cap||s.text||s.vo||s.narration||s.line))||'')}
 function mount(){
  var bp=document.getElementById('boardPanel');if(!bp||bp.querySelector('#g12b1'))return;
  var row=document.createElement('div');row.style.cssText='margin-top:12px';
