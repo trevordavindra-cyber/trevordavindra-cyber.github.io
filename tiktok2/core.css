@@ -1,0 +1,63 @@
+:root{--bg:#06080e;--panel:#0c1120;--panel2:#0a0e1a;--line:#1c2740;--cyan:#00e5ff;--red:#ff2d55;--txt:#dfe8ff;--dim:#7d90b6;--ok:#3ee08f}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,system-ui,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding:10px 10px 90px;
+background-image:radial-gradient(900px 480px at 85% -10%,rgba(255,45,85,.08),transparent),radial-gradient(700px 480px at -10% 0%,rgba(0,229,255,.07),transparent)}
+.wrap{max-width:620px;margin:0 auto}
+header{display:flex;align-items:center;gap:10px;margin:4px 0 4px}
+.logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#ff2d55,#00e5ff);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#05070d;flex:none}
+h1{font-size:15px;letter-spacing:.8px;font-weight:900;line-height:1.2}
+h1 span{color:var(--cyan)}
+.tabs{display:flex;gap:6px;margin:12px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:11px}
+.card h2{font-size:11px;letter-spacing:1.6px;color:var(--dim);text-transform:uppercase;margin-bottom:9px;font-weight:800}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1}
+input,select,textarea{width:100%;background:#080d18;border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:10px;font-size:16px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan)}
+textarea{font-size:14px;resize:vertical}
+button{background:linear-gradient(135deg,#ff2d55,#00e5ff);color:#05070d;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:900;letter-spacing:.5px;cursor:pointer;width:100%}
+button:disabled{opacity:.4}
+button.ghost{background:#111a2e;border:1px solid var(--line);color:var(--cyan)}
+button.small{padding:8px;font-size:12px}
+.btnrow{display:flex;gap:8px;margin-top:9px}
+.btnrow button{flex:1}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{background:#111a2e;border:1px solid var(--line);color:var(--dim);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.chip.on{background:linear-gradient(135deg,rgba(255,45,85,.25),rgba(0,229,255,.25));color:var(--txt);border-color:var(--cyan)}
+#stage{position:relative;background:#000;border-radius:12px;overflow:hidden;border:1px solid var(--line);aspect-ratio:9/16;max-width:340px;margin:0 auto}
+#cv{width:100%;height:100%;display:block}
+#playhint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:12px;letter-spacing:1px;pointer-events:none;text-align:center;padding:20px}
+.tl{margin-top:12px}
+.track{margin-bottom:8px}
+.track .tlabel{font-size:9.5px;letter-spacing:1.5px;color:var(--dim);font-weight:800;margin-bottom:4px}
+.trow{display:flex;gap:3px;overflow-x:auto;padding:2px 0;min-height:30px;align-items:center}
+.tclip{flex:none;flex-grow:1;height:30px;border-radius:6px;background:#132038;border:1px solid #2a3c63;color:var(--txt);font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 6px;overflow:hidden;white-space:nowrap;cursor:pointer;font-weight:700}
+.tclip.sel{border-color:var(--cyan);box-shadow:0 0 8px rgba(0,229,255,.5)}
+.tclip.music{background:#1d1430;border-color:#4b2a63}
+.tclip.cap{background:#131f1a;border-color:#245440;height:24px}
+.tempty{color:#28324a;font-size:10px;letter-spacing:1px}
+.panel{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+.kv{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);padding:3px 0}
+.kv b{color:var(--txt);font-weight:700}
+.slider{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:11px;color:var(--dim)}
+.slider input[type=range]{flex:1;accent-color:var(--cyan);padding:0;height:22px}
+.slider output{width:52px;text-align:right;color:var(--txt);font-weight:700}
+.mitem{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid var(--line);border-radius:10px;margin-bottom:7px;background:var(--panel2);font-size:12px}
+.mitem .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.mitem .meta{color:var(--dim);font-size:10.5px;flex:none}
+.mitem button{width:auto;padding:7px 10px;font-size:11px;flex:none}
+#chat{height:230px;overflow-y:auto;background:#070c16;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;line-height:1.5;margin-bottom:9px}
+#chat .me{color:var(--cyan)}#chat .ai{color:var(--txt)}#chat .sys{color:var(--dim);font-size:11.5px}
+#chat div{margin-bottom:7px;white-space:pre-wrap}
+#log{background:#05090f;border:1px solid var(--line);border-radius:10px;padding:9px;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--dim);height:110px;overflow-y:auto;white-space:pre-wrap;line-height:1.55;margin-top:11px}
+#log b{color:var(--cyan)}
+.bar{height:6px;background:#111a2e;border-radius:3px;margin-top:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--cyan));transition:width .3s}
+.note{color:var(--dim);font-size:11px;line-height:1.5;margin-top:8px}
+.good{color:var(--ok)}
+.dl{display:block;margin-top:8px;background:#111a2e;border:1px solid var(--cyan);color:var(--cyan);text-align:center;border-radius:9px;padding:10px;font-weight:800;text-decoration:none;font-size:13px}
+#coverCv{width:160px;border-radius:8px;border:1px solid var(--line);display:block;margin:8px auto}
+nav{position:fixed;left:0;right:0;bottom:0;background:rgba(6,8,14,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding:8px 10px;gap:6px;max-width:640px;margin:0 auto;z-index:50}
+nav .tab{flex:1;text-align:center;padding:9px 4px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--dim);font-size:12px;font-weight:800;letter-spacing:.5px;cursor:pointer;margin:0}
+nav .tab.on{color:#05070d;background:linear-gradient(135deg,var(--red),var(--cyan));border-color:transparent}
+footer{text-align:center;color:#33405c;font-size:10px;letter-spacing:1px;margin-top:14px}
