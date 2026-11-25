@@ -1,8 +1,20 @@
 {
   "v": "0.6-server",
-  "cycle": 51,
+  "cycle": 52,
   "startedAt": 1794228560595,
   "events": [
+    {
+      "t": 1795577723639,
+      "type": "act",
+      "src": "server",
+      "text": "SCOUT → Mixture of experts: Mixture of experts (MoE) is a machine learning technique where multiple expert networks (learners) are used to divide a problem space into homogeneous regions. MoE repres"
+    },
+    {
+      "t": 1795577723469,
+      "type": "think",
+      "src": "server",
+      "text": "SCOUT (server) — verify one new research topic and file it"
+    },
     {
       "t": 1795511026842,
       "type": "error",
@@ -619,6 +631,11 @@
   "memory": {
     "long": [
       {
+        "t": 1795577723639,
+        "text": "research: Mixture of experts — Mixture of experts (MoE) is a machine learning technique where multiple expert networks (learners) are used to divide a problem space into homogeneous regions. MoE represents a form of ensemble learning",
+        "kind": "fact"
+      },
+      {
         "t": 1795477587124,
         "text": "research: Vector database — A vector database, vector store or vector search engine is a database that stores and retrieves embeddings of data in vector space. Vector databases typically implement approximate nearest neighbor algorithms so users can search for records semantically similar to a given",
         "kind": "fact"
@@ -636,11 +653,6 @@
       {
         "t": 1795364756474,
         "text": "research: Transformer (machine learning model) — In deep learning, the transformer is a family of artificial neural network architectures based on the multi-head attention mechanism, in which input data such as text, images, or audio is converted to a sequence of numerical representations called tok",
-        "kind": "fact"
-      },
-      {
-        "t": 1795294191191,
-        "text": "research: Mixture of experts — Mixture of experts (MoE) is a machine learning technique where multiple expert networks (learners) are used to divide a problem space into homogeneous regions. MoE represents a form of ensemble learning",
         "kind": "fact"
       },
       {
@@ -763,7 +775,7 @@
     "Mixture of experts"
   ],
   "metrics": {
-    "done": 45,
+    "done": 46,
     "failed": 6,
     "toolStats": {}
   },
