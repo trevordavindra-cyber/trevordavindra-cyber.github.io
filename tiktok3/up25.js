@@ -1,5 +1,5 @@
 'use strict';
-/* up25.js - SHORTFORGE FORGE 34 BEAT LAB (Nov 25 2026) v1 */
+/* up25.js - SHORTFORGE FORGE 34 BEAT LAB (Nov 25 2026) v1.1 */
 (function(){
 if(window.__sfup25){return;}
 window.__sfup25=1;
@@ -78,7 +78,7 @@ function mount(){
  var row=document.createElement('div');row.id='g29row';row.style.cssText='margin:6px 0';
  var h=document.createElement('div');h.textContent='FORGE 34 BEAT LAB';h.style.cssText='color:#2de2ff;font:700 11px monospace;margin:4px 3px';row.appendChild(h);
  var btns=document.createElement('div');btns.style.cssText='display:flex;flex-wrap:wrap';row.appendChild(btns);
- var anchor=bp.querySelector('.rowbtns');if(anchor)bp.insertBefore(row,anchor);else bp.appendChild(row);
+ var anchor=bp.querySelector('.rowbtns');if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(row,anchor);else bp.appendChild(row);
  btns.appendChild(mkBtn('g29b1','BPM PICK',bpmPick));
  btns.appendChild(mkBtn('g29b2','BEAT GRID',beatGrid));
  btns.appendChild(mkBtn('g29b3','DROP MARK',dropMark));
@@ -91,5 +91,5 @@ function mount(){
  btns.appendChild(mkBtn('g29b10','BEAT SHEET',beatSheet));
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',mount)}else{mount()}
-console.log('[shortforge up25.js v1.0] beat lab loaded');
+console.log('[shortforge up25.js v1.1] beat lab loaded');
 })();
