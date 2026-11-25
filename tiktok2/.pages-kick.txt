@@ -1,0 +1,1 @@
+pages deploy kick, Nov 25 11:22 AM ET: forge 27 (up93.js) pushed at 11:00 AM ET had not propagated to GitHub Pages 21 minutes later, so this commit re-triggers the Pages build.
