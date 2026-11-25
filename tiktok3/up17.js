@@ -1,5 +1,5 @@
 'use strict';
-/* up17.js - SHORTFORGE FORGE 18 CAPTION LAB (Nov 25 2026) */
+/* up17.js - SHORTFORGE FORGE 18 CAPTION LAB (Nov 25 2026) v2 */
 (function(){
 if(window.__sfup17){return;}
 window.__sfup17=1;
@@ -14,8 +14,8 @@ function textOf(s){return String((s&&(s.t||s.cap||s.text||s.vo||s.narration||s.l
 function wc(s){return words(textOf(s)).length}
 function clean(s){return String(s||'').replace(/[^A-Za-z0-9'!?.,:;%\s-]/g,' ').replace(/\s+/g,' ').trim()}
 var STOP={the:1,a:1,an:1,and:1,or:1,but:1,of:1,to:1,in:1,on:1,for:1,with:1,at:1,by:1,is:1,are:1,was:1,were:1,it:1,its:1,this:1,that:1,you:1,your:1,i:1,im:1,so:1,if:1,then:1,than:1,as:1,be:1,been:1,do:1,dont:1,not:1,no:1,what:1,when:1,how:1,why:1,who:1,they:1,their:1,them:1,we:1,our:1,my:1,me:1,he:1,she:1,his:1,her:1,from:1,up:1,out:1,about:1,just:1,like:1,get:1,got:1,will:1,can:1,has:1,have:1,had:1};
-function keyw(s){var w=words(clean(s).toLowerCase()).filter(function(x){return x.length>2&&!STOP[x]});var best='',bl=0;w.forEach(function(x){if(x.length>bl){bl=x.length;best=x}});return best||'hook'}
-function chunk(s){var w=words(clean(s));var out=[],i=0;while(i<w.length){out.push(w.slice(i,i+6).join(' '));i+=6}return out.slice(0,4)}
+function keyw(s){var w=words(clean(textOf(s)).toLowerCase()).filter(function(x){return x.length>2&&!STOP[x]});var best='',bl=0;w.forEach(function(x){if(x.length>bl){bl=x.length;best=x}});return best||'hook'}
+function chunk(s){var w=words(clean(textOf(s)));var out=[],i=0;while(i<w.length){out.push(w.slice(i,i+6).join(' '));i+=6}return out.slice(0,4)}
 function capLine(s){var c=chunk(s);if(!c.length)return '(empty scene)';if(c.length>2){c=c.slice(0,2);c[1]=(c[1]||'').trim();c[1]=(c[1]+'...').replace(/\.+$/,'...')}return c.join('\n')}
 function caps(){var t=0;return SCENES.map(function(s,i){var d=SDUR[i]||4,st=t;t+=d;return {i:i,dur:d,st:st,en:t,w:wc(s),line:capLine(s),kw:keyw(s),chunks:chunk(s)}})}
 function mount(){
