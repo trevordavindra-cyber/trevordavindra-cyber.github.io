@@ -110,7 +110,8 @@ function seriesLook(){
 }
 function thumbScore(){
  var r=thumbScoreCalc();
- glog('THUMB SCORE '+r.s+'/100 '+[r.s<70?'under 70: fix '+r.notes.join(', ')+' before shipping':r.s<85?'70-84: solid, tighten '+(r.notes[0]||'the weakest item'):'85+: cover is click-ready, ship it'][r.s<70?0:r.s<85?1:2],1);
+ var v=r.s<70?'under 70: fix '+(r.notes.join(', ')||'the open items')+' before shipping':r.s<85?'70-84: solid, tighten '+(r.notes[0]||'the weakest item'):'85+: cover is click-ready, ship it';
+ glog('THUMB SCORE '+r.s+'/100 '+v,1);
 }
 function thumbSheet(){
  var b=bestScene(),r=thumbScoreCalc();
