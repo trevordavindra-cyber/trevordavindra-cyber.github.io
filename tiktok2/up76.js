@@ -106,8 +106,8 @@ log('TEXT LAB: TIMING PASS START');
 for(i=0;i<clips.length;i+=1){
 clip=clips[i];
 start=0;
-end=clip.dur;
-log('TEXT LAB: clip '+clip.id+' dur='+clip.dur.toFixed(2)+'s -> caption '+start.toFixed(2)+'s to '+end.toFixed(2)+'s');
+end=clip.dur||0;
+log('TEXT LAB: clip '+clip.id+' dur='+((clip.dur||0).toFixed(2))+'s -> caption '+start.toFixed(2)+'s to '+end.toFixed(2)+'s');
 }
 log('TEXT LAB: TIMING PASS END');
 }},
@@ -167,7 +167,7 @@ var i, clip, sheet='TEXT LAB TEXT SHEET\n';
 sheet=sheet+'====================\n';
 for(i=0;i<clips.length;i+=1){
 clip=clips[i];
-sheet=sheet+'CLIP '+clip.id+' dur='+clip.dur.toFixed(2)+'\n';
+sheet=sheet+'CLIP '+clip.id+' dur='+((clip.dur||0).toFixed(2))+'\n';
 sheet=sheet+'captions: '+(clip.captions?clip.captions.join(' | '):'none')+'\n';
 }
 sheet=sheet+'STYLES: karaoke pop, clean bottom bar, bubble\n';
