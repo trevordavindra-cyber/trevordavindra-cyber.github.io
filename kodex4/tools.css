@@ -1,0 +1,21 @@
+#toolstrip{display:flex;gap:6px;padding:6px 14px 0;flex-wrap:wrap}
+.toolbtn{font:10px var(--mono);letter-spacing:.1em;color:var(--sub);border:1px solid var(--border);background:#0a101c;border-radius:20px;padding:6px 10px;cursor:pointer;text-transform:uppercase}
+.toolbtn:hover,.toolbtn.active{color:var(--cyan);border-color:var(--cyan)}
+.toolpanel{position:fixed;right:14px;bottom:150px;width:min(360px,88vw);max-height:56vh;overflow-y:auto;z-index:900;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.tphead{display:flex;justify-content:space-between;align-items:center}
+.tphead .tlabel{font:10px var(--mono);letter-spacing:.12em;color:var(--sub);text-transform:uppercase}
+.tpx{background:none;border:none;color:var(--sub);cursor:pointer;font-size:14px}
+.tpx:hover{color:var(--cyan)}
+.snip{font:11px/1.45 var(--mono);color:var(--text);background:#0a1220;border:1px solid var(--border);border-radius:6px;padding:8px;cursor:pointer;text-align:left;white-space:pre-wrap;max-height:64px;overflow:hidden}
+.snip:hover{border-color:var(--cyan)}
+.snip b{color:var(--cyan)}
+textarea.tinput,.tinput{width:100%;background:#0a0f1a;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px;font:12px var(--mono);resize:vertical;min-height:60px}
+select.tinput{min-height:0;padding:8px}
+textarea.tinput:focus,.tinput:focus{outline:none;border-color:var(--cyan)}
+.tbtn{font:11px var(--mono);color:#02131a;background:var(--cyan);border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-weight:700}
+.tbtn2{font:11px var(--mono);color:var(--cyan);background:none;border:1px solid var(--border);border-radius:6px;padding:6px 10px;cursor:pointer}
+.tsub{font:10px var(--mono);color:var(--sub);letter-spacing:.08em;text-transform:uppercase}
+.dbg{font:11px var(--mono);color:var(--text);background:#0a1220;border:1px solid var(--border);border-radius:6px;padding:8px;cursor:pointer;text-align:left}
+.dbg:hover{border-color:var(--cyan)}
+.dbg b{color:var(--cyan)}
+.dbg .cause{display:block;color:var(--sub);font-size:10px}
