@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KODEX — roblox coding AI</title>
+<link rel="stylesheet" href="styles.css?v=2">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌘</text></svg>">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="brand"><span class="logo">⌘</span> KODEX <span class="sub">roblox dev ai</span></div>
+    <div class="topactions">
+      <button id="modebtn" class="modebtn" title="Switch mode">ROBLOX</button>
+      <span id="modeltag" class="tag">openai-fast</span>
+      <button id="clearbtn" class="ghostbtn" title="Clear chat">clear</button>
+    </div>
+  </header>
+  <main id="chat"></main>
+  <div id="cooldown" class="hidden"><span id="cdmsg"></span></div>
+  <footer id="composer">
+    <textarea id="input" rows="1" placeholder="ask anything roblox or code related..."></textarea>
+    <button id="send" title="Send">➤</button>
+  </footer>
+</div>
+<script src="app.js?v=2"></script>
+</body>
+</html>
