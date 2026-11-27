@@ -53,7 +53,7 @@ mark.kx{background:#ffd479;color:#000;border-radius:2px}
 .thinking{color:var(--sub);font-style:italic;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{opacity:.4}}
 #cooldown{max-width:760px;margin:0 auto 12px;text-align:center;font:12px var(--mono);color:var(--red);border:1px solid #3a1418;background:#160a0d;border-radius:8px;padding:8px}
-.hidden{display:none}
+.hidden{display:none !important}
 #composer{display:flex;gap:8px;padding:12px 14px;background:var(--panel);border-top:1px solid var(--border)}
 #input{flex:1;background:#0a0f1a;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 14px;font:14px var(--mono);resize:none;max-height:140px;outline:none}
 #input:focus{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(0,220,255,.25)}
